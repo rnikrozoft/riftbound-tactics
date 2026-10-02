@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/Tiny RPG Character Asset Pack 01 v2.0 -Free Soldier&Orc/Characters(100x100 split)/Soldier/Soldier/Soldier.png" id="1_wtcfe"]
 
-[ext_resource type="Script" path="res://scripts/battle_unit.gd" id="2_health"]
+[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="2_health"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wtcfe"]
 atlas = ExtResource("1_wtcfe")
@@ -353,3 +353,4 @@ sprite_frames = SubResource("SpriteFrames_ja7mb")
 animation = &"idle"
 autoplay = "idle"
 offset = Vector2(0, -10)
+

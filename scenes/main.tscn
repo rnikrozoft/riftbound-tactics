@@ -3,21 +3,21 @@
 [ext_resource type="TileSet" uid="uid://b2mrkqq46pcai" path="res://tilesets/arena_tileset.tres" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://4pqund3nukl7" path="res://scenes/Character.tscn" id="2_0wfyh"]
 
-[ext_resource type="Script" path="res://scripts/safe_area.gd" id="3_safe_area"]
+[ext_resource type="Script" path="res://scripts/SafeArea.cs" id="3_safe_area"]
 
 [ext_resource type="PackedScene" path="res://scenes/Orc.tscn" id="4_orc"]
 
 [ext_resource type="Shader" path="res://shaders/character_outline.gdshader" id="5_outline"]
 
-[ext_resource type="Script" path="res://scripts/battle_display.gd" id="6_display"]
+[ext_resource type="Script" path="res://scripts/BattleDisplay.cs" id="6_display"]
 
-[ext_resource type="Script" path="res://scripts/battle_demo.gd" id="7_battle"]
+[ext_resource type="Script" path="res://scripts/BattleDemo.cs" id="7_battle"]
 
 [ext_resource type="Texture2D" path="res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/UI_Flat_Banner01a.png" id="8_banner"]
 
 [ext_resource type="Texture2D" path="res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/UI_Flat_Button01a_1.png" id="9_lab_button"]
 
-[ext_resource type="Script" path="res://scripts/card_shop.gd" id="10_cards"]
+[ext_resource type="Script" path="res://scripts/CardShop.cs" id="10_cards"]
 
 [sub_resource type="ShaderMaterial" id="PlayerAOutline"]
 shader = ExtResource("5_outline")
@@ -271,7 +271,7 @@ vertical_alignment = 1
 text = ""
 [node name="BattleDemo" type="Node" parent="."]
 script = ExtResource("7_battle")
-card_shop_enabled = true
+CardShopEnabled = true
 
 [editable path="Ally_01"]
 
@@ -296,6 +296,7 @@ card_shop_enabled = true
 [editable path="Enemy_05"]
 
 [editable path="Enemy_06"]
+
 
 
 

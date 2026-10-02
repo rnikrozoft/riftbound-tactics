@@ -1,3 +1,11 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# .NET local output
+bin/
+obj/
+.vs/
+*.user
+# Generated integration screenshot
+tests/preparation-csharp.png

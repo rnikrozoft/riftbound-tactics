@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/main.tscn" id="1_field"]
-[ext_resource type="Script" path="res://scripts/damage_simulator.gd" id="2_lab"]
-[ext_resource type="Script" path="res://scripts/safe_area.gd" id="3_safe"]
+[ext_resource type="Script" path="res://scripts/DamageSimulator.cs" id="2_lab"]
+[ext_resource type="Script" path="res://scripts/SafeArea.cs" id="3_safe"]
 
 [node name="DamageSimulator" type="Node"]
 script = ExtResource("2_lab")
@@ -10,7 +10,7 @@ script = ExtResource("2_lab")
 [node name="Battlefield" parent="." instance=ExtResource("1_field")]
 
 [node name="BattleDemo" parent="Battlefield" index="19"]
-auto_start = false
+AutoStart = false
 
 [node name="LabUI" type="CanvasLayer" parent="."]
 layer = 5
@@ -29,3 +29,4 @@ layout_mode = 2
 mouse_filter = 2
 
 [editable path="Battlefield"]
+

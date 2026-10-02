@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" path="res://assets/Tiny RPG Character Asset Pack 01 v2.0 -Free Soldier&Orc/Characters(100x100 split)/Orc/Orc/Orc_Walk.png" id="walk"]
 [ext_resource type="Texture2D" path="res://assets/Tiny RPG Character Asset Pack 01 v2.0 -Free Soldier&Orc/Characters(100x100 split)/Orc/Orc/Orc_Attack01.png" id="attack"]
 [ext_resource type="Texture2D" path="res://assets/Tiny RPG Character Asset Pack 01 v2.0 -Free Soldier&Orc/Characters(100x100 split)/Orc/Orc/Orc_Hurt.png" id="hit"]
-[ext_resource type="Script" path="res://scripts/battle_unit.gd" id="health"]
+[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="health"]
 [ext_resource type="Texture2D" path="res://assets/Tiny RPG Character Asset Pack 01 v2.0 -Free Soldier&Orc/Characters(100x100 split)/Orc/Orc/Orc_Death.png" id="die"]
 [sub_resource type="AtlasTexture" id="idle_0"]
 atlas = ExtResource("idle")
@@ -101,3 +101,4 @@ sprite_frames = SubResource("OrcFrames")
 animation = &"idle"
 autoplay = "idle"
 flip_h = true
+
