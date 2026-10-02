@@ -1,0 +1,302 @@
+[gd_scene format=4 uid="uid://155xx7s6y6ta"]
+
+[ext_resource type="TileSet" uid="uid://b2mrkqq46pcai" path="res://tilesets/arena_tileset.tres" id="1_o5qli"]
+[ext_resource type="PackedScene" uid="uid://4pqund3nukl7" path="res://scenes/Character.tscn" id="2_0wfyh"]
+
+[ext_resource type="Script" path="res://scripts/safe_area.gd" id="3_safe_area"]
+
+[ext_resource type="PackedScene" path="res://scenes/Orc.tscn" id="4_orc"]
+
+[ext_resource type="Shader" path="res://shaders/character_outline.gdshader" id="5_outline"]
+
+[ext_resource type="Script" path="res://scripts/battle_display.gd" id="6_display"]
+
+[ext_resource type="Script" path="res://scripts/battle_demo.gd" id="7_battle"]
+
+[ext_resource type="Texture2D" path="res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/UI_Flat_Banner01a.png" id="8_banner"]
+
+[ext_resource type="Texture2D" path="res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/UI_Flat_Button01a_1.png" id="9_lab_button"]
+
+[ext_resource type="Script" path="res://scripts/card_shop.gd" id="10_cards"]
+
+[sub_resource type="ShaderMaterial" id="PlayerAOutline"]
+shader = ExtResource("5_outline")
+shader_parameter/outline_color = Color(1, 1, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="PlayerBOutline"]
+shader = ExtResource("5_outline")
+shader_parameter/outline_color = Color(1, 0, 0, 1)
+[node name="Main" type="Node2D" unique_id=1664466756]
+y_sort_enabled = true
+script = ExtResource("6_display")
+
+[node name="CliffDepth" type="TileMapLayer" parent="."]
+z_index = -2
+y_sort_enabled = true
+texture_filter = 1
+position = Vector2(0, 24)
+y_sort_origin = -24
+tile_map_data = PackedByteArray("AAAyABgAAAAPAAAAAAAtABgAAAAPAAAAAAA6ABgAAAAPAAAAAAArABgAAAAPAAAAAAA8ABQAAAAPAAAAAAA8ABcAAAAPAAAAAAA8AA8AAAAPAAAAAAAoABgAAAAPAAAAAAAwABgAAAAPAAAAAAAsABgAAAAPAAAAAAAxABgAAAAPAAAAAAA8AAsAAAAPAAAAAAA8ABUAAAAPAAAAAAA2ABgAAAAPAAAAAAA8ABYAAAAPAAAAAAAqABgAAAAPAAAAAAA8ABMAAAAPAAAAAAA8AAoAAAAPAAAAAAApABgAAAAPAAAAAAAuABgAAAAPAAAAAAA8AAwAAAAPAAAAAAA0ABgAAAAPAAAAAAA8ABAAAAAPAAAAAAAzABgAAAAPAAAAAAA3ABgAAAAPAAAAAAAvABgAAAAPAAAAAAA7ABgAAAAPAAAAAAA5ABgAAAAPAAAAAAA8ABgAAAAPAAAAAAA4ABgAAAAPAAAAAAA8ABIAAAAPAAAAAAA8AA4AAAAPAAAAAAA1ABgAAAAPAAAAAAA8ABEAAAAPAAAAAAA8AA0AAAAPAAAAAAA=")
+tile_set = ExtResource("1_o5qli")
+
+[node name="CliffFace" type="TileMapLayer" parent="."]
+z_index = -1
+y_sort_enabled = true
+texture_filter = 1
+position = Vector2(0, 12)
+y_sort_origin = -12
+tile_map_data = PackedByteArray("AAAyABgAAAAKAAAAAAAtABgAAAAKAAAAAAA6ABgAAAAKAAAAAAArABgAAAAKAAAAAAA8ABQAAAAKAAAAAAA8ABcAAAAKAAAAAAA8AA8AAAAKAAAAAAAoABgAAAAKAAAAAAAwABgAAAAKAAAAAAAsABgAAAAKAAAAAAAxABgAAAAKAAAAAAA8AAsAAAAKAAAAAAA8ABUAAAAKAAAAAAA2ABgAAAAKAAAAAAA8ABYAAAAKAAAAAAAqABgAAAAKAAAAAAA8ABMAAAAKAAAAAAA8AAoAAAAKAAAAAAApABgAAAAKAAAAAAAuABgAAAAKAAAAAAA8AAwAAAAKAAAAAAA0ABgAAAAKAAAAAAA8ABAAAAAKAAAAAAAzABgAAAAKAAAAAAA3ABgAAAAKAAAAAAAvABgAAAAKAAAAAAA7ABgAAAAKAAAAAAA5ABgAAAAKAAAAAAA8ABgAAAAKAAAAAAA4ABgAAAAKAAAAAAA8ABIAAAAKAAAAAAA8AA4AAAAKAAAAAAA1ABgAAAAKAAAAAAA8ABEAAAAKAAAAAAA8AA0AAAAKAAAAAAA=")
+tile_set = ExtResource("1_o5qli")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+z_index = 0
+y_sort_enabled = true
+texture_filter = 1
+position = Vector2(0, 0)
+y_sort_origin = 0
+tile_map_data = PackedByteArray("AAA1AA4AAAALAAAAAAA6ABMAAAAGAAAAAAAuAA4AAAAKAAAAAAAtABYAAAAKAAAAAAA0ABIAAAAKAAAAAAAqABIAAAAGAAAAAAA8ABcAAAAJAAAAAAAvABEAAAAKAAAAAAA7AA0AAAALAAAAAAA1ABEAAAALAAAAAAA5AA0AAAAKAAAAAAA2AAwAAAAGAAAAAAAyAA0AAAAKAAAAAAAwABIAAAAKAAAAAAAvAAoAAAAJAAAAAAA5ABQAAAALAAAAAAA1ABgAAAAJAAAAAAA3ABgAAAAJAAAAAAAzABQAAAAKAAAAAAA8ABUAAAAJAAAAAAAxAA4AAAALAAAAAAA0ABQAAAAKAAAAAAAtAAwAAAAKAAAAAAAyABgAAAAJAAAAAAA8ABgAAAAJAAAAAAA4ABgAAAAJAAAAAAA4ABAAAAAHAAEAAAAwABEAAAAKAAAAAAApABUAAAAJAAAAAAA2AAsAAAAKAAAAAAA8ABEAAAAJAAAAAAAzAAsAAAAKAAAAAAA1AAoAAAAJAAAAAAA4AAoAAAAJAAAAAAAzAA0AAAAGAAAAAAAwAAoAAAAJAAAAAAA8AA8AAAAJAAAAAAAzABUAAAADAAEAAAAuAAsAAAAKAAAAAAA4AA8AAAAHAAEAAAAsAA8AAAAHAAEAAAA6AAwAAAAGAAAAAAA8ABMAAAAJAAAAAAAxABcAAAAGAAAAAAAqABcAAAAKAAAAAAAyABEAAAAKAAAAAAA6ABcAAAAKAAAAAAAzAA8AAAAHAAEAAAAoABcAAAAJAAAAAAA3AAsAAAAKAAAAAAA0AAsAAAAGAAAAAAArABcAAAAJAAAAAAAxAAwAAAAKAAAAAAAvABQAAAAKAAAAAAAtABQAAAAGAAAAAAAoABQAAAAJAAAAAAAqAA4AAAAKAAAAAAA1AAwAAAAKAAAAAAA7AAoAAAAJAAAAAAAtABAAAAAHAAEAAAA5ABIAAAAKAAAAAAA2ABAAAAAGAAAAAAA7ABEAAAAKAAAAAAA3AAwAAAAKAAAAAAA8ABIAAAAJAAAAAAA4AA4AAAAGAAAAAAA2ABUAAAAGAAAAAAA3ABQAAAAKAAAAAAAyABcAAAAKAAAAAAA4AA0AAAAKAAAAAAAwAAsAAAAGAAAAAAA1ABIAAAAKAAAAAAArABIAAAALAAAAAAAtABUAAAAKAAAAAAAqAAsAAAAKAAAAAAAtAAoAAAAJAAAAAAA4ABYAAAALAAAAAAA3ABcAAAAKAAAAAAA6AAsAAAAKAAAAAAAqAAwAAAAGAAAAAAAoABMAAAAJAAAAAAA1ABQAAAALAAAAAAA6ABYAAAAJAAAAAAAwABcAAAAKAAAAAAA4ABMAAAADAAEAAAAxAA8AAAAHAAEAAAA3AA4AAAAKAAAAAAAsABMAAAALAAAAAAA4ABUAAAAKAAAAAAAzABgAAAAJAAAAAAApAAsAAAAJAAAAAAA8ABYAAAAJAAAAAAA2ABMAAAAKAAAAAAAuAA0AAAAKAAAAAAA0ABUAAAAKAAAAAAAtABIAAAAKAAAAAAAxABAAAAAHAAEAAAArABMAAAAKAAAAAAA3AA0AAAAGAAAAAAA5ABUAAAAKAAAAAAApAA8AAAAKAAAAAAAwABgAAAAJAAAAAAA6ABgAAAAJAAAAAAAxABEAAAALAAAAAAAxABUAAAAKAAAAAAA7AAsAAAAKAAAAAAA6ABAAAAAHAAEAAAAwABQAAAAKAAAAAAArABQAAAAKAAAAAAA5ABgAAAAJAAAAAAArAAwAAAAKAAAAAAAzABcAAAAKAAAAAAA3ABMAAAAGAAAAAAA0AAoAAAAJAAAAAAA2ABEAAAAKAAAAAAA3ABUAAAAKAAAAAAAsAA0AAAALAAAAAAAvABUAAAALAAAAAAAsABQAAAAKAAAAAAAyABUAAAAGAAAAAAA7AA8AAAAKAAAAAAA7ABIAAAAKAAAAAAAoABIAAAAJAAAAAAA2ABcAAAAKAAAAAAAyABIAAAAGAAAAAAA4ABIAAAAKAAAAAAA0ABAAAAAHAAEAAAA3ABYAAAAGAAAAAAA6AAoAAAAJAAAAAAAwABUAAAAGAAAAAAAyABQAAAAKAAAAAAA8AAsAAAAJAAAAAAAsABgAAAAJAAAAAAAsABEAAAAKAAAAAAA1AAsAAAADAAEAAAArAA0AAAAGAAAAAAAwAA8AAAAHAAEAAAAtAAsAAAALAAAAAAAvABgAAAAJAAAAAAAoAAoAAAAJAAAAAAA6AA4AAAAKAAAAAAA3ABAAAAAHAAEAAAA5ABAAAAAHAAEAAAA1ABMAAAAKAAAAAAA2AA4AAAAKAAAAAAAqAAoAAAAJAAAAAAA4AAsAAAAGAAAAAAA5ABYAAAAKAAAAAAA0AA8AAAAHAAEAAAA5AAsAAAAKAAAAAAAvAAsAAAAKAAAAAAA0ABMAAAALAAAAAAAuABEAAAAKAAAAAAA4ABcAAAAKAAAAAAA5ABcAAAAJAAAAAAAsABIAAAAGAAAAAAA6ABQAAAAKAAAAAAA6AA8AAAAGAAAAAAA7ABYAAAAKAAAAAAA7ABMAAAAGAAAAAAAqABYAAAAJAAAAAAAtABMAAAAKAAAAAAA8ABQAAAAJAAAAAAA8AAwAAAAJAAAAAAAxAAoAAAAJAAAAAAA7ABUAAAAJAAAAAAAwAA4AAAAGAAAAAAAzAAwAAAAKAAAAAAAvABIAAAADAAEAAAAqAA8AAAAGAAAAAAApABEAAAAGAAAAAAAwABYAAAALAAAAAAAtAA0AAAAKAAAAAAAoAA8AAAAJAAAAAAA6ABIAAAALAAAAAAA2ABYAAAAKAAAAAAAqABgAAAAJAAAAAAAyABAAAAAHAAEAAAA6ABUAAAAGAAAAAAAuABMAAAAKAAAAAAAoABYAAAAJAAAAAAAyAA8AAAAHAAEAAAAtABcAAAAGAAAAAAAvAA8AAAAHAAEAAAA3ABIAAAAKAAAAAAAtABEAAAAGAAAAAAA4ABEAAAAGAAAAAAAxABQAAAAGAAAAAAAoAAsAAAAJAAAAAAAsABYAAAAGAAAAAAArABEAAAAKAAAAAAAwAAwAAAAKAAAAAAA7AAwAAAAKAAAAAAArAAoAAAAJAAAAAAArABUAAAALAAAAAAAuABUAAAAGAAAAAAA7ABgAAAAJAAAAAAAvABMAAAAKAAAAAAAvABAAAAAHAAEAAAA0AAwAAAAKAAAAAAAsABUAAAAKAAAAAAA3ABEAAAAKAAAAAAA1ABUAAAAKAAAAAAAxAA0AAAAKAAAAAAApABYAAAAKAAAAAAAvAA0AAAAGAAAAAAAoAAwAAAAJAAAAAAA0ABYAAAALAAAAAAAuABcAAAADAAEAAAAuAAwAAAAGAAAAAAApAA0AAAAKAAAAAAA2ABQAAAAGAAAAAAAqABQAAAADAAEAAAAtAA8AAAAHAAEAAAAuABgAAAAJAAAAAAAqAA0AAAAKAAAAAAA7ABQAAAAKAAAAAAArAAsAAAAKAAAAAAAzAAoAAAAJAAAAAAAwABAAAAAGAAAAAAAvABYAAAAKAAAAAAAwAA0AAAADAAEAAAApABgAAAAJAAAAAAAzABIAAAAKAAAAAAAtAA4AAAALAAAAAAAyAAsAAAAKAAAAAAAvAAwAAAAKAAAAAAAyAA4AAAAKAAAAAAA2AA0AAAAKAAAAAAAsAAsAAAAKAAAAAAApABQAAAAGAAAAAAA1ABYAAAAKAAAAAAA0AA4AAAAGAAAAAAA5ABMAAAAKAAAAAAA8ABAAAAAJAAAAAAAuABYAAAAKAAAAAAA3AA8AAAAHAAEAAAA5AA4AAAADAAEAAAA7ABcAAAAKAAAAAAA1AA8AAAAHAAEAAAA8AAoAAAAJAAAAAAA5AAwAAAAGAAAAAAAsABAAAAAHAAEAAAAvAA4AAAAKAAAAAAA0ABEAAAAKAAAAAAA1ABAAAAAHAAEAAAA0ABcAAAAKAAAAAAA8AA0AAAAJAAAAAAApAA4AAAAGAAAAAAAsAAwAAAAKAAAAAAA1ABcAAAAGAAAAAAArAA4AAAAKAAAAAAApABIAAAAKAAAAAAA5ABEAAAALAAAAAAArABAAAAAHAAEAAAA5AAoAAAAJAAAAAAAuABQAAAAKAAAAAAA7AA4AAAAKAAAAAAAxABYAAAAKAAAAAAAzABAAAAAHAAEAAAAsAA4AAAAGAAAAAAAoAA4AAAAJAAAAAAA2AA8AAAAHAAEAAAAqABAAAAAKAAAAAAAqABMAAAAKAAAAAAA0AA0AAAAKAAAAAAApABcAAAAKAAAAAAAsAAoAAAAJAAAAAAAoABAAAAAJAAAAAAAzABEAAAAKAAAAAAA2ABIAAAAGAAAAAAAxABIAAAAKAAAAAAA2AAoAAAAJAAAAAAA8AA4AAAAJAAAAAAArABgAAAAJAAAAAAAyAAoAAAAJAAAAAAA0ABgAAAAJAAAAAAA2ABgAAAAJAAAAAAA6AA0AAAAKAAAAAAAoAA0AAAAJAAAAAAAqABEAAAAKAAAAAAAzAA4AAAAKAAAAAAA4ABQAAAAKAAAAAAAwABMAAAALAAAAAAAyABYAAAAKAAAAAAArAA8AAAAHAAEAAAA4AAwAAAAKAAAAAAApAAwAAAAKAAAAAAAqABUAAAAKAAAAAAApABAAAAAKAAAAAAAxABgAAAAJAAAAAAAyAAwAAAALAAAAAAAtABgAAAAJAAAAAAAuAAoAAAAJAAAAAAA3AAoAAAAJAAAAAAAxAAsAAAALAAAAAAAoABUAAAAJAAAAAAA5AA8AAAAHAAEAAAAoABEAAAAJAAAAAAAxABMAAAAKAAAAAAA6ABEAAAAKAAAAAAAuAA8AAAAHAAEAAAAzABMAAAAGAAAAAAAyABMAAAAKAAAAAAAuABIAAAAGAAAAAAAzABYAAAAKAAAAAAApAAoAAAAJAAAAAAA7ABAAAAAGAAAAAAAvABcAAAAKAAAAAAAsABcAAAAKAAAAAAArABYAAAAKAAAAAAApABMAAAAKAAAAAAAoABgAAAAJAAAAAAAuABAAAAAHAAEAAAA1AA0AAAAKAAAAAAA=")
+tile_set = ExtResource("1_o5qli")
+
+[node name="RaisedRuins" type="TileMapLayer" parent="."]
+z_index = 0
+y_sort_enabled = true
+texture_filter = 1
+position = Vector2(0, -12)
+y_sort_origin = 12
+tile_map_data = PackedByteArray("AAAoABMAAAADAAEAAAAuAAoAAAADAAEAAAA3AAoAAAADAAEAAAAoAA0AAAADAAEAAAAoABUAAAADAAEAAAA2AAoAAAAKAAAAAAArAAoAAAADAAEAAAAtAAoAAAADAAEAAAAwAAoAAAADAAEAAAAxAAoAAAADAAEAAAAoABgAAAADAAEAAAAoABAAAAADAAEAAAA5AAoAAAADAAEAAAAoAAoAAAAKAAAAAAA8AAoAAAAKAAAAAAAzAAoAAAADAAEAAAAqAAoAAAADAAEAAAA6AAoAAAADAAEAAAAvAAoAAAAKAAAAAAAoABYAAAADAAEAAAAoAA8AAAADAAEAAAA0AAoAAAADAAEAAAAoABIAAAADAAEAAAAoAAwAAAADAAEAAAA=")
+tile_set = ExtResource("1_o5qli")
+
+[node name="RuinsTorches" type="TileMapLayer" parent="."]
+z_index = 0
+y_sort_enabled = true
+texture_filter = 1
+position = Vector2(0, -24)
+y_sort_origin = 24
+tile_map_data = PackedByteArray("AAAvAAoAAAAHABIAAAA8AAoAAAAHABIAAAA2AAoAAAAHABIAAAAoAAoAAAAHABIAAAA=")
+tile_set = ExtResource("1_o5qli")
+
+[node name="Ally_01" parent="." instance=ExtResource("2_0wfyh")]
+position = Vector2(360, 348)
+metadata/team = "Ally"
+metadata/slot = 1
+metadata/grid_cell = Vector2i(44, 14)
+
+[node name="AnimatedSprite2D" parent="Ally_01" index="0"]
+material = SubResource("PlayerAOutline")
+frame = 0
+
+[node name="Ally_02" parent="." instance=ExtResource("2_0wfyh")]
+position = Vector2(312, 372)
+metadata/team = "Ally"
+metadata/slot = 2
+metadata/grid_cell = Vector2i(44, 18)
+
+[node name="AnimatedSprite2D" parent="Ally_02" index="0"]
+material = SubResource("PlayerAOutline")
+frame = 1
+
+[node name="Ally_03" parent="." instance=ExtResource("2_0wfyh")]
+position = Vector2(264, 396)
+metadata/team = "Ally"
+metadata/slot = 3
+metadata/grid_cell = Vector2i(44, 22)
+
+[node name="AnimatedSprite2D" parent="Ally_03" index="0"]
+material = SubResource("PlayerAOutline")
+frame = 2
+
+[node name="Ally_04" parent="." instance=ExtResource("2_0wfyh")]
+position = Vector2(408, 372)
+metadata/team = "Ally"
+metadata/slot = 4
+metadata/grid_cell = Vector2i(48, 14)
+
+[node name="AnimatedSprite2D" parent="Ally_04" index="0"]
+material = SubResource("PlayerAOutline")
+frame = 3
+
+[node name="Ally_05" parent="." instance=ExtResource("2_0wfyh")]
+position = Vector2(384, 384)
+metadata/team = "Ally"
+metadata/slot = 5
+metadata/grid_cell = Vector2i(48, 16)
+
+[node name="AnimatedSprite2D" parent="Ally_05" index="0"]
+material = SubResource("PlayerAOutline")
+frame = 4
+
+[node name="Ally_06" parent="." instance=ExtResource("2_0wfyh")]
+position = Vector2(324, 414)
+metadata/team = "Ally"
+metadata/slot = 6
+metadata/grid_cell = Vector2i(48, 21)
+
+[node name="AnimatedSprite2D" parent="Ally_06" index="0"]
+material = SubResource("PlayerAOutline")
+frame = 5
+
+[node name="Enemy_01" parent="." instance=ExtResource("4_orc")]
+position = Vector2(492, 414)
+metadata/team = "Enemy"
+metadata/slot = 1
+metadata/grid_cell = Vector2i(54, 14)
+
+[node name="AnimatedSprite2D" parent="Enemy_01" index="0"]
+material = SubResource("PlayerBOutline")
+frame = 0
+
+[node name="Enemy_02" parent="." instance=ExtResource("4_orc")]
+position = Vector2(444, 438)
+metadata/team = "Enemy"
+metadata/slot = 2
+metadata/grid_cell = Vector2i(54, 18)
+
+[node name="AnimatedSprite2D" parent="Enemy_02" index="0"]
+material = SubResource("PlayerBOutline")
+frame = 1
+
+[node name="Enemy_03" parent="." instance=ExtResource("4_orc")]
+position = Vector2(396, 462)
+metadata/team = "Enemy"
+metadata/slot = 3
+metadata/grid_cell = Vector2i(54, 22)
+
+[node name="AnimatedSprite2D" parent="Enemy_03" index="0"]
+material = SubResource("PlayerBOutline")
+frame = 2
+
+[node name="Enemy_04" parent="." instance=ExtResource("4_orc")]
+position = Vector2(540, 438)
+metadata/team = "Enemy"
+metadata/slot = 4
+metadata/grid_cell = Vector2i(58, 14)
+
+[node name="AnimatedSprite2D" parent="Enemy_04" index="0"]
+material = SubResource("PlayerBOutline")
+frame = 3
+
+[node name="Enemy_05" parent="." instance=ExtResource("4_orc")]
+position = Vector2(492, 462)
+metadata/team = "Enemy"
+metadata/slot = 5
+metadata/grid_cell = Vector2i(58, 18)
+
+[node name="AnimatedSprite2D" parent="Enemy_05" index="0"]
+material = SubResource("PlayerBOutline")
+frame = 4
+
+[node name="Enemy_06" parent="." instance=ExtResource("4_orc")]
+position = Vector2(444, 486)
+metadata/team = "Enemy"
+metadata/slot = 6
+metadata/grid_cell = Vector2i(58, 22)
+
+[node name="AnimatedSprite2D" parent="Enemy_06" index="0"]
+material = SubResource("PlayerBOutline")
+frame = 5
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(408, 408)
+zoom = Vector2(1.85, 1.85)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="SafeArea" type="MarginContainer" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_safe_area")
+
+[node name="Content" type="Control" parent="UI/SafeArea"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CardShop" type="Control" parent="UI/SafeArea/Content"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("10_cards")
+[node name="EffectsLabButton" type="TextureButton" parent="UI/SafeArea/Content"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -40.0
+texture_filter = 1
+texture_normal = ExtResource("9_lab_button")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Text" type="Label" parent="UI/SafeArea/Content/EffectsLabButton"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0, 0, 0, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "Effects Lab"
+[node name="BattleResult" type="Control" parent="UI/SafeArea/Content"]
+visible = false
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_right = 160.0
+offset_bottom = 100.0
+mouse_filter = 2
+texture_filter = 1
+
+[node name="Banner" type="TextureRect" parent="UI/SafeArea/Content/BattleResult"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource("8_banner")
+expand_mode = 1
+
+[node name="Text" type="Label" parent="UI/SafeArea/Content/BattleResult"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0, 0, 0, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+[node name="BattleDemo" type="Node" parent="."]
+script = ExtResource("7_battle")
+card_shop_enabled = true
+
+[editable path="Ally_01"]
+
+[editable path="Ally_02"]
+
+[editable path="Ally_03"]
+
+[editable path="Ally_04"]
+
+[editable path="Ally_05"]
+
+[editable path="Ally_06"]
+
+[editable path="Enemy_01"]
+
+[editable path="Enemy_02"]
+
+[editable path="Enemy_03"]
+
+[editable path="Enemy_04"]
+
+[editable path="Enemy_05"]
+
+[editable path="Enemy_06"]
+
+
+
+
