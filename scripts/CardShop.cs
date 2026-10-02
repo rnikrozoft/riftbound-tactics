@@ -8,6 +8,7 @@ public partial class CardShop : Control
     [Signal] public delegate void HandChangedEventHandler(int count);
     [Signal] public delegate void NextRoundRequestedEventHandler();
     public const int ShopLimit = 4, HandLimit = 10, FieldLimit = 6;
+    public static readonly Vector2I[] EnemyCells = { new(54,14),new(54,18),new(54,22),new(58,14),new(58,18),new(58,22) };
     public static readonly Vector2I[] DeploymentCells = {
         new(44,14), new(44,18), new(44,22), new(48,14), new(48,18), new(48,22)
     };
@@ -25,6 +26,10 @@ public partial class CardShop : Control
     public FieldDrop? FieldZone { get; private set; }
     public HBoxContainer ShopRow { get; private set; } = null!;
     public HBoxContainer HandRow { get; private set; } = null!;
+    public Control OpponentHandZone { get; private set; } = null!;
+    public HBoxContainer OpponentHandRow { get; private set; } = null!;
+    private Label _opponentHandLabel = null!;
+    private readonly List<TextureRect> _opponentBacks = new(HandLimit);
     public ShopZone ZoneA { get; private set; } = null!;
     public HandZone ZoneB { get; private set; } = null!;
     public NinePatchRect Details { get; private set; } = null!;
@@ -43,6 +48,16 @@ public partial class CardShop : Control
     private Texture2D _sheet = null!;
     private AtlasTexture _buttonTexture = null!;
     private bool _deploymentMode;
+    public bool NetworkMode { get; private set; }
+    public bool NetworkPending { get; set; }
+    public string LocalTeam { get; private set; } = "A";
+    public OnlineBattle? Online { get; set; }
+    public Dictionary<string,BattleUnit> NetworkUnits { get; } = new(12);
+    private Material? _redMaterial;
+    private PackedScene _orcScene = null!;
+    private int _networkRound;
+    private string _networkPhase = "";
+    private readonly List<string> _removedNetworkUnits = new(12);
     private int _serial;
     private Vector2 _cameraPosition;
     private CardDrag? _activeDrag;
@@ -60,15 +75,22 @@ public partial class CardShop : Control
         Camera = Field.GetNode<Camera2D>("Camera2D");
         var battle = Field.GetNode<BattleDemo>("BattleDemo");
         _deploymentMode = battle.CardShopEnabled && battle.AutoStart;
+        NetworkMode = battle.NetworkEnabled && battle.AutoStart;
         foreach (var child in Field.GetChildren())
             if (child is BattleUnit unit)
             {
-                if (_deploymentMode && unit.IsAlly)
+                if (NetworkMode)
+                {
+                    if (unit.IsAlly) _playerMaterial = unit.Sprite.Material; else _redMaterial = unit.Sprite.Material;
+                    unit.Hide(); unit.QueueFree();
+                }
+                else if (_deploymentMode && unit.IsAlly)
                 { _playerMaterial = unit.Sprite.Material; unit.Hide(); unit.QueueFree(); }
                 else _units.Add(unit);
             }
         for (int i = 0; i < FieldLimit; i++) SlotCenters[i] = Tiles.MapToLocal(DeploymentCells[i]);
         _unitScene = GD.Load<PackedScene>("res://scenes/Character.tscn");
+        _orcScene = GD.Load<PackedScene>("res://scenes/Orc.tscn");
         _sheet = GD.Load<Texture2D>("res://assets/cards/pixelCardAssest_V01.png");
         _buttonTexture = Atlas(new(16,223,96,29));
         string[] names = { "Blue","Red","Silver","Green","Gold","Stone" };
@@ -76,6 +98,7 @@ public partial class CardShop : Control
         for (int i = 0; i < 6; i++) _pool.Add(new(i, names[i], Atlas(new(origins[i],4,100,128))));
         BuildUi();
         Refresh();
+        if (NetworkMode) { ZoneA.Hide(); ZoneB.Hide(); }
     }
 
     private AtlasTexture Atlas(Rect2 region) => new() { Atlas = _sheet, Region = region };
@@ -119,6 +142,20 @@ public partial class CardShop : Control
             OffsetTop = 26, OffsetBottom = 109, MouseFilter = MouseFilterEnum.Ignore, Alignment = BoxContainer.AlignmentMode.Center
         };
         ZoneB.AddChild(HandRow);
+        OpponentHandZone = new Control { Name = "OpponentHand", AnchorRight = 1, OffsetBottom = 115, MouseFilter = MouseFilterEnum.Ignore };
+        AddChild(OpponentHandZone);
+        _opponentHandLabel = TextLabel(); _opponentHandLabel.AnchorRight = 1; _opponentHandLabel.OffsetBottom = 24;
+        _opponentHandLabel.HorizontalAlignment = HorizontalAlignment.Center; OpponentHandZone.AddChild(_opponentHandLabel);
+        OpponentHandRow = new HBoxContainer { AnchorLeft = .5f, AnchorRight = .5f, OffsetLeft = -338, OffsetRight = 338,
+            OffsetTop = 26, OffsetBottom = 109, Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = MouseFilterEnum.Ignore };
+        OpponentHandZone.AddChild(OpponentHandRow);
+        var back = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/cards/cardBacks.png"), Region = new Rect2(14,12,96,128) };
+        for (int i = 0; i < HandLimit; i++) {
+            var card = new TextureRect { Texture = back, CustomMinimumSize = new(62,83), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, TextureFilter = TextureFilterEnum.Nearest, MouseFilter = MouseFilterEnum.Ignore };
+            OpponentHandRow.AddChild(card); _opponentBacks.Add(card); card.Hide();
+        }
+        OpponentHandZone.Hide();
         Details = new NinePatchRect {
             Name = "Details", Texture = Atlas(new(22,137,86,71)), PatchMarginLeft = 8, PatchMarginRight = 8,
             PatchMarginTop = 8, PatchMarginBottom = 8, AnchorLeft = 1, AnchorRight = 1, AnchorBottom = 1, OffsetLeft = -300
@@ -160,17 +197,19 @@ public partial class CardShop : Control
         for (int i = 0; i < cards.Count; i++) if (cards[i].Token == token) return i;
         return -1;
     }
-    public bool AcceptsToken(int token) => Drafting && Hand.Count < HandLimit && FindToken(Offers,token) >= 0;
-    public bool AcceptsHandToken(int token) => Drafting && FindToken(Hand,token) >= 0;
+    public bool AcceptsToken(int token) => Drafting && !NetworkPending && Hand.Count < HandLimit && FindToken(Offers,token) >= 0;
+    public bool AcceptsHandToken(int token) => Drafting && !NetworkPending && FindToken(Hand,token) >= 0;
     public bool TakeCard(int token)
     {
         if (!AcceptsToken(token)) return false;
+        if (NetworkMode) { Online?.SendAction("buy",token); return true; }
         int index = FindToken(Offers, token);
         Hand.Add(Offers[index]); Offers.RemoveAt(index);
         Refresh(); EmitSignal(SignalName.HandChanged, Hand.Count); return true;
     }
     public void ConfirmTurn()
     {
+        if (NetworkMode) { if (!NetworkPending) Online?.SendAction(Finished ? "next" : "ready"); return; }
         if (Finished)
         {
             Finished = false; _nextRound?.TrySetResult(true);
@@ -211,8 +250,8 @@ public partial class CardShop : Control
     private void Refresh()
     {
         RefreshViews(Offers,_shopViews,ShopRow,true); RefreshViews(Hand,_handViews,HandRow,false);
-        _shopLabel.Text = $"A / SHOP  {Offers.Count}/{ShopLimit}  |  TURN {TurnNumber}";
-        _handLabel.Text = $"B / HAND  {Hand.Count}/{HandLimit}  |  {(Drafting ? "DRAG TO SHOP TO SELL" : "BATTLE / HAND LOCKED")}";
+        _shopLabel.Text = NetworkMode ? $"SHOP / PLAYER {LocalTeam}  {Offers.Count}/{ShopLimit}  |  TURN {TurnNumber}" : $"A / SHOP  {Offers.Count}/{ShopLimit}  |  TURN {TurnNumber}";
+        _handLabel.Text = $"{(NetworkMode ? "HAND / PLAYER " + LocalTeam : "B / HAND")}  {Hand.Count}/{HandLimit}  |  {(Drafting ? "DRAG TO SHOP TO SELL" : "BATTLE / HAND LOCKED")}";
         _notice.Text = _deploymentMode ? $"FIELD {Deployed.Count}/{FieldLimit}" : (Hand.Count == HandLimit ? "HAND FULL" : "CHOOSE CARDS");
         _next.Disabled = !Drafting || (_deploymentMode && Deployed.Count == 0);
         _nextText.Text = "BATTLE"; ShopRow.Visible = Drafting;
@@ -226,14 +265,14 @@ public partial class CardShop : Control
         BattleUnit? picked = null;
         foreach (var unit in _units)
         {
-            if (unit.IsQueuedForDeletion() || (alliesOnly && unit.CardToken < 0)) continue;
+            if (unit.IsQueuedForDeletion() || (alliesOnly && !Deployed.ContainsKey(unit.CardToken))) continue;
             if (new Rect2(unit.Position + new Vector2(-16,-36), new Vector2(32,42)).HasPoint(position)
                 && (picked == null || unit.Position.Y > picked.Position.Y)) picked = unit;
         }
         return picked;
     }
     private bool IsDeployed(BattleUnit unit) => GodotObject.IsInstanceValid(unit) && Deployed.ContainsKey(unit.CardToken);
-    public bool CanReturnUnit(BattleUnit unit) => Drafting && Hand.Count < HandLimit && IsDeployed(unit) && !unit.HasBattled;
+    public bool CanReturnUnit(BattleUnit unit) => Drafting && !NetworkPending && Hand.Count < HandLimit && IsDeployed(unit) && !unit.HasBattled;
     private void RemoveUnit(BattleUnit unit)
     {
         Occupants[unit.GridSlot] = null;
@@ -242,6 +281,7 @@ public partial class CardShop : Control
     public bool ReturnUnit(BattleUnit unit)
     {
         if (!CanReturnUnit(unit)) return false;
+        if (NetworkMode) { Online?.SendAction("return",unit.CardToken); return true; }
         Hand.Add(Deployed[unit.CardToken].Card);
         if (_inspectedUnit == unit) CloseDetails();
         RemoveUnit(unit); Refresh(); EmitSignal(SignalName.HandChanged,Hand.Count); return true;
@@ -258,7 +298,7 @@ public partial class CardShop : Control
     }
     public bool CanPlace(CardDrag data, Vector2 position)
     {
-        if (!Drafting || !_deploymentMode || data.Shop != this) return false;
+        if (!Drafting || NetworkPending || !_deploymentMode || data.Shop != this) return false;
         if (data.Unit != null) { if (!IsDeployed(data.Unit)) return false; }
         else if (data.FromShop || !AcceptsHandToken(data.Token) || Deployed.Count >= FieldLimit) return false;
         int slot = DeploymentSlot(position);
@@ -268,6 +308,7 @@ public partial class CardShop : Control
     {
         if (!CanPlace(data, position)) return false;
         int slot = DeploymentSlot(position);
+        if (NetworkMode) { Online?.SendAction(data.Unit != null ? "move" : "deploy",data.Unit?.CardToken ?? data.Token,slot); return true; }
         if (data.Unit != null)
         {
             var moving = data.Unit; int oldSlot = moving.GridSlot;
@@ -309,14 +350,16 @@ public partial class CardShop : Control
     public bool SellCard(int token)
     {
         if (!AcceptsHandToken(token)) return false;
+        if (NetworkMode) { Online?.SendAction("sell",token); return true; }
         Hand.RemoveAt(FindToken(Hand,token)); CloseDetails(); Refresh();
         EmitSignal(SignalName.HandChanged,Hand.Count); return true;
     }
-    public bool CanSell(CardDrag? data) => Drafting && data != null && data.Shop == this &&
+    public bool CanSell(CardDrag? data) => Drafting && !NetworkPending && data != null && data.Shop == this &&
         (data.Unit != null ? IsDeployed(data.Unit) : !data.FromShop && AcceptsHandToken(data.Token));
     public void SellDrop(CardDrag data)
     {
         if (!CanSell(data)) return;
+        if (NetworkMode) { Online?.SendAction("sell",data.Unit?.CardToken ?? data.Token); return; }
         if (data.Unit == null) { SellCard(data.Token); return; }
         CloseDetails(); RemoveUnit(data.Unit); Refresh();
     }
@@ -353,7 +396,7 @@ public partial class CardShop : Control
         {
             _cameraPosition = Camera.Position; Camera.Position += new Vector2(150 / Camera.Zoom.X,0);
             Camera.ForceUpdateScroll();
-            ZoneA.OffsetLeft = -335; ZoneA.OffsetRight = 35; ZoneB.OffsetRight = -300;
+            ZoneA.OffsetLeft = -335; ZoneA.OffsetRight = 35; ZoneB.OffsetRight = -300; OpponentHandZone.OffsetRight = -300;
         }
         DetailsText.Text = $"{title}\n{team}\n\nMOCK DETAILS\nHP  {health} / {maximum}\nAttack  30\nSpeed  10\n\nABILITY / Lorem Strike\nLorem ipsum dolor sit amet, consectetur adipiscing elit.\n\nPASSIVE / Lorem Guard\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nPlaceholder abilities and stats.";
         Details.Show();
@@ -368,15 +411,15 @@ public partial class CardShop : Control
         Uninspect();
         if (Details == null || !Details.Visible) return;
         Camera.Position = _cameraPosition; Camera.ForceUpdateScroll(); Details.Hide();
-        ZoneA.OffsetLeft = -185; ZoneA.OffsetRight = 185; ZoneB.OffsetRight = 0;
+        ZoneA.OffsetLeft = -185; ZoneA.OffsetRight = 185; ZoneB.OffsetRight = 0; OpponentHandZone.OffsetRight = 0;
     }
     public void ShowCardDetails(int token)
     {
         Uninspect();
         int index = FindToken(Offers,token);
-        if (index >= 0) { ShowDetails(Offers[index].Name,"SHOP CARD"); return; }
+        if (index >= 0) { ShowDetails(Offers[index].Name,NetworkMode ? $"PLAYER {LocalTeam} / SHOP" : "SHOP CARD"); return; }
         index = FindToken(Hand,token);
-        if (index >= 0) ShowDetails(Hand[index].Name,"PLAYER A / HAND");
+        if (index >= 0) ShowDetails(Hand[index].Name,$"PLAYER {(NetworkMode ? LocalTeam : "A")} / HAND");
     }
     public void ShowUnitDetails(BattleUnit unit)
     {
@@ -389,8 +432,103 @@ public partial class CardShop : Control
     private void UpdateUnitDetails()
     {
         var unit = _inspectedUnit!;
-        string title = Deployed.TryGetValue(unit.CardToken,out var entry) ? entry.Card.Name : (unit.IsAlly ? "Soldier" : "Orc");
-        ShowDetails(title, $"{(unit.IsAlly ? "PLAYER A" : "PLAYER B")} / FIELD / {(unit.IsDead ? "DEAD" : "ALIVE")}", unit.Health,unit.MaxHealth);
+        string title = Deployed.TryGetValue(unit.CardToken,out var entry) ? entry.Card.Name : (NetworkMode ? _pool[unit.CardKind].Name : (unit.IsAlly ? "Soldier" : "Orc"));
+        ShowDetails(title, $"{(NetworkMode ? "PLAYER " + unit.ServerId.Split(':')[0] : (unit.IsAlly ? "PLAYER A" : "PLAYER B"))} / FIELD / {(unit.IsDead ? "DEAD" : "ALIVE")}", unit.Health,unit.MaxHealth);
+    }
+    public void RefreshNetworkControls() => Refresh();
+    public void LockNetworkInteraction() { Drafting = false; NetworkPending = true; Refresh(); }
+
+    public void ApplyNetworkState(OnlineState state, string userId)
+    {
+        OnlinePlayer? self = null;
+        foreach (var player in state.Players) if (player?.UserId == userId) self = player;
+        if (self == null) return;
+        bool newRound = state.Round != _networkRound;
+        bool enteringBattle = state.Phase == "battle" && _networkPhase != "battle";
+        LocalTeam = self.Team;
+        int opponentCards = 0;
+        foreach (var player in state.Players) if (player != null && player.UserId != userId) opponentCards = System.Math.Clamp(player.HandCount,0,HandLimit);
+        for (int i = 0; i < _opponentBacks.Count; i++) _opponentBacks[i].Visible = i < opponentCards;
+        _opponentHandLabel.Text = $"OPPONENT / HAND {opponentCards}/{HandLimit}";
+        OpponentHandZone.Visible = state.Phase == "battle";
+        var cells = DeploymentCells;
+        for (int i = 0; i < FieldLimit; i++) SlotCenters[i] = Tiles.MapToLocal(cells[i]);
+        TurnNumber = state.Round;
+        Drafting = state.Phase == "preparation" && !self.Ready;
+        Finished = state.Phase == "finished";
+        Offers.Clear(); Hand.Clear();
+        foreach (var card in self.Offers) Offers.Add(_pool[card.Kind] with { Token = card.Token });
+        foreach (var card in self.Hand) Hand.Add(_pool[card.Kind] with { Token = card.Token });
+        if (state.Phase is "preparation" or "waiting" || enteringBattle)
+        {
+            ReconcileUnits(state,newRound || enteringBattle);
+            if (newRound || enteringBattle) CloseDetails();
+        }
+        _networkRound = state.Round; _networkPhase = state.Phase;
+        Refresh();
+        ZoneB.Visible = state.Phase != "waiting";
+        ZoneA.Visible = state.Phase is "preparation" or "finished";
+        if (state.Phase == "preparation")
+        {
+            ShopRow.Show(); _shopLabel.Show();
+            _next.Disabled = self.Ready || NetworkPending;
+            _nextText.Text = self.Ready ? "READY" : "BATTLE";
+            _notice.Text = self.Ready ? "WAITING FOR OPPONENT" : $"FIELD {Deployed.Count}/{FieldLimit}";
+        }
+        else if (Finished)
+        {
+            ShopRow.Hide(); _shopLabel.Hide();
+            _next.Disabled = NetworkPending || self.Ready;
+            _nextText.Text = self.Ready ? "WAITING" : "NEXT ROUND";
+            _notice.Text = "BATTLE FINISHED";
+        }
+        EmitSignal(SignalName.HandChanged,Hand.Count);
+    }
+
+    private void ReconcileUnits(OnlineState state, bool resetHealth)
+    {
+        _removedNetworkUnits.Clear();
+        foreach (var id in NetworkUnits.Keys) _removedNetworkUnits.Add(id);
+        Deployed.Clear();
+        System.Array.Clear(Occupants);
+        foreach (var player in state.Players)
+        {
+            if (player == null) continue;
+            bool owned = player.Team == LocalTeam;
+            // The opponent faces the board from the other end: reverse both columns and rows.
+            foreach (var entry in player.Units)
+            {
+                string id = $"{player.Team}:{entry.Token}";
+                _removedNetworkUnits.Remove(id);
+                if (!NetworkUnits.TryGetValue(id,out var unit))
+                {
+                    unit = (owned ? _unitScene : _orcScene).Instantiate<BattleUnit>();
+                    unit.Name = $"Online_{player.Team}_{entry.Token}";
+                    unit.SetMeta("team",owned ? "Ally" : "Enemy");
+                    unit.GetNode<AnimatedSprite2D>("AnimatedSprite2D").Material = owned ? _playerMaterial : _redMaterial;
+                    Field.AddChild(unit);
+                    _units.Add(unit); NetworkUnits.Add(id,unit);
+                }
+                unit.CardToken = entry.Token; unit.CardKind = entry.Kind; unit.GridSlot = entry.Slot;
+                unit.HasBattled = entry.Veteran; unit.ServerId = id;
+                var cell = owned ? DeploymentCells[entry.Slot] : EnemyCells[FieldLimit - 1 - entry.Slot];
+                unit.SetMeta("grid_cell",cell);
+                unit.Position = Tiles.ToGlobal(Tiles.MapToLocal(cell));
+                unit.Sprite.FlipH = !owned;
+                if (resetHealth) { unit.ResetHealth(); unit.Sprite.Play(BattleAnimations.Idle); }
+                if (player.Team == LocalTeam)
+                {
+                    var card = _pool[entry.Kind] with { Token = entry.Token };
+                    Deployed.Add(entry.Token,new(card,unit)); Occupants[entry.Slot] = unit;
+                }
+            }
+        }
+        foreach (string id in _removedNetworkUnits)
+        {
+            var unit = NetworkUnits[id];
+            if (_inspectedUnit == unit) CloseDetails();
+            _units.Remove(unit); unit.Hide(); unit.QueueFree(); NetworkUnits.Remove(id);
+        }
     }
     public override void _ExitTree()
     {
@@ -398,4 +536,3 @@ public partial class CardShop : Control
         _turnReady?.TrySetCanceled(); _nextRound?.TrySetCanceled();
     }
 }
-

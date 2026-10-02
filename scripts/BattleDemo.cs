@@ -10,6 +10,7 @@ public partial class BattleDemo : Node
     [Signal] public delegate void TurnFinishedEventHandler(string team, BattleUnit attacker);
     [Signal] public delegate void BattleFinishedEventHandler(string winner);
     [Export] public float StartDelay { get; set; } = .8f;
+    [Export] public bool NetworkEnabled { get; set; }
     [Export] public bool AutoStart { get; set; } = true;
     [Export] public bool CardShopEnabled { get; set; }
     [Export] public float TurnDelay { get; set; } = .45f;
@@ -35,6 +36,7 @@ public partial class BattleDemo : Node
     private SceneTree _tree = null!;
     private Vector2 _cameraOffset;
     private float _shakeLeft, _floatTime;
+    public long ServerVisualTimeMs { get; set; }
     private bool _exiting;
     private static readonly NodePath PositionPath = new("position");
     public int TurnCount { get; private set; }
@@ -49,7 +51,7 @@ public partial class BattleDemo : Node
         _resultText = _result.GetNode<Label>("Text");
         _shop = GetParent().GetNode<CardShop>("UI/SafeArea/Content/CardShop");
         CollectTeams();
-        if (AutoStart) Callable.From(StartBattle).CallDeferred();
+        if (AutoStart && !NetworkEnabled) Callable.From(StartBattle).CallDeferred();
     }
 
     private void CollectTeams()
@@ -65,13 +67,21 @@ public partial class BattleDemo : Node
 
     public override void _Process(double delta)
     {
-        _floatTime += (float)delta;
+        if (NetworkEnabled && ServerVisualTimeMs > 0)
+            _floatTime = (float)((ServerVisualTimeMs / 1000.0) % Mathf.Max(.1f,ArenaFloatPeriod));
+        else _floatTime += (float)delta;
         var offset = _cameraOffset + new Vector2(0, Mathf.Sin(_floatTime * Mathf.Tau / Mathf.Max(.1f, ArenaFloatPeriod)) * ArenaFloatAmplitude);
         if (_shakeLeft > 0)
         {
             _shakeLeft = Mathf.Max(0, _shakeLeft - (float)delta);
             float strength = ShakeStrength * _shakeLeft / Mathf.Max(.001f, ShakeDuration);
-            offset += new Vector2(_shakeRng.RandfRange(-strength, strength), _shakeRng.RandfRange(-strength, strength));
+            if (NetworkEnabled && ServerVisualTimeMs > 0)
+            {
+                // Absolute server time keeps the shake pattern consistent across different frame rates.
+                float phase = (float)(ServerVisualTimeMs % 10000) * .08f;
+                offset += new Vector2(Mathf.Sin(phase),Mathf.Sin(phase * 1.7f)) * strength;
+            }
+            else offset += new Vector2(_shakeRng.RandfRange(-strength, strength), _shakeRng.RandfRange(-strength, strength));
         }
         _camera.Offset = offset;
     }
@@ -139,7 +149,7 @@ public partial class BattleDemo : Node
         EmitSignal(SignalName.BattleFinished, winner);
     }
 
-    private async Task TakeTurn(BattleUnit attacker, BattleUnit target)
+    private async Task TakeTurn(BattleUnit attacker, BattleUnit target, OnlineCombatEvent? serverEvent = null)
     {
         var sprite = attacker.Sprite; var targetSprite = target.Sprite;
         var home = attacker.Position; var targetHome = target.Position;
@@ -155,7 +165,8 @@ public partial class BattleDemo : Node
         while (sprite.Frame < 2 && sprite.IsPlaying())
         { await ToSignal(sprite, AnimatedSprite2D.SignalName.FrameChanged); CheckAlive(); }
         targetSprite.FlipH = attackPosition.X < targetHome.X;
-        target.TakeDamage(_rng.RandiRange(Math.Min(DamageMin, DamageMax), Math.Max(DamageMin, DamageMax)));
+        if (serverEvent != null) target.ApplyServerHealth(serverEvent.TargetHp);
+        else target.TakeDamage(_rng.RandiRange(Math.Min(DamageMin, DamageMax), Math.Max(DamageMin, DamageMax)));
         bool lethal = target.IsDead;
         if (lethal) { _teamA.Remove(target); _teamB.Remove(target); }
         targetSprite.Play(lethal ? BattleAnimations.Die : BattleAnimations.Hit);
@@ -182,6 +193,21 @@ public partial class BattleDemo : Node
         if (lethal) { while (targetSprite.IsPlaying()) await Frame(); }
         else targetSprite.Play(BattleAnimations.Idle);
     }
+    public async Task PlayServerEvent(BattleUnit attacker, BattleUnit target, OnlineCombatEvent serverEvent)
+    {
+        CollectTeams();
+        TurnCount++;
+        EmitSignal(SignalName.TurnStarted,attacker.IsAlly ? "A" : "B",attacker,target);
+        await TakeTurn(attacker,target,serverEvent);
+        EmitSignal(SignalName.TurnFinished,attacker.IsAlly ? "A" : "B",attacker);
+    }
+    public void ShowServerResult(string winner)
+    {
+        _resultText.Text = winner == "DRAW" ? "DRAW" : $"PLAYER {winner} WINS";
+        _result.Show(); EmitSignal(SignalName.BattleFinished,winner);
+    }
+    public void HideResult() => _result.Hide();
+
     private void FreezeSprites()
     {
         _frozenCount = _sprites.Count;
@@ -201,5 +227,3 @@ public partial class BattleDemo : Node
         if (GodotObject.IsInstanceValid(_camera)) _camera.Offset = _cameraOffset;
     }
 }
-
-

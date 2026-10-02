@@ -9,6 +9,8 @@ public partial class BattleUnit : CharacterBody2D
     public bool IsDead => Health == 0;
     public bool HasBattled { get; set; }
     public int CardToken { get; set; } = -1;
+    public string ServerId { get; set; } = "";
+    public int CardKind { get; set; }
     public int GridSlot { get; set; } = -1;
     public AnimatedSprite2D Sprite { get; private set; } = null!;
     public bool IsAlly { get; private set; }
@@ -39,6 +41,14 @@ public partial class BattleUnit : CharacterBody2D
         _bar.Value = Health;
         if (IsDead) _bar.Hide();
         EmitSignal(SignalName.HealthChanged, Health, MaxHealth);
+        if (IsDead) EmitSignal(SignalName.Died);
+    }
+
+    public void ApplyServerHealth(int health)
+    {
+        Health = Mathf.Clamp(health,0,MaxHealth);
+        _bar.Value = Health; _bar.Visible = !IsDead;
+        EmitSignal(SignalName.HealthChanged,Health,MaxHealth);
         if (IsDead) EmitSignal(SignalName.Died);
     }
 

@@ -7,4 +7,7 @@
     <AssemblyName>RiftboundTactics</AssemblyName>
     <RootNamespace>RiftboundTactics</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NakamaClient" Version="3.17.0" />
+  </ItemGroup>
 </Project>

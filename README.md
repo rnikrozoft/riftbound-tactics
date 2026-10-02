@@ -41,3 +41,21 @@ Actual Android/iOS exports require their platform toolchains and have not been t
 See https://docs.godotengine.org/en/4.7/tutorials/scripting/c_sharp/index.html
 
 
+
+## Online multiplayer
+
+Start the Go/Nakama/PostgreSQL backend in `C:\Users\zebas\go\src\github.com\rnikrozoft\riftbound-tactics-backend` with `docker compose up -d --build`, then build this client and run F5.
+
+For two debug windows: `./tools/start-debug-clients.ps1`. Pass `-GodotPath` if the Godot executable moves. Each run creates a fresh Nakama user. Press CREATE in one window; enter its six-digit room code and JOIN in the other.
+
+Both players prepare for 60 seconds. Both pressing BATTLE starts immediately; the timer starts battle automatically otherwise. Each client shows its own heroes on the left and opponents on the right. Opponent formations are withheld by the backend during preparation and revealed when battle starts. Each owner has a private shop and hand. Damage, targets, HP, deaths and winner come from the backend's complete battle plan; clients only replay it. Hand cards and unit details remain visible during combat. Both players press NEXT to prepare the next round.
+
+Connection defaults to 127.0.0.1:7350. For another PC/phone, set OnlineBattle.Host in main.tscn or the RIFTBOUND_HOST environment variable to the backend PC's address. Server settings and protocol are documented in the backend README.
+
+Online scripts: NakamaConnection handles fresh authentication, socket transport and clock synchronization; OnlineBattle handles room UI, snapshot acknowledgement and replay scheduling; OnlineProtocol defines source-generated JSON contracts. BattleDemo.NetworkEnabled selects authoritative online playback; offline integration and the effects laboratory retain local simulation.
+
+Online integration: `Godot_console.exe --headless --path . res://tests/online_integration.tscn` after building. Requires the running local backend and takes roughly 90 seconds because it verifies the real 60-second timeout. Go tests and the Linux race detector validate the backend separately.
+
+During battle the hidden shop is replaced by a centered row of opponent card backs from assets/cards/cardBacks.png. Only the opponent's hand_count is public; card identities remain redacted. No placeholder backs appear for an empty hand. Opening details shifts the opponent row together with the player hand.
+
+Opponent deployment slots rotate 180 degrees around the battlefield center: owner slots 0,1,2,3,4,5 render as enemy slots 5,4,3,2,1,0. This preserves front/back relationships from the other player's view. Server slot IDs and combat unit IDs remain unchanged.

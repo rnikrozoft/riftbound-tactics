@@ -57,6 +57,7 @@ public partial class IntegrationRunner : Node
         {
             _field = GD.Load<PackedScene>("res://scenes/main.tscn").Instantiate<Node2D>();
             _battle = _field.GetNode<BattleDemo>("BattleDemo");
+            _battle.NetworkEnabled = false;
             _battle.StartDelay = .01f; _battle.TurnDelay = .001f; _battle.DashDuration = .01f;
             _battle.ReturnDuration = .01f; _battle.HitstopDuration = .01f;
             _battle.DamageMin = _battle.DamageMax = 100;
@@ -176,7 +177,7 @@ public partial class IntegrationRunner : Node
             // Change scene during an attack/hitstop to verify async teardown.
             var exitField = GD.Load<PackedScene>("res://scenes/main.tscn").Instantiate<Node2D>();
             var exitBattle = exitField.GetNode<BattleDemo>("BattleDemo");
-            exitBattle.CardShopEnabled = false; exitBattle.StartDelay = .001f;
+            exitBattle.NetworkEnabled = false; exitBattle.CardShopEnabled = false; exitBattle.StartDelay = .001f;
             exitBattle.Impact += (a,b) => exitField.QueueFree();
             AddChild(exitField); await Until(() => !GodotObject.IsInstanceValid(exitField),"Exit during combat");
             await Frames(10);
@@ -187,5 +188,3 @@ public partial class IntegrationRunner : Node
         { GD.PushError("INTEGRATION FAIL: " + exception); _tree.Quit(1); }
     }
 }
-
-
