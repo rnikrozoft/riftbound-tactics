@@ -17,7 +17,7 @@ public partial class CardShop : Control
     public static readonly Vector2I[] DeploymentCells = {
         new(44,14), new(44,18), new(44,22), new(48,14), new(48,18), new(48,22)
     };
-    public const int StartingCoins = 4, RerollCost = 2, MaxShopLevel = 6, CardKinds = 30;
+    public const int StartingCoins = 4, RerollCost = 2, MaxShopLevel = 6, CardKinds = CardCatalog.Count;
     public int Coins { get; private set; }
     public int ShopLevel { get; private set; } = 2;
     public int UpgradeCost { get; private set; } = 2;
@@ -106,12 +106,10 @@ public partial class CardShop : Control
         _unitScene = GD.Load<PackedScene>("res://scenes/Character.tscn");
         _orcScene = GD.Load<PackedScene>("res://scenes/Orc.tscn");
         _sheet = GD.Load<Texture2D>("res://assets/cards/pixelCardAssest_V01.png");
-        string[] names = { "Blue","Red","Silver","Green","Gold","Stone" };
-        int[] origins = { 14,133,250,367,482,611 };
-        for (int price = 2; price <= 6; price++)
-            for (int art = 0; art < 6; art++)
-                _pool.Add(new(_pool.Count, $"{names[art]} / Tier {price}", Atlas(new(origins[art],4,100,128)), price));
-        System.Array.Fill(_remainingCopies, 4);
+        for (int kind=0;kind<CardKinds;kind++)
+            _pool.Add(new(kind,CardCatalog.Name(kind),CardCatalog.Art(kind),CardCatalog.Cost(kind)));
+        var selectedDeck = BattleLaunch.Deck ?? DeckDefinition.Starter();
+        foreach(var card in selectedDeck.Cards) _remainingCopies[card.Kind]=card.Copies;
         BuildUi();
         Refresh();
         if (NetworkMode) { ZoneA.Hide(); ZoneB.Hide(); }
@@ -349,7 +347,7 @@ public partial class CardShop : Control
         GetParent().GetNode<PlayerProfile>("ProfileA").SetHealth(PlayerHpA);
         GetParent().GetNode<PlayerProfile>("ProfileB").SetHealth(PlayerHpB);
         Drafting = false; Finished = true; _nextRound = new();
-        Refresh(); ZoneA.Show(); ShopRow.Hide(); _shopLabel.Hide();
+        Refresh(); ZoneA.Hide(); ShopRow.Hide(); _shopLabel.Hide();
         _next.Disabled = GameOver; _nextText.Text = GameOver ? "GAME OVER" : "NEXT ROUND"; _notice.Text = GameOver ? $"PLAYER {winner} WINS MATCH" : $"BATTLE FINISHED / {damage} HP DAMAGE";
         _countdown.UpdateCountdown(0, false);
     }
@@ -615,13 +613,13 @@ public partial class CardShop : Control
         foreach(var card in Hand) if(priorHandStars.TryGetValue(card.Token,out int oldStars) && card.Stars > oldStars) PlayHandUpgrade(card.Token);
         if(_inspectedUnit != null) UpdateUnitDetails();
         ZoneB.Visible = state.Phase != "waiting";
-        ZoneA.Visible = state.Phase is "preparation" or "finished" or "game_over";
+        ZoneA.Visible = state.Phase == "preparation";
         if (state.Phase == "preparation")
         {
             ShopRow.Show(); _shopLabel.Show();
             _next.Disabled = self.Ready || NetworkPending;
             _nextText.Text = self.Ready ? "READY" : "BATTLE";
-            _notice.Text = $"FIELD {Deployed.Count}/{FieldLimit}" + (self.Ready ? " / WAITING FOR OPPONENT" : "");
+            _notice.Text = $"FIELD {Deployed.Count}/{FieldLimit}" + (self.Ready ? (state.Roster.Length>0 ? " / WAITING FOR PLAYERS" : " / WAITING FOR OPPONENT") : "");
         }
         else if (Finished)
         {

@@ -18,6 +18,8 @@ public partial class PlayerProfile : NinePatchRect
     private string _userId = "";
     private int _generation;
     private bool _exiting;
+    private int? _mmr;
+    public void SetMmr(int rating) { _mmr=rating;_rank.Text=$"MMR: {rating}"; }
 
     public override void _Ready()
     {
@@ -37,15 +39,21 @@ public partial class PlayerProfile : NinePatchRect
         _name.Text = $"PLAYER {Team} / {(Team == "A" ? "Knight" : "Raider")}";
         _uid.Text = "UID: " + (string.IsNullOrEmpty(_userId) ? $"mock-player-{Team.ToLowerInvariant()}" : _userId);
         _uid.TooltipText = _uid.Text;
-        _rank.Text = "Rank: Silver II (mock)";
+        _rank.Text = _mmr.HasValue ? $"MMR: {_mmr.Value}" : "Rank: Silver II (mock)";
         _score.Text = "Leaderboard: 1,250 (mock)";
     }
     public void SetPlayer(string userId, NakamaConnection? connection, string leaderboardId, bool refresh = false)
     {
         if (_exiting || (!refresh && userId == _userId)) return;
+        if (userId!=_userId) _mmr=null;
         _userId = userId; int generation = ++_generation;
         ShowMock();
         _portrait.Texture = _fallbackPortrait;
+        if (userId.StartsWith("bot:") || userId.StartsWith("ghost:"))
+        {
+            _name.Text=userId.StartsWith("ghost:")?"ELIMINATED PLAYER / COPY":"BOT / Raider";
+            _rank.Text="Rank: Bot opponent";_score.Text="Leaderboard: â€”";return;
+        }
         if (!string.IsNullOrWhiteSpace(userId) && connection != null) LoadProfile(connection, userId, leaderboardId, generation);
     }
     private bool Current(int generation) => !_exiting && generation == _generation && IsInsideTree();
@@ -65,7 +73,7 @@ public partial class PlayerProfile : NinePatchRect
                     try
                     {
                         using var metadata = JsonDocument.Parse(user.Metadata);
-                        if (metadata.RootElement.TryGetProperty("rank", out var rank) && rank.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(rank.GetString()))
+                        if (!_mmr.HasValue && metadata.RootElement.TryGetProperty("rank", out var rank) && rank.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(rank.GetString()))
                             _rank.Text = "Rank: " + rank.GetString();
                     }
                     catch (JsonException) { }
@@ -80,9 +88,9 @@ public partial class PlayerProfile : NinePatchRect
             var records = await connection.Client.ListLeaderboardRecordsAsync(connection.Session, leaderboardId, new[] { userId }, limit: 1);
             if (!Current(generation)) return;
             var record = records.OwnerRecords.FirstOrDefault(r => r.OwnerId == userId);
-            if (record == null) return;
-            _score.Text = "Leaderboard: " + record.Score;
-            if (_rank.Text.EndsWith("(mock)") && !string.IsNullOrEmpty(record.Rank)) _rank.Text = "Rank: #" + record.Rank;
+            if (record == null) { _score.Text="Leaderboard: Unranked";if (!_mmr.HasValue) _rank.Text="Rank: Unranked";return; }
+            _score.Text = "Leaderboard: #" + record.Rank;
+            if (!_mmr.HasValue && _rank.Text.EndsWith("(mock)") && !string.IsNullOrEmpty(record.Rank)) _rank.Text = "Rank: #" + record.Rank;
         }
         catch (Exception exception) { if (Current(generation)) GD.PushWarning("Player leaderboard lookup: " + exception.Message); }
     }

@@ -84,9 +84,10 @@ public partial class BattleDemo : Node
         _field.ArenaOffset = -offset * _field.Scale;
     }
 
+    private long _serverEventDeadline;
     private void CheckAlive()
     {
-        if (_exiting || !IsInsideTree()) throw new OperationCanceledException();
+        if (_exiting || !IsInsideTree() || (_serverEventDeadline>0 && ServerVisualTimeMs>=_serverEventDeadline)) throw new OperationCanceledException();
     }
     private async Task Delay(double seconds, bool ignoreTimeScale = false)
     {
@@ -114,7 +115,7 @@ public partial class BattleDemo : Node
                 CollectTeams();
                 await RunCombat();
                 if (_shop.GameOver) break;
-                await _shop.WaitForNextRound();
+                await Delay(2.0);
                 CheckAlive();
                 _shop.ResetRoundUnits();
             }
@@ -143,11 +144,11 @@ public partial class BattleDemo : Node
         }
         string winner = _teamA.Count > 0 ? "A" : _teamB.Count > 0 ? "B" : "DRAW";
         _resultText.Text = winner == "DRAW" ? "DRAW" : $"PLAYER {winner} WINS";
-        _result.Show();
+        if (CardShopEnabled) _result.Hide(); else _result.Show();
         if (CardShopEnabled) {
             int stars = 0; foreach (var survivor in winner == "A" ? _teamA : _teamB) stars += survivor.Stars;
             _shop.FinishBattle(winner, stars);
-            if (_shop.GameOver) _resultText.Text = $"PLAYER {winner} WINS MATCH";
+            if (_shop.GameOver) ShowMatchResult(winner);
         }
         EmitSignal(SignalName.BattleFinished, winner);
     }
@@ -196,20 +197,30 @@ public partial class BattleDemo : Node
         if (lethal) { while (targetSprite.IsPlaying()) await Frame(); }
         else targetSprite.Play(BattleAnimations.Idle);
     }
-    public async Task PlayServerEvent(BattleUnit attacker, BattleUnit target, OnlineCombatEvent serverEvent)
+    public async Task PlayServerEvent(BattleUnit attacker, BattleUnit target, OnlineCombatEvent serverEvent, long deadlineMs = 0)
     {
         CollectTeams();
         TurnCount++;
         EmitSignal(SignalName.TurnStarted,attacker.IsAlly ? "A" : "B",attacker,target);
-        await TakeTurn(attacker,target,serverEvent);
+        var home=attacker.Position;var targetHome=target.Position;
+        _serverEventDeadline=deadlineMs;
+        try { await TakeTurn(attacker,target,serverEvent); }
+        catch(OperationCanceledException) when (!_exiting && deadlineMs>0 && ServerVisualTimeMs>=deadlineMs)
+        {
+            RestoreSprites();_shakeLeft=0;
+            if(GodotObject.IsInstanceValid(attacker)){attacker.Position=home;attacker.Sprite.Stop();}
+            if(GodotObject.IsInstanceValid(target)){target.Position=targetHome;target.Sprite.Stop();}
+        }
+        finally { _serverEventDeadline=0; }
         EmitSignal(SignalName.TurnFinished,attacker.IsAlly ? "A" : "B",attacker);
     }
     public void ShowServerResult(string winner)
     {
         _resultText.Text = winner == "DRAW" ? "DRAW" : $"PLAYER {winner} WINS";
-        _result.Show(); EmitSignal(SignalName.BattleFinished,winner);
+        _result.Hide(); EmitSignal(SignalName.BattleFinished,winner);
     }
     public void ShowMatchResult(string winner) { _resultText.Text = $"PLAYER {winner} WINS MATCH"; _result.Show(); }
+    public void ShowLeagueResult(bool won, int place) { _resultText.Text = won ? "YOU WIN MATCH" : $"MATCH OVER / PLACEMENT #{place}"; _result.Show(); }
     public void HideResult() => _result.Hide();
 
     private void FreezeSprites()

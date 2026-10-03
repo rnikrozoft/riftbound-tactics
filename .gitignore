@@ -13,3 +13,7 @@ tests/preparation-csharp.png
 # Generated economy UI previews
 tests/economy-*.png
 tests/economy-*.png.import
+
+# Deck UI verification captures
+tests/deck-*.png
+tests/deck-*.png.import

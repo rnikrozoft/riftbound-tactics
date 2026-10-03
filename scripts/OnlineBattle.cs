@@ -2,11 +2,12 @@ using Godot;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.Linq;
 
 public partial class OnlineBattle : Node
 {
     [Export] public string Host { get; set; } = "127.0.0.1";
-    [Export] public string LeaderboardId { get; set; } = "";
+    [Export] public string LeaderboardId { get; set; } = NakamaConnection.MmrLeaderboardId;
     private PlayerProfile _profileA = null!, _profileB = null!;
     private int _profileRound = -1;
     [Export] public int Port { get; set; } = 7350;
@@ -27,6 +28,10 @@ public partial class OnlineBattle : Node
     private long _sequence, _pendingSequence, _lastRevision = -1;
     private int _planRound, _replayGeneration;
     private bool _exiting, _connecting;
+    private DeckDefinition? _selectedDeck;
+    private bool _launchPending, _launchCreate, _matchmaking;
+    private Label _roster = null!;
+    private string _launchCode = "";
     private volatile bool _transportLost;
     private string _message = "";
     private string _displayedStatus = "";
@@ -39,6 +44,10 @@ public partial class OnlineBattle : Node
         _shop.Online = this; _shop.ZoneA.Hide(); _shop.ZoneB.Hide();
         _profileA = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileA");
         _profileB = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileB");
+        _selectedDeck = BattleLaunch.Deck?.Clone();
+        _launchPending = BattleLaunch.Pending; _launchCreate = BattleLaunch.Create; _launchCode = BattleLaunch.Code;
+        _matchmaking=BattleLaunch.Matchmaking;BattleLaunch.Matchmaking=false;
+        BattleLaunch.Pending = false;
         BuildUi();
         Callable.From(ConnectDebugUser).CallDeferred();
     }
@@ -78,7 +87,11 @@ public partial class OnlineBattle : Node
         _create = Button("CREATE",() => CreateRoom(),90);_join = Button("JOIN",() => JoinRoom(),80);
         _roomControls.AddChild(_create);_roomControls.AddChild(_join);
         _status = new Label { Text = "Starting connection...",AutowrapMode = TextServer.AutowrapMode.WordSmart,CustomMinimumSize = new(330,48),MouseFilter = Control.MouseFilterEnum.Ignore };
-        panel.AddChild(_status); _create.Disabled = _join.Disabled = true;
+        panel.AddChild(_status);
+        _roster=new Label {MouseFilter=Control.MouseFilterEnum.Ignore};_roster.AddThemeFontSizeOverride("font_size",12);panel.AddChild(_roster);
+        if (_matchmaking) _roomControls.Hide();
+        _create.Disabled = _join.Disabled = true;
+        panel.AddChild(Button("LOBBY",()=>GetTree().ChangeSceneToFile("res://scenes/lobby.tscn"),90));
     }
     private async void ConnectDebugUser()
     {
@@ -88,12 +101,12 @@ public partial class OnlineBattle : Node
         {
             string host = OS.GetEnvironment("RIFTBOUND_HOST");
             if (string.IsNullOrWhiteSpace(host)) host = Host;
-            Connection = new(host,Port);
+            Connection = new(host,Port,deviceId:_selectedDeck!=null?GameAccount.DeviceId:null);
             Connection.StateReceived += state => _states.Enqueue(state);
             Connection.ErrorReceived += error => _errors.Enqueue(error);
             Connection.Disconnected += () => {
                 _transportLost = true;
-                _errors.Enqueue(new() { Message = "Connection closed. Restart the game to create a new debug user." });
+                _errors.Enqueue(new() { Message = "Connection closed. Return to Lobby and search again." });
             };
             await Connection.Connect();
             if (_exiting) { await Connection.Close(); return; }
@@ -101,6 +114,8 @@ public partial class OnlineBattle : Node
             _identity.Text = "DEBUG USER " + UserId[..8];
             _create.Disabled = _join.Disabled = false;
             _message = "Create a room or enter a 6-digit code.";
+            if (_launchPending) { _launchPending=false; _code.Text=_launchCode; if (_matchmaking) FindMatch(); else EnterRoom(_launchCreate); }
+            else if (_matchmaking && State==null) FindMatch();
         }
         catch (Exception exception)
         {
@@ -108,10 +123,11 @@ public partial class OnlineBattle : Node
             _message = "Backend unavailable: " + exception.Message;
             _create.Disabled = false;
             _create.GetChild<Label>(0).Text = "RETRY";
+            if (_matchmaking) ShowMatchmakingRetry();
         }
         finally { _connecting = false; }
     }
-    public void CreateRoom() { if (!Connected) { ConnectDebugUser(); return; } EnterRoom(true); }
+    public void CreateRoom() { if (_matchmaking && Connected) {FindMatch();return;} if (!Connected) { ConnectDebugUser(); return; } EnterRoom(true); }
     public void JoinRoom() { if (Connected) EnterRoom(false); }
     public void JoinRoom(string code) { _code.Text = code; JoinRoom(); }
     private async void EnterRoom(bool create)
@@ -120,13 +136,31 @@ public partial class OnlineBattle : Node
         _create.Disabled = _join.Disabled = true;
         try
         {
-            var room = await Connection.EnterRoom(create,_code.Text.Trim());
+            var room = await Connection.EnterRoom(create,_code.Text.Trim(),_selectedDeck);
             if (_exiting) return;
             _code.Text = room.Code;_roomControls.Hide();
             _message = "Waiting for second player...";
         }
         catch (Exception exception)
         { if (!_exiting) { _message = exception.Message;_create.Disabled = _join.Disabled = false; } }
+    }
+    private void ShowMatchmakingRetry()
+    {
+        _roomControls.Show();_code.GetParent<Control>().Hide();_join.Hide();
+        _create.GetChild<Label>(0).Text="RETRY";
+    }
+    private async void FindMatch()
+    {
+        if (Connection==null || _selectedDeck==null || _exiting) return;
+        _create.Disabled=_join.Disabled=true;_roomControls.Hide();
+        _message="SEARCHING / Nearby ranks / Bots fill empty seats";
+        try
+        {
+            await Connection.FindMatch(_selectedDeck,elapsed=>_errors.Enqueue(new() {Message=$"SEARCHING {elapsed}s / Up to 20s / 6 players"}));
+            if (!_exiting) _message=State==null?"Preparing a 6-player match...":"";
+        }
+        catch (OperationCanceledException) { }
+        catch(Exception e) {if (!_exiting) {_message="Matchmaking failed: "+e.Message;_create.Disabled=false;ShowMatchmakingRetry();}}
     }
     public async void SendAction(string type, int token = 0, int slot = 0)
     {
@@ -158,13 +192,22 @@ public partial class OnlineBattle : Node
             _message = ""; _roomControls.Hide();
             _shop.ApplyNetworkState(state,UserId);
             PositionProfiles(_shop.LocalTeam);
+            _profileA.Visible=state.Players.Any(p=>p?.Team=="A");_profileB.Visible=state.Players.Any(p=>p?.Team=="B");
             foreach (var player in state.Players)
                 if (player != null) { var profile = player.Team == "A" ? _profileA : _profileB; profile.SetCoins(player.Coins); profile.SetHealth(player.Hp); }
-            if (state.Phase == "game_over") _battle.ShowMatchResult(state.Winner);
-            bool refreshProfiles = _profileRound != state.Round;
+            if (state.Phase == "game_over") ShowFinalResult(state);
+            bool refreshProfiles = _profileRound != state.Round || state.Phase == "game_over";
             _profileRound = state.Round;
             _profileA.SetPlayer(Array.Find(state.Players, p => p?.Team == "A")?.UserId ?? "", Connection, LeaderboardId, refreshProfiles);
             _profileB.SetPlayer(Array.Find(state.Players, p => p?.Team == "B")?.UserId ?? "", Connection, LeaderboardId, refreshProfiles);
+            if (state.Roster.Length>0)
+            {
+                foreach(var player in state.Players)
+                    if(player!=null) {var ranked=state.Roster.FirstOrDefault(p=>p.UserId==player.UserId);if(ranked!=null&&!ranked.Bot)(player.Team=="A"?_profileA:_profileB).SetMmr(ranked.Rating);}
+
+                _roster.Text=string.Join("\n",state.Roster.Select((p,i)=>$"{(p.UserId==UserId ? "YOU" : p.Bot ? "BOT" : "PLAYER")} {i+1} / HP {p.Hp}/30{(p.Place>0 ? $" / #{p.Place}" : "")}"));
+                if (state.Phase=="eliminated") {_replayGeneration++;_battle.HideResult();}
+            }
             _identity.Text = $"ROOM {state.Code} / PLAYER {_shop.LocalTeam} / {UserId[..8]}";
             if (state.Phase == "preparation")
             { _battle.HideResult();if (_planRound != state.Round) _replayGeneration++; }
@@ -184,16 +227,28 @@ public partial class OnlineBattle : Node
             string b = State.Players.Length > 1 && State.Players[1]?.Ready == true ? "READY" : "PREPARING";
             status = State.Phase switch {
                 "waiting" => "Waiting for second player...",
-                "preparation" => $"PREPARATION {remaining:00}s / A {a} / B {b}",
-                "battle" => "BATTLE / SERVER REPLAY",
-                "finished" => "BATTLE FINISHED / NEXT ROUND",
-                "game_over" => $"MATCH OVER / PLAYER {State.Winner} WINS",
+                "preparation" => State.Roster.Length>0 ? $"PREPARATION {remaining:00}s / {State.Roster.Count(p=>p.Hp>0&&p.Ready)}/{State.Roster.Count(p=>p.Hp>0)} READY" : $"PREPARATION {remaining:00}s / A {a} / B {b}",
+                "battle" => State.Roster.Length>0
+                    ? (Connection!.ServerNowMs >= (State.Battle?.EndMs ?? long.MaxValue)
+                        ? $"WAITING FOR OTHER BATTLES / SHOP LOCKED / {Math.Max(0,(State.DeadlineMs-Connection.ServerNowMs+999)/1000)}s MAX"
+                        : $"BATTLE / {Math.Max(0,(State.DeadlineMs-Connection.ServerNowMs+999)/1000)}s MAX")
+                    : "BATTLE / SERVER REPLAY",
+                "finished" => "PREPARING NEXT ROUND...",
+                "eliminated" => "ELIMINATED / Left match / Return to Lobby",
+                "game_over" => State.Roster.Length>0 ? (State.WinnerId==UserId ? "MATCH OVER / YOU WIN" : "MATCH OVER / Final standings") : $"MATCH OVER / PLAYER {State.Winner} WINS",
                 _ => State.Phase
             };
+            if (State.Roster.Length>0 && State.Phase is "eliminated" or "game_over")
+                status += State.MmrPending ? " / MMR updating" : $" / MMR {State.MmrDelta:+0;-0;0}";
             foreach (var player in State.Players)
                 if (player != null && !player.Connected) status += $" / {player.Team} DISCONNECTED";
         }
         if (status != _displayedStatus) { _displayedStatus = status;_status.Text = status; }
+    }
+    private void ShowFinalResult(OnlineState state)
+    {
+        if (state.Roster.Length==0) _battle.ShowMatchResult(state.Winner);
+        else _battle.ShowLeagueResult(state.WinnerId==UserId,state.Roster.FirstOrDefault(p=>p.UserId==UserId)?.Place??0);
     }
     private void PositionProfiles(string localTeam)
     {
@@ -221,7 +276,9 @@ public partial class OnlineBattle : Node
         {
             foreach (var combat in plan.Events)
             {
+                if (Connection!.ServerNowMs >= plan.EndMs || combat.AtMs >= plan.EndMs) break;
                 await WaitUntil(combat.AtMs,generation);
+                if (Connection!.ServerNowMs >= plan.EndMs) break;
                 if (!_shop.NetworkUnits.TryGetValue(combat.Attacker,out var attacker) || !_shop.NetworkUnits.TryGetValue(combat.Target,out var target))
                     throw new InvalidOperationException("Replay unit is missing.");
                 if (Connection!.ServerNowMs >= combat.AtMs + 2400)
@@ -235,10 +292,16 @@ public partial class OnlineBattle : Node
                     }
                     continue;
                 }
-                await _battle.PlayServerEvent(attacker,target,combat);
+                await _battle.PlayServerEvent(attacker,target,combat,plan.EndMs);
             }
             await WaitUntil(plan.EndMs,generation);
-            if (State?.Phase == "game_over") _battle.ShowMatchResult(State.Winner);
+            // Resolve skipped animation events without changing the computed outcome.
+            foreach (var combat in plan.Events)
+                if (_shop.NetworkUnits.TryGetValue(combat.Target,out var finalTarget)) {
+                    finalTarget.ApplyServerHealth(combat.TargetHp);
+                    if (combat.Dead) { finalTarget.Sprite.Play(BattleAnimations.Die);finalTarget.Sprite.SetFrameAndProgress(finalTarget.Sprite.SpriteFrames.GetFrameCount(BattleAnimations.Die)-1,0);finalTarget.Sprite.Stop(); }
+                }
+            if (State?.Phase == "game_over") ShowFinalResult(State);
             else _battle.ShowServerResult(plan.Winner);
         }
         catch (OperationCanceledException) { }

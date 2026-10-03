@@ -36,8 +36,21 @@ public sealed class OnlinePlayer
     [JsonPropertyName("hand_count")] public int HandCount { get; set; }
     [JsonPropertyName("units")] public OnlineUnit[] Units { get; set; } = Array.Empty<OnlineUnit>();
 }
+public sealed class OnlineStanding
+{
+    [JsonPropertyName("user_id")] public string UserId { get; set; } = "";
+    [JsonPropertyName("hp")] public int Hp { get; set; }
+    [JsonPropertyName("bot")] public bool Bot { get; set; }
+    [JsonPropertyName("rating")] public int Rating { get; set; }
+    [JsonPropertyName("place")] public int Place { get; set; }
+    [JsonPropertyName("ready")] public bool Ready { get; set; }
+}
 public sealed class OnlineState
 {
+    [JsonPropertyName("mmr_delta")] public int MmrDelta { get; set; }
+    [JsonPropertyName("mmr_pending")] public bool MmrPending { get; set; }
+    [JsonPropertyName("roster")] public OnlineStanding[] Roster { get; set; } = Array.Empty<OnlineStanding>();
+    [JsonPropertyName("winner_id")] public string WinnerId { get; set; } = "";
     [JsonPropertyName("winner")] public string Winner { get; set; } = "";
     [JsonPropertyName("code")] public string Code { get; set; } = "";
     [JsonPropertyName("phase")] public string Phase { get; set; } = "";
@@ -93,6 +106,7 @@ public sealed class RoomResponse
 }
 public sealed class RoomRequest
 {
+    [JsonPropertyName("deck")] public DeckDefinition? Deck { get; set; }
     [JsonPropertyName("code")] public string Code { get; set; } = "";
 }
 public sealed class ServerClock

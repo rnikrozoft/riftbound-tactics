@@ -38,8 +38,7 @@ public partial class HealthOnlineIntegrationRunner : Node
             int hp=30;
             for (int round=1;round<=10;round++) {
                 if (round>1) {
-                    await Action(a,sa,"next"); await Action(b,sb,"next");
-                    await Wait(()=>sa.Drafting&&sb.Drafting&&sa.TurnNumber==round,"next preparation");
+                    await Wait(()=>sa.Drafting&&sb.Drafting&&sa.TurnNumber==round,"automatic next preparation without client acknowledgements");
                     Check(sa.Coins==previousA+CardShop.RoundIncome(round)&&sb.Coins==previousB+CardShop.RoundIncome(round),"Unspent network coins carry forward");
                 }
                 if(round==2) {
@@ -58,14 +57,32 @@ public partial class HealthOnlineIntegrationRunner : Node
                 Check(sa.Coins==previousA&&sb.Coins==previousB,"Battle never changes coins");
                 Check(gb.GetNode<Label>("UI/SafeArea/Content/ProfileB/Coins").Text.Contains($"HP: {hp}/30"),"Profile shows server health");
                 if(hp==0) break;
+                Check(!sa.ZoneA.Visible&&!sb.ZoneA.Visible,"post-round buttons and text hidden");
+                Check(!ga.GetNode<Control>("UI/SafeArea/Content/BattleResult").Visible&&!gb.GetNode<Control>("UI/SafeArea/Content/BattleResult").Visible,"round winner banners hidden");
+                var intermediate=await a.Connection!.Client.ListLeaderboardRecordsAsync(a.Connection.Session,NakamaConnection.WinsLeaderboardId,new[]{a.UserId},limit:1);
+                Check(!intermediate.OwnerRecords.Any(),"round wins never award leaderboard points");
             }
             Check(a.State!.Phase=="game_over"&&b.State!.Phase=="game_over"&&a.State.Winner=="A","Zero health immediately ends match");
             Check(sa.GameOver&&sb.GameOver&&!sa.Drafting&&!sb.Drafting,"No shop after match ends");
             long revision=a.State.Revision; sa.ConfirmTurn(); sb.ConfirmTurn();
             await ToSignal(GetTree().CreateTimer(.3),SceneTreeTimer.SignalName.Timeout);
             Check(a.State.Revision==revision,"Next round button cannot advance terminal match");
+            var points=await a.Connection!.Client.ListLeaderboardRecordsAsync(a.Connection.Session,NakamaConnection.WinsLeaderboardId,new[]{a.UserId,b.UserId},limit:10);
+            Check(points.OwnerRecords.Single(r=>r.OwnerId==a.UserId).Score=="1","match win awards one real Nakama point");
+            Check(!points.OwnerRecords.Any(r=>r.OwnerId==b.UserId),"loss does not award points");
+            bool rejected=false;try{await a.Connection.Client.WriteLeaderboardRecordAsync(a.Connection.Session,NakamaConnection.WinsLeaderboardId,999);}catch{rejected=true;}
+            Check(rejected,"client cannot forge authoritative score");
+            await ToSignal(GetTree().CreateTimer(2),SceneTreeTimer.SignalName.Timeout);
+            points=await a.Connection.Client.ListLeaderboardRecordsAsync(a.Connection.Session,NakamaConnection.WinsLeaderboardId,new[]{a.UserId},limit:1);
+            Check(points.OwnerRecords.Single().Score=="1","repeat game-over ticks do not duplicate win");
+            var persistent=GameAccount.Connection();await persistent.Connect();string persistentId=persistent.Session.UserId;await persistent.Close();
+            var restored=GameAccount.Connection();await restored.Connect();Check(restored.Session.UserId==persistentId,"device account persists across new connections");await restored.Close();
             ga.GetParent().QueueFree(); gb.GetParent().QueueFree();
             await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            var lobby=GD.Load<PackedScene>("res://scenes/lobby.tscn").Instantiate<Lobby>();AddChild(lobby);lobby.Navigate("Leaderboard");
+            var page=lobby.FindChildren("*","",true,false).OfType<LeaderboardPage>().First();
+            await Wait(()=>!page.Loading,"leaderboard page load");Check(page.RecordCount>0,"UI displays real leaderboard records");
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);GetViewport().GetTexture().GetImage().SavePng("res://tests/deck-leaderboard.png");lobby.QueueFree();
             GD.Print($"ONLINE HEALTH PASS: {_checks} checks"); GetTree().Quit();
         } catch(Exception e) { GD.PushError(e.ToString()); GetTree().Quit(1); }
     }
