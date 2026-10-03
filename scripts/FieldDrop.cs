@@ -64,7 +64,7 @@ public partial class FieldDrop : Control
         var original = unit.Sprite;
         preview.AddChild(new Sprite2D {
             Texture = original.SpriteFrames.GetFrameTexture(original.Animation,original.Frame), Position = new(32,40),
-            Scale = original.Scale * Shop.Camera.Zoom, FlipH = original.FlipH, TextureFilter = TextureFilterEnum.Nearest
+            Scale = original.GlobalScale, FlipH = original.FlipH, TextureFilter = TextureFilterEnum.Nearest
         });
         SetDragPreview(preview);
         return new CardDrag { Shop = Shop, Unit = unit };

@@ -11,11 +11,20 @@ public partial class BattleUnit : CharacterBody2D
     public int CardToken { get; set; } = -1;
     public string ServerId { get; set; } = "";
     public int CardKind { get; set; }
+    public int Stars { get; private set; } = 1;
+    public int Attack => 30 * Stars;
+    public int Speed => 10 + 2 * (Stars - 1);
+    private readonly Sprite2D[] _stars = new Sprite2D[4];
+    public void ConfigureStars(int stars, bool animate = false)
+    {
+        int previous = Stars; Stars = Mathf.Clamp(stars,1,4); MaxHealth = 100 * Stars;
+        if (_bar != null) { if (Stars != previous) ResetHealth(); for(int i=0;i<4;i++) _stars[i].Visible = i < Stars; }
+        if (animate && Stars > previous) UpgradeEffect.Play(this, new(0,-20));
+    }
     public int GridSlot { get; set; } = -1;
     public AnimatedSprite2D Sprite { get; private set; } = null!;
     public bool IsAlly { get; private set; }
     private TextureProgressBar _bar = null!;
-    private const string Ui = "res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/";
 
     public override void _Ready()
     {
@@ -24,14 +33,15 @@ public partial class BattleUnit : CharacterBody2D
         Health = MaxHealth;
         _bar = new TextureProgressBar {
             Name = "HealthBar", Position = new(-16, -43), MouseFilter = Control.MouseFilterEnum.Ignore,
-            MaxValue = MaxHealth, Value = Health, TextureUnder = GD.Load<Texture2D>(Ui + "UI_Flat_Bar05a.png"),
-            TextureProgress = new AtlasTexture {
-                Atlas = GD.Load<Texture2D>(Ui + (IsAlly ? "UI_Flat_BarFill01f.png" : "UI_Flat_BarFill01c.png")),
-                Region = new Rect2(0, 0, 28, 3)
-            }, TextureProgressOffset = new(2, 3)
+            MaxValue = MaxHealth, Value = Health, TextureUnder = TravelBookUi.Texture("Bar01a"),
+            TextureProgress = TravelBookUi.Texture(IsAlly ? "Fill01a" : "Fill01b"),
+            NinePatchStretch = true, StretchMarginLeft = 1, StretchMarginRight = 1,
+            TextureProgressOffset = new(1, 1)
         };
         AddChild(_bar);
-        _bar.Size = new(32, 10);
+        _bar.Size = new(64, 6);
+        _bar.Scale = new(.5f, 1);
+        for(int i=0;i<4;i++) { _stars[i] = new Sprite2D { Texture = TravelBookUi.Texture("IconStar01a"), Position = new(-10.5f+i*7,-51), Scale = new(.4f,.4f), Visible = i < Stars }; AddChild(_stars[i]); }
     }
 
     public void TakeDamage(int amount)

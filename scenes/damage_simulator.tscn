@@ -9,7 +9,7 @@ script = ExtResource("2_lab")
 
 [node name="Battlefield" parent="." instance=ExtResource("1_field")]
 
-[node name="BattleDemo" parent="Battlefield" index="19"]
+[node name="BattleDemo" parent="Battlefield" index="18"]
 AutoStart = false
 
 [node name="LabUI" type="CanvasLayer" parent="."]

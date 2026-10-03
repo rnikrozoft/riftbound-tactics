@@ -3,22 +3,34 @@ using System.Text.Json.Serialization;
 
 public sealed class OnlineCard
 {
+    [JsonPropertyName("veteran")] public bool Veteran { get; set; }
+    [JsonPropertyName("stars")] public int Stars { get; set; } = 1;
+    [JsonPropertyName("paid")] public int Paid { get; set; }
     [JsonPropertyName("token")] public int Token { get; set; }
     [JsonPropertyName("kind")] public int Kind { get; set; }
+    [JsonPropertyName("price")] public int Price { get; set; } = 2;
 }
 public sealed class OnlineUnit
 {
+    [JsonPropertyName("stars")] public int Stars { get; set; } = 1;
     [JsonPropertyName("token")] public int Token { get; set; }
     [JsonPropertyName("kind")] public int Kind { get; set; }
     [JsonPropertyName("slot")] public int Slot { get; set; }
     [JsonPropertyName("veteran")] public bool Veteran { get; set; }
+    [JsonPropertyName("purchase_price")] public int PurchasePrice { get; set; } = 2;
 }
 public sealed class OnlinePlayer
 {
+    [JsonPropertyName("hp")] public int Hp { get; set; } = 30;
+    [JsonPropertyName("last_damage")] public int LastDamage { get; set; }
     [JsonPropertyName("user_id")] public string UserId { get; set; } = "";
     [JsonPropertyName("team")] public string Team { get; set; } = "";
     [JsonPropertyName("connected")] public bool Connected { get; set; }
     [JsonPropertyName("ready")] public bool Ready { get; set; }
+    [JsonPropertyName("coins")] public int Coins { get; set; }
+    [JsonPropertyName("shop_level")] public int ShopLevel { get; set; } = 2;
+    [JsonPropertyName("upgrade_cost")] public int UpgradeCost { get; set; } = 2;
+    [JsonPropertyName("shop_locked")] public bool ShopLocked { get; set; }
     [JsonPropertyName("offers")] public OnlineCard[] Offers { get; set; } = Array.Empty<OnlineCard>();
     [JsonPropertyName("hand")] public OnlineCard[] Hand { get; set; } = Array.Empty<OnlineCard>();
     [JsonPropertyName("hand_count")] public int HandCount { get; set; }
@@ -26,6 +38,7 @@ public sealed class OnlinePlayer
 }
 public sealed class OnlineState
 {
+    [JsonPropertyName("winner")] public string Winner { get; set; } = "";
     [JsonPropertyName("code")] public string Code { get; set; } = "";
     [JsonPropertyName("phase")] public string Phase { get; set; } = "";
     [JsonPropertyName("round")] public int Round { get; set; }
@@ -57,6 +70,7 @@ public sealed class OnlineCombatEvent
 }
 public sealed class OnlinePlan
 {
+    [JsonPropertyName("player_damage")] public int PlayerDamage { get; set; }
     [JsonPropertyName("round")] public int Round { get; set; }
     [JsonPropertyName("start_ms")] public long StartMs { get; set; }
     [JsonPropertyName("end_ms")] public long EndMs { get; set; }

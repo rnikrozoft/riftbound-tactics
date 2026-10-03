@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 public partial class OnlineBattle : Node
 {
     [Export] public string Host { get; set; } = "127.0.0.1";
+    [Export] public string LeaderboardId { get; set; } = "";
+    private PlayerProfile _profileA = null!, _profileB = null!;
+    private int _profileRound = -1;
     [Export] public int Port { get; set; } = 7350;
     public NakamaConnection? Connection { get; private set; }
     public OnlineState? State { get; private set; }
@@ -20,7 +23,6 @@ public partial class OnlineBattle : Node
     private HBoxContainer _roomControls = null!;
     private LineEdit _code = null!;
     private TextureButton _create = null!, _join = null!;
-    private Texture2D _sheet = null!;
     private SceneTree _tree = null!;
     private long _sequence, _pendingSequence, _lastRevision = -1;
     private int _planRound, _replayGeneration;
@@ -35,17 +37,18 @@ public partial class OnlineBattle : Node
         if (!_battle.NetworkEnabled || !_battle.AutoStart) { SetProcess(false); return; }
         _tree = GetTree(); _shop = GetParent().GetNode<CardShop>("UI/SafeArea/Content/CardShop");
         _shop.Online = this; _shop.ZoneA.Hide(); _shop.ZoneB.Hide();
-        _sheet = GD.Load<Texture2D>("res://assets/cards/pixelCardAssest_V01.png");
+        _profileA = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileA");
+        _profileB = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileB");
         BuildUi();
         Callable.From(ConnectDebugUser).CallDeferred();
     }
-    private AtlasTexture Atlas(Rect2 rect) => new() { Atlas = _sheet,Region = rect };
     private TextureButton Button(string text, Action action, int width)
     {
         var button = new TextureButton {
-            TextureNormal = Atlas(new(16,223,96,29)), IgnoreTextureSize = true, StretchMode = TextureButton.StretchModeEnum.Scale,
+            TextureNormal = TravelBookUi.Texture("FrameSelect01a"), IgnoreTextureSize = true, StretchMode = TextureButton.StretchModeEnum.Scale,
             CustomMinimumSize = new(width,30), TextureFilter = CanvasItem.TextureFilterEnum.Nearest
         };
+        TravelBookUi.StyleButton(button);
         var label = new Label { Text = text, Modulate = Colors.Black, HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,MouseFilter = Control.MouseFilterEnum.Ignore };
         button.AddChild(label); label.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -53,17 +56,17 @@ public partial class OnlineBattle : Node
     }
     private void BuildUi()
     {
-        var panel = new VBoxContainer { Name = "RoomUI", Position = new(0,0),Size = new(330,120),MouseFilter = Control.MouseFilterEnum.Ignore };
+        var panel = new VBoxContainer { Name = "RoomUI", Position = new(12,12),Size = new(330,120),MouseFilter = Control.MouseFilterEnum.Ignore };
         GetParent().GetNode<Control>("UI/SafeArea/Content").AddChild(panel);
         _identity = new Label { Text = "Connecting / new debug user...",MouseFilter = Control.MouseFilterEnum.Ignore };
         panel.AddChild(_identity);
         _roomControls = new HBoxContainer(); panel.AddChild(_roomControls);
         var inputFrame = new NinePatchRect {
-            Texture = Atlas(new(22,137,86,71)), PatchMarginLeft = 8,PatchMarginRight = 8,PatchMarginTop = 8,PatchMarginBottom = 8,
+            Texture = TravelBookUi.Texture("Popup01a"), PatchMarginLeft = 4,PatchMarginRight = 4,PatchMarginTop = 4,PatchMarginBottom = 4,
             CustomMinimumSize = new(112,30),MouseFilter = Control.MouseFilterEnum.Ignore
         };
         _roomControls.AddChild(inputFrame);
-        var paper = new TextureRect { Texture = Atlas(new(24,484,76,100)),ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,MouseFilter = Control.MouseFilterEnum.Ignore };
+        var paper = new TextureRect { Texture = TravelBookUi.Texture("BookPageRight01a"),ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,MouseFilter = Control.MouseFilterEnum.Ignore };
         inputFrame.AddChild(paper);paper.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         paper.OffsetLeft = paper.OffsetTop = 4;paper.OffsetRight = paper.OffsetBottom = -4;
         _code = new LineEdit { PlaceholderText = "Room code",MaxLength = 6,MouseFilter = Control.MouseFilterEnum.Stop };
@@ -129,7 +132,7 @@ public partial class OnlineBattle : Node
     {
         if (_exiting || _transportLost || !Connected || Connection == null || State == null || _shop.NetworkPending) return;
         var action = new OnlineAction { Type = type,Token = token,Slot = slot,Round = State.Round,Sequence = ++_sequence };
-        _pendingSequence = action.Sequence;_shop.NetworkPending = true;
+        _pendingSequence = action.Sequence;_shop.NetworkPending = true; _shop.RefreshNetworkControls();
         try { await Connection.Send(action); }
         catch (Exception exception) { _errors.Enqueue(new() { Message = exception.Message,Sequence = action.Sequence }); }
     }
@@ -154,6 +157,14 @@ public partial class OnlineBattle : Node
             if (!changed) continue;
             _message = ""; _roomControls.Hide();
             _shop.ApplyNetworkState(state,UserId);
+            PositionProfiles(_shop.LocalTeam);
+            foreach (var player in state.Players)
+                if (player != null) { var profile = player.Team == "A" ? _profileA : _profileB; profile.SetCoins(player.Coins); profile.SetHealth(player.Hp); }
+            if (state.Phase == "game_over") _battle.ShowMatchResult(state.Winner);
+            bool refreshProfiles = _profileRound != state.Round;
+            _profileRound = state.Round;
+            _profileA.SetPlayer(Array.Find(state.Players, p => p?.Team == "A")?.UserId ?? "", Connection, LeaderboardId, refreshProfiles);
+            _profileB.SetPlayer(Array.Find(state.Players, p => p?.Team == "B")?.UserId ?? "", Connection, LeaderboardId, refreshProfiles);
             _identity.Text = $"ROOM {state.Code} / PLAYER {_shop.LocalTeam} / {UserId[..8]}";
             if (state.Phase == "preparation")
             { _battle.HideResult();if (_planRound != state.Round) _replayGeneration++; }
@@ -163,11 +174,12 @@ public partial class OnlineBattle : Node
                 PlayReplay(state.Battle,++_replayGeneration);
             }
         }
-        if (_transportLost) { Connected = false; _shop.LockNetworkInteraction(); _replayGeneration++; _transportLost = false; }
+        if (_transportLost) { _shop.UpdateCountdown(0, false); Connected = false; _shop.LockNetworkInteraction(); _replayGeneration++; _transportLost = false; }
         string status = _message;
         if (State != null && string.IsNullOrEmpty(status))
         {
             int remaining = State.Phase == "preparation" ? (int)Math.Max(0,(State.DeadlineMs - Connection!.ServerNowMs + 999)/1000) : 0;
+            _shop.UpdateCountdown(remaining, State.Phase == "preparation" && Connected);
             string a = State.Players[0]?.Ready == true ? "READY" : "PREPARING";
             string b = State.Players.Length > 1 && State.Players[1]?.Ready == true ? "READY" : "PREPARING";
             status = State.Phase switch {
@@ -175,12 +187,24 @@ public partial class OnlineBattle : Node
                 "preparation" => $"PREPARATION {remaining:00}s / A {a} / B {b}",
                 "battle" => "BATTLE / SERVER REPLAY",
                 "finished" => "BATTLE FINISHED / NEXT ROUND",
+                "game_over" => $"MATCH OVER / PLAYER {State.Winner} WINS",
                 _ => State.Phase
             };
             foreach (var player in State.Players)
                 if (player != null && !player.Connected) status += $" / {player.Team} DISCONNECTED";
         }
         if (status != _displayedStatus) { _displayedStatus = status;_status.Text = status; }
+    }
+    private void PositionProfiles(string localTeam)
+    {
+        // Keep each profile tied to its team; swap the responsive screen positions for player B.
+        foreach (var profile in new[] { _profileA, _profileB })
+        {
+            bool local = profile.Team == localTeam;
+            profile.AnchorLeft = profile.AnchorRight = local ? 0 : 1;
+            profile.OffsetLeft = local ? 12 : -284;
+            profile.OffsetRight = local ? 284 : -12;
+        }
     }
     private async Task WaitUntil(long time, int generation)
     {
@@ -214,7 +238,8 @@ public partial class OnlineBattle : Node
                 await _battle.PlayServerEvent(attacker,target,combat);
             }
             await WaitUntil(plan.EndMs,generation);
-            _battle.ShowServerResult(plan.Winner);
+            if (State?.Phase == "game_over") _battle.ShowMatchResult(State.Winner);
+            else _battle.ShowServerResult(plan.Winner);
         }
         catch (OperationCanceledException) { }
         catch (Exception exception) { if (!_exiting) { _message = "Replay error: " + exception.Message;GD.PushError(exception.ToString()); } }

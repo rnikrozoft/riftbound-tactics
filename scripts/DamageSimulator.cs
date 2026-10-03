@@ -19,8 +19,6 @@ public partial class DamageSimulator : Node
     public HashSet<string> Favorites { get; } = new();
     public bool Busy { get; private set; }
     private const string ChoicesPath = "user://effect_choices.json";
-    private const string Ui = "res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/";
-    private Texture2D _normal = null!, _pressed = null!, _hover = null!;
     private readonly List<string> _categories = new() { "Impacts" };
     private readonly Dictionary<int,SpriteFrames> _cache = new();
     private readonly RandomNumberGenerator _rng = new();
@@ -30,7 +28,7 @@ public partial class DamageSimulator : Node
     private TextureButton _categoryButton = null!, _keepButton = null!;
     private BattleUnit _target = null!;
     private AnimatedSprite2D _sprite = null!, _effect = null!;
-    private Camera2D _camera = null!;
+    private BattleDisplay _field = null!;
     private SceneTree _tree = null!;
     private bool _loop, _hitstop = true, _shake = true, _exiting;
     private float _shakeLeft, _loopElapsed;
@@ -50,21 +48,20 @@ public partial class DamageSimulator : Node
         var field = GetNode<Node2D>("Battlefield");
         field.GetNode<BattleDemo>("BattleDemo").SetProcess(false);
         field.GetNode<Control>("UI/SafeArea/Content/EffectsLabButton").Hide();
+        field.GetNode<Control>("UI/SafeArea/Content/ProfileA").Hide();
+        field.GetNode<Control>("UI/SafeArea/Content/ProfileB").Hide();
         field.GetNode<CardShop>("UI/SafeArea/Content/CardShop").Hide();
         foreach (var child in field.GetChildren()) if (child is BattleUnit unit) unit.Visible = unit.Name == "Enemy_02";
         _target = field.GetNode<BattleUnit>("Enemy_02"); _target.Position = new(480,408);
-        _sprite = _target.Sprite; _camera = field.GetNode<Camera2D>("Camera2D");
+        _sprite = _target.Sprite; _field = (BattleDisplay)field;
         _effect = new AnimatedSprite2D { Name = "DamageEffect", TextureFilter = CanvasItem.TextureFilterEnum.Nearest, ZIndex = 10, Position = new(0,-18), Visible = false };
         _target.AddChild(_effect);
-        _normal = GD.Load<Texture2D>(Ui + "UI_Flat_Button01a_1.png");
-        _pressed = GD.Load<Texture2D>(Ui + "UI_Flat_Button01a_2.png");
-        _hover = GD.Load<Texture2D>(Ui + "UI_Flat_Button01a_3.png");
         BuildUi(); RebuildList(); SetProcess(false);
     }
     public override void _Process(double delta)
     {
         _shakeLeft = Mathf.Max(0,_shakeLeft - (float)delta);
-        _camera.Offset = _shakeLeft > 0 ? new Vector2(_rng.RandfRange(-2.5f,2.5f),_rng.RandfRange(-2.5f,2.5f)) * _shakeLeft / .2f : Vector2.Zero;
+        _field.ArenaOffset = _shakeLeft > 0 ? new Vector2(_rng.RandfRange(-2.5f,2.5f),_rng.RandfRange(-2.5f,2.5f)) * -_field.Scale * _shakeLeft / .2f : Vector2.Zero;
         if (_loop)
         {
             _loopElapsed += (float)delta;
@@ -75,11 +72,11 @@ public partial class DamageSimulator : Node
     private TextureButton Button(string text, Action action, float width = 340)
     {
         var button = new TextureButton {
-            TextureNormal = _normal, TexturePressed = _pressed, TextureHover = _hover,
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest, IgnoreTextureSize = true,
             StretchMode = TextureButton.StretchModeEnum.Scale, CustomMinimumSize = new(width,36),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
+        TravelBookUi.StyleButton(button);
         var label = new Label { Name = "Text", Text = text, Modulate = Colors.Black,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -190,7 +187,7 @@ public partial class DamageSimulator : Node
     public override void _ExitTree()
     {
         _exiting = true;
-        if (GodotObject.IsInstanceValid(_camera)) _camera.Offset = Vector2.Zero;
+        if (GodotObject.IsInstanceValid(_field)) _field.ArenaOffset = Vector2.Zero;
         if (GodotObject.IsInstanceValid(_sprite)) _sprite.SpeedScale = 1;
         if (GodotObject.IsInstanceValid(_effect)) _effect.SpeedScale = 1;
     }

@@ -39,8 +39,8 @@ public partial class OnlineIntegrationRunner : Node
             var other = _shopB.NetworkUnits[pair.Key];
             var ownerShop = pair.Key.StartsWith("A:") ? _shopA : _shopB;
             var enemyShop = ownerShop == _shopA ? _shopB : _shopA;
-            Check(ownerShop.NetworkUnits[pair.Key].Position == ownerShop.Tiles.ToGlobal(ownerShop.Tiles.MapToLocal(CardShop.DeploymentCells[pair.Value.GridSlot])),"Own hero must be on left");
-            Check(enemyShop.NetworkUnits[pair.Key].Position == enemyShop.Tiles.ToGlobal(enemyShop.Tiles.MapToLocal(new Vector2I(102,36) - CardShop.DeploymentCells[pair.Value.GridSlot])),"Opponent must be on right");
+            Check(ownerShop.NetworkUnits[pair.Key].GlobalPosition.IsEqualApprox(ownerShop.Tiles.ToGlobal(ownerShop.Tiles.MapToLocal(CardShop.DeploymentCells[pair.Value.GridSlot]))),"Own hero must be on left");
+            Check(enemyShop.NetworkUnits[pair.Key].GlobalPosition.IsEqualApprox(enemyShop.Tiles.ToGlobal(enemyShop.Tiles.MapToLocal(new Vector2I(102,36) - CardShop.DeploymentCells[pair.Value.GridSlot]))),"Opponent must be on right");
             Check(pair.Value.IsAlly != other.IsAlly,"Team orientation differs");
         }
     }
@@ -62,8 +62,8 @@ public partial class OnlineIntegrationRunner : Node
                     var own = shop.NetworkUnits[localTeam + ":" + (slot+1)];
                     var other = shop.NetworkUnits[(localTeam == "A" ? "B" : "A") + ":" + (slot+1)];
                     var ownCell = CardShop.DeploymentCells[slot];
-                    Check(own.Position == shop.Tiles.ToGlobal(shop.Tiles.MapToLocal(ownCell)),"Own slot changed");
-                    Check(other.Position == shop.Tiles.ToGlobal(shop.Tiles.MapToLocal(new Vector2I(102,36) - ownCell)),"Opponent slot must rotate 180 degrees");
+                    Check(own.GlobalPosition.IsEqualApprox(shop.Tiles.ToGlobal(shop.Tiles.MapToLocal(ownCell))),"Own slot changed");
+                    Check(other.GlobalPosition.IsEqualApprox(shop.Tiles.ToGlobal(shop.Tiles.MapToLocal(new Vector2I(102,36) - ownCell))),"Opponent slot must rotate 180 degrees");
                     Check(other.GridSlot == slot,"Visual rotation changed authoritative slot identity");
                 }
             }
@@ -79,7 +79,7 @@ public partial class OnlineIntegrationRunner : Node
             await Wait(() => _shopA.Drafting && _shopB.Drafting,"Shared preparation");
             Check(_netA.LocalTeam == "A" && _netB.LocalTeam == "B","Stable roles");
             Check(_netA.State!.DeadlineMs - _netA.State.ServerMs <= 60000 && _netA.State.DeadlineMs - _netA.State.ServerMs > 58000,"60 second preparation");
-            Check(_shopA.Offers.Count == 4 && _shopB.Offers.Count == 4,"Both get shops");
+            Check(_shopA.Offers.Count == 3 && _shopB.Offers.Count == 3,"Both get shops");
             Check(!_shopA.OpponentHandZone.Visible && !_shopB.OpponentHandZone.Visible,"Opponent backs visible before battle");
             Check(_netA.State.Players[1]!.Hand.Length == 0 && _netA.State.Players[1]!.Offers.Length == 0,"Opponent private cards leaked");
             third = new();await third.Connect();
@@ -88,6 +88,11 @@ public partial class OnlineIntegrationRunner : Node
             Check(denied,"Third player admitted");
             await third.Close();third = null;
 
+            Check(_shopA.Coins == 4 && _shopB.Coins == 4 && _shopA.Offers.Count == 3, "Network starting economy");
+            _shopB.UpgradeShop(); await Wait(() => !_shopB.NetworkPending && _shopB.ShopLevel == 3,"Paid network upgrade");
+            Check(_shopB.Coins==2 && _shopB.UpgradeCost==8 && _shopB.Offers.Count==3,"Upgrade deduction/reset without refill");
+            _shopA.ToggleShopLock(); await Wait(() => !_shopA.NetworkPending && _shopA.ShopLocked,"Network lock");
+            _shopA.RerollShop(); Check(_shopA.Coins == 4 && !_shopA.NetworkPending,"Locked reroll should not send");
             int aToken = _shopA.Offers[0].Token,bToken = _shopB.Offers[0].Token;
             Check(_shopA.TakeCard(aToken),"A purchase queued");
             Check(_shopA.Hand.Count == 0,"Client applied purchase before server");
@@ -104,7 +109,7 @@ public partial class OnlineIntegrationRunner : Node
             if (_netA.State?.Phase == "battle") CompareBoard();
             Check(_shopB.Deployed[bToken].Unit.IsAlly,"B units placed on wrong side");
             var ownB = _shopB.Deployed[bToken].Unit;
-            Check(_shopB.PickUnit(ownB.Position) == ownB,"B cannot drag its unit");
+            Check(_shopB.PickUnit(ownB.GlobalPosition) == ownB,"B cannot drag its unit");
             Check(!_shopB.NetworkUnits.ContainsKey("A:"+aToken),"Opponent revealed before battle");
             await Action(_netB,_shopB,"move",bToken,2);
             Check(_shopB.Deployed[bToken].Unit.GridSlot == 2,"Own move not applied");
@@ -113,7 +118,10 @@ public partial class OnlineIntegrationRunner : Node
 
             // Buying a spare card proves hands remain usable for inspection during battle.
             await Action(_netA,_shopA,"buy",_shopA.Offers[0].Token);
-            _shopA.ConfirmTurn();await Wait(() => !_shopA.Drafting,"A readiness lock");
+            Check(_shopA.Coins == 0 && _shopB.Coins == 0,"Authoritative purchase deductions");
+            int[] lockedTokens = _shopA.Offers.Select(c=>c.Token).ToArray();
+            _shopA.ConfirmTurn();await Wait(() => _shopA.ReadyForBattle,"A readiness confirmation");
+            Check(_shopA.Drafting,"Preparation editing remains enabled after ready");
             Check(_netA.State!.Phase == "preparation","One ready started combat");
             _shopB.ConfirmTurn();
             await Wait(() => _netA.State?.Phase == "battle" && _netB.State?.Phase == "battle","Both ready start");
@@ -142,8 +150,17 @@ public partial class OnlineIntegrationRunner : Node
             var dead = _shopA.NetworkUnits.Values.First(u=>u.IsDead);
             _shopA.ShowUnitDetails(dead);
             Check(_shopA.DetailsText.Text.Contains("DEAD"),"Dead network-unit inspection");_shopA.CloseDetails();
+            int endA = _shopA.Coins, endB = _shopB.Coins;
+            Check(endA == 0 && endB == 0,"Battle does not award coins");
             _shopA.ConfirmTurn();_shopB.ConfirmTurn();
             await Wait(() => _shopA.Drafting && _shopB.Drafting && _netA.State?.Round == 2,"Next round readiness");
+            Check(_shopA.Coins == endA + 6 && _shopB.Coins == endB + 6,"Network round income");
+            Check(_shopA.ShopLocked && lockedTokens.All(t => _shopA.Offers.Any(c=>c.Token==t)) && _shopA.Offers.Count==3,"Locked offers persist on server");
+            _shopA.UpgradeShop(); await Wait(() => !_shopA.NetworkPending && _shopA.ShopLevel==3,"Free round-two upgrade");
+            Check(_shopA.UpgradeCost==8 && _shopA.Coins==endA+6,"Free upgrade reset");
+            _shopA.ToggleShopLock(); await Wait(() => !_shopA.NetworkPending && !_shopA.ShopLocked,"Unlock");
+            _shopA.RerollShop(); await Wait(() => !_shopA.NetworkPending && _shopA.Coins==endA+4,"Paid network reroll");
+            Check(_shopA.Offers.Count==4 && _shopA.Offers.All(c=>c.Price<=3),"Network level-filtered reroll");
             Check(!_shopA.CanReturnUnit(_shopA.Deployed[aToken].Unit),"Veteran returned");
             Check(!_shopA.OpponentHandZone.Visible && !_shopB.OpponentHandZone.Visible,"Opponent backs remained visible in preparation");
             Check(_shopA.NetworkUnits.Count == 1 && _shopB.NetworkUnits.Count == 1,"Opponent from previous round remained visible");

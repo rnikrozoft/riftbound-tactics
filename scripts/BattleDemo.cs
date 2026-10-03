@@ -29,12 +29,11 @@ public partial class BattleDemo : Node
     private readonly float[] _speeds = new float[12];
     private int _frozenCount;
     private readonly RandomNumberGenerator _rng = new(), _shakeRng = new();
-    private Camera2D _camera = null!;
+    private BattleDisplay _field = null!;
     private Control _result = null!;
     private Label _resultText = null!;
     private CardShop _shop = null!;
     private SceneTree _tree = null!;
-    private Vector2 _cameraOffset;
     private float _shakeLeft, _floatTime;
     public long ServerVisualTimeMs { get; set; }
     private bool _exiting;
@@ -45,8 +44,7 @@ public partial class BattleDemo : Node
     {
         _rng.Randomize(); _shakeRng.Randomize();
         _tree = GetTree();
-        _camera = GetParent().GetNode<Camera2D>("Camera2D");
-        _cameraOffset = _camera.Offset;
+        _field = GetParent<BattleDisplay>();
         _result = GetParent().GetNode<Control>("UI/SafeArea/Content/BattleResult");
         _resultText = _result.GetNode<Label>("Text");
         _shop = GetParent().GetNode<CardShop>("UI/SafeArea/Content/CardShop");
@@ -70,7 +68,7 @@ public partial class BattleDemo : Node
         if (NetworkEnabled && ServerVisualTimeMs > 0)
             _floatTime = (float)((ServerVisualTimeMs / 1000.0) % Mathf.Max(.1f,ArenaFloatPeriod));
         else _floatTime += (float)delta;
-        var offset = _cameraOffset + new Vector2(0, Mathf.Sin(_floatTime * Mathf.Tau / Mathf.Max(.1f, ArenaFloatPeriod)) * ArenaFloatAmplitude);
+        var offset = new Vector2(0, Mathf.Sin(_floatTime * Mathf.Tau / Mathf.Max(.1f, ArenaFloatPeriod)) * ArenaFloatAmplitude);
         if (_shakeLeft > 0)
         {
             _shakeLeft = Mathf.Max(0, _shakeLeft - (float)delta);
@@ -83,7 +81,7 @@ public partial class BattleDemo : Node
             }
             else offset += new Vector2(_shakeRng.RandfRange(-strength, strength), _shakeRng.RandfRange(-strength, strength));
         }
-        _camera.Offset = offset;
+        _field.ArenaOffset = -offset * _field.Scale;
     }
 
     private void CheckAlive()
@@ -115,6 +113,7 @@ public partial class BattleDemo : Node
                 CheckAlive();
                 CollectTeams();
                 await RunCombat();
+                if (_shop.GameOver) break;
                 await _shop.WaitForNextRound();
                 CheckAlive();
                 _shop.ResetRoundUnits();
@@ -140,12 +139,16 @@ public partial class BattleDemo : Node
             EmitSignal(SignalName.TurnFinished, team, attacker);
             aTurn = !aTurn;
             if (_teamA.Count == 0 || _teamB.Count == 0) break;
-            await Delay(TurnDelay);
+            await Delay(TurnDelay * 10.0 / attacker.Speed);
         }
-        string winner = _teamA.Count > 0 ? "A" : "B";
-        _resultText.Text = $"PLAYER {winner} WINS";
+        string winner = _teamA.Count > 0 ? "A" : _teamB.Count > 0 ? "B" : "DRAW";
+        _resultText.Text = winner == "DRAW" ? "DRAW" : $"PLAYER {winner} WINS";
         _result.Show();
-        if (CardShopEnabled) _shop.FinishBattle();
+        if (CardShopEnabled) {
+            int stars = 0; foreach (var survivor in winner == "A" ? _teamA : _teamB) stars += survivor.Stars;
+            _shop.FinishBattle(winner, stars);
+            if (_shop.GameOver) _resultText.Text = $"PLAYER {winner} WINS MATCH";
+        }
         EmitSignal(SignalName.BattleFinished, winner);
     }
 
@@ -166,7 +169,7 @@ public partial class BattleDemo : Node
         { await ToSignal(sprite, AnimatedSprite2D.SignalName.FrameChanged); CheckAlive(); }
         targetSprite.FlipH = attackPosition.X < targetHome.X;
         if (serverEvent != null) target.ApplyServerHealth(serverEvent.TargetHp);
-        else target.TakeDamage(_rng.RandiRange(Math.Min(DamageMin, DamageMax), Math.Max(DamageMin, DamageMax)));
+        else target.TakeDamage(_rng.RandiRange(Math.Min(DamageMin, DamageMax), Math.Max(DamageMin, DamageMax)) * attacker.Stars);
         bool lethal = target.IsDead;
         if (lethal) { _teamA.Remove(target); _teamB.Remove(target); }
         targetSprite.Play(lethal ? BattleAnimations.Die : BattleAnimations.Hit);
@@ -206,6 +209,7 @@ public partial class BattleDemo : Node
         _resultText.Text = winner == "DRAW" ? "DRAW" : $"PLAYER {winner} WINS";
         _result.Show(); EmitSignal(SignalName.BattleFinished,winner);
     }
+    public void ShowMatchResult(string winner) { _resultText.Text = $"PLAYER {winner} WINS MATCH"; _result.Show(); }
     public void HideResult() => _result.Hide();
 
     private void FreezeSprites()
@@ -224,6 +228,6 @@ public partial class BattleDemo : Node
     {
         _exiting = true;
         RestoreSprites();
-        if (GodotObject.IsInstanceValid(_camera)) _camera.Offset = _cameraOffset;
+        if (GodotObject.IsInstanceValid(_field)) _field.ArenaOffset = Vector2.Zero;
     }
 }

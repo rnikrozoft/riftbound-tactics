@@ -9,3 +9,7 @@ obj/
 *.user
 # Generated integration screenshot
 tests/preparation-csharp.png
+
+# Generated economy UI previews
+tests/economy-*.png
+tests/economy-*.png.import

@@ -7,11 +7,17 @@ public partial class ShopCard : TextureRect
     public bool FromShop { get; private set; }
     private bool _canDrag, _dragStarted;
     private Vector2 _pressPosition;
+    private readonly TextureRect[] _stars = new TextureRect[4];
     public void Configure(CardData data, bool fromShop, bool draggable)
     {
         Token = data.Token; FromShop = fromShop; _canDrag = draggable;
+        for(int i=0;i<4;i++) {
+            if(_stars[i] == null) { _stars[i] = new TextureRect { Texture = TravelBookUi.Texture("IconStar01a"), Position=new(5+i*13,5), Size=new(12,12), ExpandMode=ExpandModeEnum.IgnoreSize, StretchMode=StretchModeEnum.KeepAspectCentered, MouseFilter=MouseFilterEnum.Ignore }; AddChild(_stars[i]); }
+            _stars[i].Visible = !fromShop && i < data.Stars;
+        }
         if (Texture != data.Texture) Texture = data.Texture;
-        TooltipText = data.Name;
+        TooltipText = $"{data.Name} / {data.Stars} stars / Buy {data.Price} coin / Sell {data.Investment / 2} coin";
+
     }
     public override bool _CanDropData(Vector2 position, Variant data) => FromShop && Shop.CanSell(CardDrag.Read(data));
     public override void _DropData(Vector2 position, Variant data) => Shop.SellDrop(CardDrag.Read(data)!);

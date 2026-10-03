@@ -7,10 +7,12 @@
 [ext_resource type="Shader" uid="uid://d3ukyj5kmi0yf" path="res://shaders/character_outline.gdshader" id="5_outline"]
 [ext_resource type="Script" uid="uid://f0vlrqigsf0h" path="res://scripts/BattleDisplay.cs" id="6_display"]
 [ext_resource type="Script" uid="uid://guwau3xw0tas" path="res://scripts/BattleDemo.cs" id="7_battle"]
-[ext_resource type="Texture2D" uid="uid://c51nncg28jbrj" path="res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/UI_Flat_Banner01a.png" id="8_banner"]
-[ext_resource type="Texture2D" uid="uid://c4o8axy5pgpva" path="res://assets/Complete_UI_Essential_Pack_Free/01_Flat_Theme/Sprites/UI_Flat_Button01a_1.png" id="9_lab_button"]
+[ext_resource type="Texture2D" path="res://assets/01_TravelBookLite/Sprites/UI_TravelBook_FrameSelect01a.png" id="8_banner"]
+[ext_resource type="Texture2D" path="res://assets/01_TravelBookLite/Sprites/UI_TravelBook_FrameSelect01a.png" id="9_lab_button"]
 [ext_resource type="Script" uid="uid://bys3qodo4rr7u" path="res://scripts/CardShop.cs" id="10_cards"]
 [ext_resource type="Script" uid="uid://dsc3785l16cmj" path="res://scripts/OnlineBattle.cs" id="11_online"]
+
+[ext_resource type="PackedScene" path="res://scenes/player_profile.tscn" id="12_profile"]
 
 [sub_resource type="ShaderMaterial" id="PlayerAOutline"]
 shader = ExtResource("5_outline")
@@ -23,6 +25,8 @@ shader_parameter/outline_color = Color(1, 0, 0, 1)
 shader_parameter/alpha_threshold = 0.5
 
 [node name="Main" type="Node2D" unique_id=1664466756]
+position = Vector2(-114.8, -394.8)
+scale = Vector2(1.85, 1.85)
 y_sort_enabled = true
 script = ExtResource("6_display")
 
@@ -184,10 +188,6 @@ metadata/grid_cell = Vector2i(58, 22)
 material = SubResource("PlayerBOutline")
 frame = 5
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1132254732]
-position = Vector2(408, 408)
-zoom = Vector2(1.85, 1.85)
-
 [node name="UI" type="CanvasLayer" parent="." unique_id=1202753807]
 
 [node name="SafeArea" type="MarginContainer" parent="UI" unique_id=1957984742]
@@ -212,15 +212,36 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("10_cards")
 
-[node name="EffectsLabButton" type="TextureButton" parent="UI/SafeArea/Content" unique_id=562551721]
-texture_filter = 1
-layout_mode = 0
+[node name="ProfileA" parent="UI/SafeArea/Content" instance=ExtResource("12_profile")]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -144.0
+offset_right = 284.0
+offset_bottom = -12.0
+Team = "A"
+
+[node name="ProfileB" parent="UI/SafeArea/Content" instance=ExtResource("12_profile")]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -284.0
+offset_top = -144.0
+offset_right = -12.0
+offset_bottom = -12.0
+Team = "B"
+
+[node name="EffectsLabButton" type="TextureButton" parent="UI/SafeArea/Content" unique_id=562551721]
+texture_filter = 1
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
 offset_left = -180.0
-offset_top = -40.0
+offset_top = -20.0
+offset_bottom = 20.0
 texture_normal = ExtResource("9_lab_button")
 ignore_texture_size = true
 stretch_mode = 0
