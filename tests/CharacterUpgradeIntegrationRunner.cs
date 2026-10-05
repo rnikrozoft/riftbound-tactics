@@ -32,7 +32,8 @@ public partial class CharacterUpgradeIntegrationRunner : Node
             shop.Hand.RemoveRange(1,9);
             Check(shop.PlaceCardOrUnit(new CardDrag {Shop=shop,Token=500},shop.Tiles.ToGlobal(shop.SlotCenters[0])),"Deploy upgraded card");
             var unit=shop.Deployed[500].Unit;
-            Check(unit.Stars==2&&unit.MaxHealth==200&&unit.Health==200&&unit.Attack==60&&unit.Speed==12,"Two-star actual stats");
+            var stats2=CharacterData.Stats(unit.CardKind,2);
+            Check(unit.Stars==2&&unit.MaxHealth==stats2.Hp&&unit.Health==stats2.Hp&&unit.Attack==stats2.Hp&&unit.Armor==stats2.Armor&&unit.Speed==10,"Two-star actual stats");
             for(int i=0;i<10;i++) shop.Hand.Add(card with {Token=1000+i,Name=$"Capacity {i}"});
             int fullCoins=shop.Coins;
             Check(!shop.AcceptsToken(502)&&!shop.TakeCard(502)&&shop.Coins==fullCoins&&shop.Deployed.Count==1,"Full hand blocks automatic return without spending");
@@ -41,7 +42,7 @@ public partial class CharacterUpgradeIntegrationRunner : Node
             Check(shop.Hand.Count==1&&shop.Deployed.Count==0&&shop.Occupants[0]==null&&shop.Hand[0].Stars==3&&shop.Hand[0].Veteran,"Field upgrade automatically returns to hand");
             Check(!shop.Details.Visible,"Removed unit detail closes");
             shop.ShowCardDetails(500);
-            Check(shop.DetailsText.Text.Contains("3 STARS")&&shop.DetailsText.Text.Contains("Attack  90"),"Upgraded hand details"); shop.CloseDetails();
+            Check(shop.DetailsText.Text.Contains("3 STARS")&&shop.DetailsText.Text.Contains("HP / ATK")&&shop.DetailsText.Text.Contains("ARMOR"),"Upgraded hand details"); shop.CloseDetails();
             Check(shop.PlaceCardOrUnit(new CardDrag {Shop=shop,Token=500},shop.Tiles.ToGlobal(shop.SlotCenters[0])),"Redeploy three stars");
             Check(shop.Deployed[500].Unit.HasBattled,"Veteran preserved");
             Check(shop.TakeCard(503),"Fourth copy");
@@ -52,7 +53,8 @@ public partial class CharacterUpgradeIntegrationRunner : Node
             Check(!shop.AcceptsToken(504)&&!shop.TakeCard(504)&&shop.Coins==coins,"Cap rejects fifth without spending");
             Check(shop.PlaceCardOrUnit(new CardDrag {Shop=shop,Token=500},shop.Tiles.ToGlobal(shop.SlotCenters[0])),"Redeploy four stars");
             unit=shop.Deployed[500].Unit;
-            Check(unit.Stars==4&&unit.Attack==120&&unit.Speed==16&&unit.MaxHealth==400,"Returned upgrade retains stats");
+            var stats4=CharacterData.Stats(unit.CardKind,4);
+            Check(unit.Stars==4&&unit.Attack==stats4.Hp&&unit.Speed==10&&unit.MaxHealth==stats4.Hp&&unit.Armor==stats4.Armor,"Returned upgrade retains stats");
             Check(!shop.ReturnUnit(unit),"Manual veteran return remains forbidden");
             shop.SellDrop(new CardDrag {Shop=shop,Unit=unit});
             Check(shop.Deployed.Count==0&&shop.Coins==coins+price*2,"Refund half combined purchase cost");

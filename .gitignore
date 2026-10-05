@@ -17,3 +17,8 @@ tests/economy-*.png.import
 # Deck UI verification captures
 tests/deck-*.png
 tests/deck-*.png.import
+
+# Generated combat verification captures and authoritative fixture
+tests/combat-*.png
+tests/combat-*.png.import
+tests/combat_fixture.json

@@ -19,14 +19,14 @@ public partial class BattleDemo : Node
     [Export] public float HitstopDuration { get; set; } = .075f;
     [Export] public float ShakeDuration { get; set; } = .2f;
     [Export] public float ShakeStrength { get; set; } = 2.5f;
-    [Export] public float ArenaFloatAmplitude { get; set; } = 1.5f;
+    [Export] public float ArenaFloatAmplitude { get; set; } = 0f;
     [Export] public float ArenaFloatPeriod { get; set; } = 6f;
     [Export(PropertyHint.Range, "1,1000,1")] public int DamageMin { get; set; } = 25;
     [Export(PropertyHint.Range, "1,1000,1")] public int DamageMax { get; set; } = 40;
 
     private readonly List<BattleUnit> _teamA = new(6), _teamB = new(6);
     private readonly List<AnimatedSprite2D> _sprites = new(12);
-    private readonly float[] _speeds = new float[12];
+    private float[] _speeds = new float[12];
     private int _frozenCount;
     private readonly RandomNumberGenerator _rng = new(), _shakeRng = new();
     private BattleDisplay _field = null!;
@@ -40,6 +40,8 @@ public partial class BattleDemo : Node
     private FinishingFocus _focus = null!;
     private static readonly NodePath PositionPath = new("position");
     public int TurnCount { get; private set; }
+    public bool SpeedEnabled {get;set;}
+    public event Action<OnlineCombatHit,float>? CombatHitProgress;
 
     public override void _Ready()
     {
@@ -58,7 +60,7 @@ public partial class BattleDemo : Node
     {
         _teamA.Clear(); _teamB.Clear(); _sprites.Clear();
         foreach (var child in GetParent().GetChildren())
-            if (child is BattleUnit unit && !unit.IsQueuedForDeletion())
+            if (child is BattleUnit unit && !unit.IsQueuedForDeletion() && !unit.IsDead)
             {
                 (unit.IsAlly ? _teamA : _teamB).Add(unit);
                 _sprites.Add(unit.Sprite);
@@ -94,7 +96,8 @@ public partial class BattleDemo : Node
     private async Task Delay(double seconds, bool ignoreTimeScale = false)
     {
         CheckAlive();
-        await ToSignal(_tree.CreateTimer(Math.Max(.001, seconds), true, false, ignoreTimeScale), SceneTreeTimer.SignalName.Timeout);
+        double duration=ignoreTimeScale?seconds/Engine.TimeScale:seconds;
+        await ToSignal(_tree.CreateTimer(Math.Max(.001, duration), false, false, ignoreTimeScale), SceneTreeTimer.SignalName.Timeout);
         CheckAlive();
     }
     private async Task Frame()
@@ -127,6 +130,23 @@ public partial class BattleDemo : Node
     }
 
     private async Task RunCombat()
+    {
+        await RunEffectsCombat();
+    }
+    private async Task RunEffectsCombat()
+    {
+        CollectTeams();var units=new List<OnlineCombatUnit>();_shop.NetworkUnits.Clear();int token=0;
+        foreach(var unit in _teamA){unit.ServerId=$"A:offline:{++token}";_shop.NetworkUnits[unit.ServerId]=unit;units.Add(new OnlineCombatUnit {Id=unit.ServerId,Team="A",Token=token,Kind=unit.CardKind,Stars=unit.Stars,Slot=unit.GridSlot>=0?unit.GridSlot:(token-1)%6});}
+        token=0;foreach(var unit in _teamB){unit.ServerId=$"B:offline:{++token}";_shop.NetworkUnits[unit.ServerId]=unit;units.Add(new OnlineCombatUnit {Id=unit.ServerId,Team="B",Token=token,Kind=unit.CardKind,Stars=unit.Stars,Slot=unit.GridSlot>=0?unit.GridSlot:(token-1)%6});}
+        var plan=new LocalCombat((int)_rng.Randi()).Simulate(units);_shop.SetReplayPlan(plan);
+        SpeedEnabled=true;
+        try {foreach(var combat in plan.Events){CheckAlive();var attacker=_shop.NetworkUnits[combat.Attacker];var target=_shop.NetworkUnits.TryGetValue(combat.Target,out var existing)?existing:attacker;await PlayServerEvent(attacker,target,combat);await Delay(TurnDelay);}}
+        finally {SpeedEnabled=false;}
+        string winner=plan.Winner;CollectTeams();_resultText.Text=winner=="DRAW"?"DRAW":$"PLAYER {winner} WINS";_result.Show();
+        if(CardShopEnabled){int stars=0;foreach(var survivor in winner=="A"?_teamA:_teamB)if(!survivor.IsSummoned)stars+=survivor.Stars;_shop.FinishBattle(winner,stars);if(_shop.GameOver)ShowMatchResult(winner);}
+        EmitSignal(SignalName.BattleFinished,winner);
+    }
+    private async Task RunLegacyCombat()
     {
         bool aTurn = true;
         while (_teamA.Count > 0 && _teamB.Count > 0)
@@ -193,6 +213,7 @@ public partial class BattleDemo : Node
         targetSprite.FlipH = attackPosition.X < targetHome.X;
         if (serverEvent != null) target.ApplyServerHealth(serverEvent.TargetHp,serverEvent.Damage);
         else target.TakeDamage(damage);
+        CharacterImpactEffects.Play(attacker,target,"attack01","damage",damage);
         bool lethal = target.IsDead;
         if (lethal) { _teamA.Remove(target); _teamB.Remove(target); }
         targetSprite.Play(lethal ? BattleAnimations.Die : BattleAnimations.Hit);
@@ -226,28 +247,73 @@ public partial class BattleDemo : Node
         TurnCount++;
         EmitSignal(SignalName.TurnStarted,attacker.IsAlly ? "A" : "B",attacker,target);
         var home=attacker.Position;var targetHome=target.Position;
+        var replayPlan=_shop.ReplayPlan;
         _serverEventDeadline=deadlineMs;
-        try { await TakeTurn(attacker,target,serverEvent); }
+        try { if(serverEvent.Hits.Length>0)await PlayEffects(attacker,target,serverEvent);else await TakeTurn(attacker,target,serverEvent); }
         catch(OperationCanceledException) when (!_exiting && deadlineMs>0 && ServerVisualTimeMs>=deadlineMs)
         {
             RestoreSprites();_shakeLeft=0;
-            if(GodotObject.IsInstanceValid(attacker)){attacker.Position=home;attacker.Sprite.Stop();}
-            if(GodotObject.IsInstanceValid(target)){target.Position=targetHome;target.Sprite.Stop();}
+            if(GodotObject.IsInstanceValid(attacker)&&!attacker.IsDead){attacker.Position=home;attacker.Sprite.Stop();}
+            if(GodotObject.IsInstanceValid(target)&&!target.IsDead){target.Position=targetHome;target.Sprite.Stop();}
         }
-        finally { _serverEventDeadline=0; }
+        finally { _serverEventDeadline=0;if(ReferenceEquals(replayPlan,_shop.ReplayPlan))_shop.ApplyCombatEvent(serverEvent); }
         EmitSignal(SignalName.TurnFinished,attacker.IsAlly ? "A" : "B",attacker);
+    }
+    private async Task PlayEffects(BattleUnit attacker,BattleUnit target,OnlineCombatEvent combat)
+    {
+        var sprite=attacker.Sprite;var home=attacker.Position;bool facing=sprite.FlipH;
+        bool dash=combat.Mode is "melee" or "execute";
+        var replayPlan=_shop.ReplayPlan;
+        StringName animation=new(combat.Animation.Length>0?combat.Animation:"attack01");
+        if(!sprite.SpriteFrames.HasAnimation(animation))animation=BattleAnimations.Attack;
+        try {
+            if(combat.Dead&&target!=attacker){var focus=_focus.Begin(attacker);await ToSignal(focus,Tween.SignalName.Finished);CheckAlive();while(_focus.ChargePlaying)await Frame();var zoom=_focus.ZoomOut();await ToSignal(zoom,Tween.SignalName.Finished);CheckAlive();}
+            if(dash){sprite.FlipH=target.Position.X<home.X;sprite.Play(BattleAnimations.Walk);var move=CreateTween().SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.In);move.TweenProperty(attacker,PositionPath,target.Position-(target.Position-home).Normalized()*22,DashDuration);await ToSignal(move,Tween.SignalName.Finished);CheckAlive();}
+            sprite.Play(animation);sprite.SetFrameAndProgress(0,0);
+            if(combat.Mode=="stun"){
+                var shake=CreateTween();shake.TweenProperty(attacker,PositionPath,home+new Vector2(2,0),.06);shake.TweenProperty(attacker,PositionPath,home-new Vector2(2,0),.06);shake.TweenProperty(attacker,PositionPath,home,.06);
+            }
+            int previousFrame=0;
+            foreach(var hit in combat.Hits){
+                if(!ReferenceEquals(replayPlan,_shop.ReplayPlan))throw new OperationCanceledException();
+                int frame=Mathf.Clamp(hit.Frame,0,sprite.SpriteFrames.GetFrameCount(animation)-1);
+                while(sprite.Animation==animation&&sprite.IsPlaying()&&sprite.Frame<frame){
+                    float progress=(sprite.Frame+sprite.FrameProgress-previousFrame)/Mathf.Max(1,frame-previousFrame);
+                    CombatHitProgress?.Invoke(hit,progress);await Frame();
+                }
+                CheckAlive();_shop.ApplyCombatHit(hit);
+                if(_shop.NetworkUnits.TryGetValue(hit.Target,out var effectTarget)){
+                    var source=_shop.NetworkUnits.TryGetValue(hit.Source,out var effectSource)?effectSource:attacker;
+                    CharacterImpactEffects.Play(source,effectTarget,combat.Animation,hit.Kind,hit.Damage);
+                }
+                previousFrame=frame;
+                if(hit.Damage>0){
+                    _shakeLeft=ShakeDuration;
+                    if(_focus.Active&&hit.Target==combat.Target&&_shop.NetworkUnits.TryGetValue(hit.Target,out var hitTarget)&&hitTarget.IsDead)_focus.Impact(hitTarget);
+                    FreezeSprites();EmitSignal(SignalName.Impact,attacker,target);await Delay(HitstopDuration,true);RestoreSprites();
+                }
+            }
+            while(sprite.IsPlaying()&&sprite.Animation==animation)await Frame();
+            if(dash&&!attacker.IsDead){sprite.Play(BattleAnimations.Walk);var back=CreateTween().SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);back.TweenProperty(attacker,PositionPath,home,ReturnDuration);await ToSignal(back,Tween.SignalName.Finished);CheckAlive();}
+        }finally {
+            RestoreSprites();_focus.Reset();
+            if(GodotObject.IsInstanceValid(attacker)&&!attacker.IsDead){attacker.Position=home;sprite.FlipH=facing;sprite.Play(BattleAnimations.Idle);}
+            foreach(var unit in _shop.NetworkUnits.Values)if(!unit.IsDead)unit.Sprite.Play(BattleAnimations.Idle);
+        }
     }
     public void ShowServerResult(string winner)
     {
         _resultText.Text = winner=="DRAW" ? "ROUND DRAW" : winner==_shop.LocalTeam ? "ROUND WON" : "ROUND LOST";
         _result.Show(); EmitSignal(SignalName.BattleFinished,winner);
     }
+    public void ShowResultMessage(string message){_resultText.Text=message;_result.Show();}
     public void ShowMatchResult(string winner) { _resultText.Text = $"PLAYER {winner} WINS MATCH"; _result.Show(); }
     public void ShowLeagueResult(bool won, int place) { _resultText.Text = won ? "YOU WIN MATCH" : $"MATCH OVER / PLACEMENT #{place}"; _result.Show(); }
     public void HideResult() => _result.Hide();
 
     private void FreezeSprites()
     {
+        if(_speeds.Length<_sprites.Count)System.Array.Resize(ref _speeds,_sprites.Count);
         _frozenCount = _sprites.Count;
         for (int i = 0; i < _frozenCount; i++)
         { _speeds[i] = _sprites[i].SpeedScale; _sprites[i].SpeedScale = 0; }

@@ -15,17 +15,26 @@ public partial class BattleDisplay : Node2D
     public override void _Ready()
     {
         var tiles=GetNode<TileMapLayer>("TileMapLayer");
+        tiles.Material=new ShaderMaterial {Shader=new Shader {Code="""
+            shader_type canvas_item;
+            void fragment() {
+                vec4 pixel = COLOR;
+                if (pixel.r > pixel.b * 1.15 && pixel.g > pixel.b * 1.05) {
+                    float light = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));
+                    pixel.rgb = vec3(0.43, 0.57, 0.70) * light;
+                }
+                COLOR = pixel;
+            }
+            """}};
+        AddHeroSlots(tiles,"HeroSlots",CardShop.DeploymentCells,new Color("79d9eb"),new Color("304c59"));
+        AddHeroSlots(tiles,"EnemyHeroSlots",CardShop.EnemyCells,new Color("d99d83"),new Color("59413c"));
         var support=new Node2D {Name="SupportSlots",ZIndex=1};AddChild(support);
         AddSupportSlots(support,tiles,SupportCells);
         var enemySupport=new Node2D {Name="EnemySupportSlots",ZIndex=1};AddChild(enemySupport);
         AddSupportSlots(enemySupport,tiles,EnemySupportCells);
-        TravelBookUi.StyleButton(GetNode<TextureButton>("UI/SafeArea/Content/EffectsLabButton"));
-        GetNode<TextureButton>("UI/SafeArea/Content/EffectsLabButton").Pressed +=
-            () => GetTree().ChangeSceneToFile("res://scenes/damage_simulator.tscn");
         var content=GetNode<Control>("UI/SafeArea/Content");
-        var lab=content.GetNode<TextureButton>("EffectsLabButton");
-        lab.AnchorTop=lab.AnchorBottom=0;lab.OffsetTop=16;lab.OffsetBottom=48;lab.OffsetLeft=-148;lab.OffsetRight=-16;
-        GameUi.Label(lab.GetNode<Label>("Text"),13);lab.GetNode<Label>("Text").Text="EFFECTS LIBRARY";
+        content.AddChild(new CombatStatusPanel());
+        AddChild(new BattleSpeedControl {Name="BattleSpeedControl"});
         var result=content.GetNode<Control>("BattleResult");
         result.AnchorTop=result.AnchorBottom=.5f;result.OffsetTop=-54;result.OffsetBottom=54;result.OffsetLeft=-230;result.OffsetRight=230;
         result.GetNode<TextureRect>("Banner").Hide();GameUi.Backdrop(result,true);GameUi.Label(result.GetNode<Label>("Text"),26);result.GetNode<Label>("Text").OffsetTop=20;
@@ -37,6 +46,21 @@ public partial class BattleDisplay : Node2D
             window.MaximizeDisabled = false;
             window.MinSize = new Vector2I(640, 360);
             window.MaxSize = Vector2I.Zero;
+        }
+    }
+    private void AddHeroSlots(TileMapLayer tiles,string name,Vector2I[] cells,Color border,Color stone)
+    {
+        var layer=new Node2D {Name=name,ZIndex=1};AddChild(layer);
+        foreach(var cell in cells){
+            var slot=new Node2D {Position=ToLocal(tiles.ToGlobal(tiles.MapToLocal(cell)))};layer.AddChild(slot);
+            var edge=new[]{new Vector2(-19,0),new Vector2(0,-9),new Vector2(19,0),new Vector2(0,9)};
+            var inset=new[]{new Vector2(-15,0),new Vector2(0,-7),new Vector2(15,0),new Vector2(0,7)};
+            slot.AddChild(new Polygon2D {Polygon=edge,Color=new Color("182b34")});
+            slot.AddChild(new Polygon2D {Polygon=inset,Color=stone});
+            slot.AddChild(new Line2D {Points=edge,Closed=true,Width=1,DefaultColor=border,Antialiased=false});
+            slot.AddChild(new Line2D {Points=inset,Closed=true,Width=1,DefaultColor=new Color(border.R,border.G,border.B,.35f),Antialiased=false});
+            var rune=new[]{new Vector2(-4,0),new Vector2(0,-2),new Vector2(4,0),new Vector2(0,2)};
+            slot.AddChild(new Line2D {Points=rune,Closed=true,Width=1,DefaultColor=border,Antialiased=false});
         }
     }
     private static void AddSupportSlots(Node2D parent,TileMapLayer tiles,Vector2I[] cells)

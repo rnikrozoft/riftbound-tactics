@@ -20,7 +20,8 @@ public partial class CharacterCatalogRunner : Node
                 var sprite=actor.GetNode<AnimatedSprite2D>("AnimatedSprite2D");
                 CharacterVisual.Normalize(sprite);
                 var visible=CharacterVisual.VisibleBounds(frames.GetFrameTexture("idle",0));
-                if(!Mathf.IsEqualApprox(visible.Size.Y*sprite.Scale.Y,31.5f))throw new Exception("Unequal character height: "+character.Id);
+                var animationSize=CharacterVisual.AnimationSize(frames,BattleAnimations.Idle)*sprite.Scale;
+                if(animationSize.Y>CharacterVisual.FieldHeight+.01f||animationSize.X>CharacterVisual.FieldWidth+.01f)throw new Exception("Oversized character: "+character.Id);
                 if(portrait.GetWidth()/(float)portrait.GetHeight()<1.49f || portrait.GetWidth()/(float)portrait.GetHeight()>1.55f)throw new Exception("Unequal portrait canvas: "+character.Id);
                 foreach(string animation in new[]{"idle","walk","attack","hit","die"}){
                     if(!frames.HasAnimation(animation) || frames.GetFrameCount(animation)==0)throw new Exception("Missing animation: "+character.Id+" "+animation);
@@ -51,11 +52,17 @@ public partial class CharacterCatalogRunner : Node
             editor.SetHero(0,8);
             typeof(DeckBuilder).GetMethod("ShowHeroChoices",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(editor,null);
             for(int frame=0;frame<8;frame++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
-            await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
-            GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-new-character-selection.png");
+            if(DisplayServer.GetName()!="headless"){
+                await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-new-character-selection.png");
+            }
             editor.SetHero(0,5);
-            editor.SetGroup(5);await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
-            GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-dedicated-characters.png");editor.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            editor.SetGroup(5);
+            if(DisplayServer.GetName()!="headless"){
+                await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-dedicated-characters.png");
+            }
+            editor.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             var legacy=DeckDefinition.Starter();legacy.Cards.First(c=>CardCatalog.Group(c.Kind)==4 && CardCatalog.Cost(c.Kind)==2).Kind=orc.Kind;
             legacy.Cards.First(c=>CardCatalog.Group(c.Kind)==4 && CardCatalog.Cost(c.Kind)==3).Kind=demon.Kind;
             legacy.Cards.First(c=>CardCatalog.Group(c.Kind)==4 && CardCatalog.Cost(c.Kind)==4).Kind=monster.Kind;
@@ -76,7 +83,7 @@ public partial class CharacterCatalogRunner : Node
                 if(u.SceneFilePath!=CharacterData.Get(u.CardKind).ScenePath)throw new Exception("Wrong character asset: "+pair.Key);
                 if(u.Sprite.FlipH==u.IsAlly)throw new Exception("Wrong facing: "+pair.Key);
             }
-            if(localUser=="self"){
+            if(localUser=="self" && DisplayServer.GetName()!="headless"){
                 await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
                 GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-mixed-characters.png");
             }

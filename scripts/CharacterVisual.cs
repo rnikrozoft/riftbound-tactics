@@ -3,8 +3,34 @@ using System.Collections.Generic;
 
 public static class CharacterVisual
 {
+    public const float FieldHeight = 31.5f;
+    public const float FieldWidth = 42f;
+    private static readonly Dictionary<(SpriteFrames,StringName), Vector2> Sizes = new();
+    public static Vector2 AnimationSize(SpriteFrames frames,StringName animation)
+    {
+        if(Sizes.TryGetValue((frames,animation),out var size))return size;
+            for(int i=0;i<frames.GetFrameCount(animation);i++){
+                var bounds=VisibleBounds(frames.GetFrameTexture(animation,i));
+                size.X=Mathf.Max(size.X,bounds.Size.X);size.Y=Mathf.Max(size.Y,bounds.Size.Y);
+            }
+        Sizes[(frames,animation)]=size;return size;
+    }
     private static readonly Dictionary<Texture2D, Rect2I> Bounds = new();
     private static readonly Dictionary<Texture2D, Vector2> Heads = new();
+    public static Vector2 GroundAnchor(AnimatedSprite2D sprite)
+    {
+        // Use idle bounds so attack trails do not move the HUD between frames.
+        var frame=sprite.SpriteFrames.GetFrameTexture(BattleAnimations.Idle,0);
+        var bounds=VisibleBounds(frame);
+        var relative=new Vector2(bounds.Position.X+bounds.Size.X/2f,bounds.End.Y)-new Vector2(frame.GetWidth()/2f,frame.GetHeight()/2f);
+        if(sprite.FlipH)relative.X=-relative.X;
+        if(sprite.FlipV)relative.Y=-relative.Y;
+        var ground=sprite.Position+(sprite.Offset+relative)*sprite.Scale;
+        // Weapons can extend far past the body. Align beneath the head rather than
+        // centering the HUD between the body and a sword or axe.
+        ground.X=HeadAnchor(sprite).X;
+        return ground;
+    }
     public static Vector2 HeadAnchor(AnimatedSprite2D sprite)
     {
         var frame=sprite.SpriteFrames.GetFrameTexture(BattleAnimations.Idle,0);
@@ -52,7 +78,10 @@ public static class CharacterVisual
         var frame = sprite.SpriteFrames.GetFrameTexture(BattleAnimations.Idle, 0);
         var bounds = VisibleBounds(frame);
         if (bounds.Size.Y == 0) return;
-        float scale = 31.5f / bounds.Size.Y;
+        var idleSize=AnimationSize(sprite.SpriteFrames,BattleAnimations.Idle);
+        // Weapons, wings and spell trails may extend beyond the body. Never resize
+        // the character when changing poses: the source sheets share a pixel scale.
+        float scale = Mathf.Min(FieldHeight/Mathf.Max(1,idleSize.Y),FieldWidth/Mathf.Max(1,idleSize.X));
         sprite.Scale = new Vector2(scale, scale);
         sprite.Offset = new Vector2(frame.GetWidth() / 2f - bounds.Position.X - bounds.Size.X / 2f,
             frame.GetHeight() / 2f - bounds.End.Y);

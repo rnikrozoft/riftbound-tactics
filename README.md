@@ -12,7 +12,7 @@ Godot 4.7.2 **.NET** project. Runtime scripts are C#; scenes, shaders, tiles and
   Screenshot: tests/preparation-csharp.png.
 
 ## Architecture
-- BattleDemo.cs: alternating attacks, health/death, hitstop, shake and slow arena float.
+- BattleDemo.cs: alternating attacks, health/death, hitstop and shake. Arena float is disabled by default.
 - BattleUnit.cs: typed unit state, cached animation node and health-change signals.
 - CardShop.cs: round/phase state, card pool, six-slot occupancy, swapping and selling.
 - ShopCard.cs, FieldDrop.cs, HandZone.cs, ShopZone.cs: GUI clicks and native drag/drop.
@@ -54,6 +54,8 @@ Connection defaults to 127.0.0.1:7350. For another PC/phone, set OnlineBattle.Ho
 
 Online scripts: NakamaConnection handles fresh authentication, socket transport and clock synchronization; OnlineBattle handles room UI, snapshot acknowledgement and replay scheduling; OnlineProtocol defines source-generated JSON contracts. BattleDemo.NetworkEnabled selects authoritative online playback; offline integration and the effects laboratory retain local simulation.
 
+The lobby's REPLAYS menu stores the ten newest matches on this device, grouped by game with every captured round. History includes local play date, outcome, placement, final player HP and server-reported MMR delta with before/after ratings. Pending MMR stays marked until a final server update arrives; leaving early is recorded as LEFT MATCH. New matches replace the oldest, and playback loads recorded combat plans without connecting to the server. Each persisted account instance has its own `user://replays-N.json` archive, written atomically. New recordings also save each acknowledged preparation change: shop, coins, hand, formation and ready state. The bottom timeline selects recorded preparation steps and battles directly. A single Play/Pause control resumes playback from that point through subsequent rounds; pausing freezes both presentation and replay time. The arrow handle hides or reveals the drawer, and Escape returns to replay history. Long preparation gaps are capped at five seconds during playback; step labels retain their recorded timestamps. Older battle-only recordings omit preparation points.
+
 Online integration: `Godot_console.exe --headless --path . res://tests/online_integration.tscn` after building. Requires the running local backend and takes roughly 90 seconds because it verifies the real 60-second timeout. Go tests and the Linux race detector validate the backend separately.
 
 During battle the hidden shop is replaced by a centered row of opponent card backs from assets/cards/cardBacks.png. Only the opponent's hand_count is public; card identities remain redacted. No placeholder backs appear for an empty hand. Opening details shifts the opponent row together with the player hand.
@@ -61,5 +63,7 @@ During battle the hidden shop is replaced by a centered row of opponent card bac
 Opponent deployment slots rotate 180 degrees around the battlefield center: owner slots 0,1,2,3,4,5 render as enemy slots 5,4,3,2,1,0. This preserves front/back relationships from the other player's view. Server slot IDs and combat unit IDs remain unchanged.
 
 ## Character content
+
+Character combat now uses HP as attack power, separate armor, multi-hit impacts, status effects and per-character abilities. Blue armor and red HP/attack numbers appear beside each unit, and inspection shows live state and skill conditions. See [combat rules and validation](docs/character-combat.md).
 
 Guest login downloads character definitions from the backend's JSON catalog through `character_catalog`. `CharacterData` supplies group names, prices, enabled flags, copy limits, images, scene resources, descriptions and four star-stat rows. The packaged `data/characters.json` provides the offline baseline. Orc, Demon and Blood Monster are independently selectable character groups, with ten cards each. A deck selects three character groups and ten Neutral slots. New asset paths must be included in a client release before the server enables that character. Unknown ability mechanics require a combat implementation; editing descriptive text alone does not grant an effect.

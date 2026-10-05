@@ -47,7 +47,6 @@ public partial class DamageSimulator : Node
         }
         var field = GetNode<Node2D>("Battlefield");
         field.GetNode<BattleDemo>("BattleDemo").SetProcess(false);
-        field.GetNode<Control>("UI/SafeArea/Content/EffectsLabButton").Hide();
         field.GetNode<Control>("UI/SafeArea/Content/ProfileA").Hide();
         field.GetNode<Control>("UI/SafeArea/Content/ProfileB").Hide();
         field.GetNode<CardShop>("UI/SafeArea/Content/CardShop").Hide();
@@ -106,7 +105,7 @@ public partial class DamageSimulator : Node
         _keepButton = Button("KEEP THIS EFFECT",ToggleFavorite); controls.AddChild(_keepButton);
         _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; GameUi.Label(_status,13,true);controls.AddChild(_status);
         controls.AddChild(Button("CHARACTER ANIMATIONS",()=>_tree.ChangeSceneToFile("res://scenes/character_animation_lab.tscn")));
-        controls.AddChild(Button("BACK TO BATTLE",() => _tree.ChangeSceneToFile("res://scenes/main.tscn")));
+        controls.AddChild(Button("BACK TO LOBBY",() => _tree.ChangeSceneToFile("res://scenes/lobby.tscn")));
     }
     private static void SetToggle(VBoxContainer controls, int index, string title, bool enabled) =>
         controls.GetChild(index).GetNode<Label>("Text").Text = $"{title}: {(enabled ? "ON" : "OFF")}";
@@ -195,5 +194,4 @@ public partial class DamageSimulator : Node
         if (GodotObject.IsInstanceValid(_effect)) _effect.SpeedScale = 1;
     }
 }
-
 

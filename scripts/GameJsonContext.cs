@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 [JsonSerializable(typeof(List<DeckDefinition>))]
 [JsonSerializable(typeof(CharacterCatalogData))]
 [JsonSerializable(typeof(OnlineState))]
+[JsonSerializable(typeof(List<ReplayGame>))]
 [JsonSerializable(typeof(OnlineAction))]
 [JsonSerializable(typeof(RoomRequest))]
 [JsonSerializable(typeof(RoomResponse))]

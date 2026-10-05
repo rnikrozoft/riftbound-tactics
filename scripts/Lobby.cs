@@ -10,6 +10,8 @@ public partial class Lobby : Control
     private VBoxContainer _lobbyPage=null!,_futurePage=null!,_roomPanel=null!;
     private Label _pageTitle=null!,_futureTitle=null!;
     private LeaderboardPage _leaderboard=null!;
+    private ReplayHistoryPage _replays=null!;
+    public static string InitialMenu {get;set;}="Play";
     private GridContainer _decks=null!;
     private VBoxContainer _preview=null!;
     private Label _status=null!;
@@ -26,13 +28,17 @@ public partial class Lobby : Control
         var shell=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};shell.AddThemeConstantOverride("separation",18);page.AddChild(shell);
         var navigation=DeckMenuUi.Panel(shell,176);
         navigation.AddChild(DeckMenuUi.Text("COMMAND",14));
-        foreach(string menu in new[]{"Play","Decks","Shop","Leaderboard","Achievements"})
+        var menus=new[]{"Play","Decks","Shop","Leaderboard","Replays","Achievements"};
+        var icons=new[]{"IconPlay01a","IconHome01a","IconCoin01a","IconStar01a","IconPlay01a","IconTick01a"};
+        foreach(string menu in menus)
         {
             string destination=menu;var button=DeckMenuUi.Button(menu.ToUpperInvariant(),()=>Navigate(destination),152,46);navigation.AddChild(button);_navigation[menu]=button;
-            var icon=GameUi.Icon(new[]{"IconPlay01a","IconHome01a","IconCoin01a","IconStar01a","IconTick01a"}[Array.IndexOf(new[]{"Play","Decks","Shop","Leaderboard","Achievements"},menu)],16);
+            var icon=GameUi.Icon(icons[Array.IndexOf(menus,menu)],16);
             button.AddChild(icon);icon.Position=new(12,15);icon.Size=new(16,16);button.GetNode<Label>("Text").OffsetLeft=24;GameUi.Label(button.GetNode<Label>("Text"),13);
         }
         navigation.AddChild(DeckMenuUi.Button("ANIMATION LAB",()=>GetTree().ChangeSceneToFile("res://scenes/character_animation_lab.tscn"),152,42));
+        var effects=DeckMenuUi.Button("EFFECTS LIBRARY",()=>GetTree().ChangeSceneToFile("res://scenes/damage_simulator.tscn"),152,42);
+        effects.Name="EffectsLibraryButton";navigation.AddChild(effects);
         navigation.AddChild(new Control {SizeFlagsVertical=SizeFlags.ExpandFill});
         navigation.AddChild(DeckMenuUi.Text("TACTICAL ARENA\nBUILD / DEPLOY / BATTLE",12));
         var content=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};shell.AddChild(content);
@@ -41,6 +47,7 @@ public partial class Lobby : Control
         _pageTitle=DeckMenuUi.Text("ENTER THE ARENA",26);_pageTitle.SizeFlagsHorizontal=SizeFlags.ExpandFill;heading.AddChild(_pageTitle);
         heading.AddChild(DeckMenuUi.Button("+ NEW DECK",()=>Edit(""),150));
         _leaderboard=new LeaderboardPage {Name="Rankings"};content.AddChild(_leaderboard);_leaderboard.Hide();
+        _replays=new ReplayHistoryPage {Name="Replays"};content.AddChild(_replays);_replays.Hide();
         _futurePage=new VBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};content.AddChild(_futurePage);_futurePage.Hide();
         var future=DeckMenuUi.Panel(_futurePage);future.GetParent<Control>().SizeFlagsHorizontal=SizeFlags.ExpandFill;
         _futureTitle=DeckMenuUi.Text("",28);future.AddChild(_futureTitle);
@@ -68,13 +75,14 @@ public partial class Lobby : Control
         matchmakingNote.AutowrapMode=TextServer.AutowrapMode.WordSmart;_roomPanel.AddChild(matchmakingNote);
         // Kept as private compatibility controls for older test entry points.
         _code=new LineEdit();_join=new TextureButton();_roomPanel.AddChild(_code);_roomPanel.AddChild(_join);_code.Hide();_join.Hide();
-        _status=DeckMenuUi.Text(DeckStore.Error,14);page.AddChild(_status);Render();Navigate("Play");
+        _status=DeckMenuUi.Text(DeckStore.Error,14);page.AddChild(_status);Render();Navigate(InitialMenu);InitialMenu="Play";
     }
     public void Navigate(string menu)
     {
         if(!_navigation.ContainsKey(menu))return;
         ActiveMenu=menu;bool decks=menu=="Decks";bool lobby=menu=="Play"||decks;
-        _lobbyPage.Visible=lobby;_futurePage.Visible=!lobby&&menu!="Leaderboard";_leaderboard.Visible=menu=="Leaderboard";
+        _lobbyPage.Visible=lobby;_futurePage.Visible=!lobby&&menu!="Leaderboard"&&menu!="Replays";_leaderboard.Visible=menu=="Leaderboard";
+        _replays.Visible=menu=="Replays";if(menu=="Replays")_replays.Open();
         if(menu=="Leaderboard")_leaderboard.Open();_roomPanel.Visible=!decks;
         _pageTitle.Text=decks?"YOUR DECK COLLECTION":"ENTER THE ARENA";
         _futureTitle.Text=menu.ToUpperInvariant();

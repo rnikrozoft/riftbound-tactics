@@ -5,6 +5,14 @@ public partial class GameModal : Control
 {
     public VBoxContainer Body {get;private set;}=null!;
     public Action? Cancel {get;set;}
+    public Tween FadeIn(double seconds)
+    {
+        var tween=CreateTween().SetIgnoreTimeScale(true).SetParallel().SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        foreach(var node in GetChildren())if(node is Control control&&control.Name!="DefeatEffect"){
+            control.Modulate=new Color(1,1,1,0);tween.TweenProperty(control,"modulate:a",1f,seconds);
+        }
+        return tween;
+    }
     public override void _Ready()
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);MouseFilter=MouseFilterEnum.Stop;

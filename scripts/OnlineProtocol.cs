@@ -64,6 +64,10 @@ public sealed class OnlineState
 }
 public sealed class OnlineCombatUnit
 {
+    [JsonPropertyName("stars")] public int Stars {get;set;}=1;
+    [JsonPropertyName("initial_hp")] public int InitialHp {get;set;}
+    [JsonPropertyName("armor")] public int Armor {get;set;}
+    [JsonPropertyName("summoned")] public bool Summoned {get;set;}
     [JsonPropertyName("id")] public string Id { get; set; } = "";
     [JsonPropertyName("team")] public string Team { get; set; } = "";
     [JsonPropertyName("token")] public int Token { get; set; }
@@ -73,6 +77,9 @@ public sealed class OnlineCombatUnit
 }
 public sealed class OnlineCombatEvent
 {
+    [JsonPropertyName("animation")] public string Animation {get;set;}="";
+    [JsonPropertyName("mode")] public string Mode {get;set;}="";
+    [JsonPropertyName("hits")] public OnlineCombatHit[] Hits {get;set;}=Array.Empty<OnlineCombatHit>();
     [JsonPropertyName("index")] public int Index { get; set; }
     [JsonPropertyName("attacker")] public string Attacker { get; set; } = "";
     [JsonPropertyName("target")] public string Target { get; set; } = "";
@@ -80,6 +87,27 @@ public sealed class OnlineCombatEvent
     [JsonPropertyName("target_hp")] public int TargetHp { get; set; }
     [JsonPropertyName("dead")] public bool Dead { get; set; }
     [JsonPropertyName("at_ms")] public long AtMs { get; set; }
+}
+public sealed class OnlineCombatChange
+{
+    [JsonPropertyName("id")] public string Id {get;set;}="";
+    [JsonPropertyName("hp")] public int Hp {get;set;}
+    [JsonPropertyName("armor")] public int Armor {get;set;}
+    [JsonPropertyName("slot")] public int Slot {get;set;}
+    [JsonPropertyName("fire")] public int Fire {get;set;}
+    [JsonPropertyName("stun")] public bool Stun {get;set;}
+    [JsonPropertyName("poison")] public int Poison {get;set;}
+    [JsonPropertyName("curse")] public bool Curse {get;set;}
+    [JsonPropertyName("anti_heal")] public bool AntiHeal {get;set;}
+}
+public sealed class OnlineCombatHit
+{
+    [JsonPropertyName("frame")] public int Frame {get;set;}
+    [JsonPropertyName("source")] public string Source {get;set;}="";
+    [JsonPropertyName("target")] public string Target {get;set;}="";
+    [JsonPropertyName("damage")] public int Damage {get;set;}
+    [JsonPropertyName("kind")] public string Kind {get;set;}="";
+    [JsonPropertyName("changes")] public OnlineCombatChange[] Changes {get;set;}=Array.Empty<OnlineCombatChange>();
 }
 public sealed class OnlinePlan
 {

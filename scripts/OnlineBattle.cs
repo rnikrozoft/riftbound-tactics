@@ -29,6 +29,7 @@ public partial class OnlineBattle : Node
     private int _planRound, _replayGeneration;
     private bool _exiting, _connecting;
     private GameModal? _defeatModal;
+    private BloodScreenEffect _blood=null!;
     private TextureButton _defeatLobby=null!;
     private double _defeatRemaining;
     private DeckDefinition? _selectedDeck;
@@ -51,6 +52,9 @@ public partial class OnlineBattle : Node
         if (!_battle.NetworkEnabled || !_battle.AutoStart) { SetProcess(false); return; }
         _tree = GetTree(); _shop = GetParent().GetNode<CardShop>("UI/SafeArea/Content/CardShop");
         _shop.Online = this; _shop.ZoneA.Hide(); _shop.ZoneB.Hide();
+        _blood=new BloodScreenEffect();AddChild(_blood);
+        _shop.CombatHitApplied+=_blood.Apply;_battle.CombatHitProgress+=_blood.Preview;
+        _blood.LastUnitDied+=ShowDefeat;
         _profileA = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileA");
         _profileB = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileB");
         _profileB.Hide();
@@ -140,6 +144,7 @@ public partial class OnlineBattle : Node
     public async void ReturnToLobby()
     {
         if(_exiting)return;_exiting=true;_replayGeneration++;Connected=false;_shop.LockNetworkInteraction();SetProcess(false);
+        MatchReplayStore.Leave();
         if(Connection!=null)await Connection.Close();
         if(IsInsideTree())_tree.ChangeSceneToFile("res://scenes/lobby.tscn");
     }
@@ -223,21 +228,25 @@ public partial class OnlineBattle : Node
     public override void _Process(double delta)
     {
         if(_exiting)return;
+        if(_presentationPlaying)_presentationTimeMs+=delta*1000;
+        if (Connection != null && Connected) _battle.ServerVisualTimeMs = Connection.ServerNowMs;
         if(_defeatModal!=null) {
-            _defeatRemaining-=delta;
-            _defeatLobby.GetChild<Label>(0).Text=$"BACK TO LOBBY ({Math.Max(0,(int)Math.Ceiling(_defeatRemaining))}s)";
+            while(_states.TryDequeue(out var finalState)){State=finalState;MatchReplayStore.Observe(finalState,UserId);}
+            _defeatRemaining-=delta/Engine.TimeScale;
+            _defeatLobby.GetChild<Label>(0).Text=$"BACK TO LOBBY ({Math.Clamp((int)Math.Ceiling(_defeatRemaining),0,15)}s)";
             if(_defeatRemaining<=0)ReturnToLobby();
             return;
         }
-        if (Connection != null && Connected) _battle.ServerVisualTimeMs = Connection.ServerNowMs;
         while (_errors.TryDequeue(out var error))
         {
-            _message = error.Message;
+            bool locked=error.Message.Contains("preparation is locked",StringComparison.OrdinalIgnoreCase);
+            _message = locked?"":error.Message;
             if (error.Sequence == 0 || error.Sequence >= _pendingSequence)
             {
                 _shop.NetworkPending = false;
                 if (State != null) _shop.ApplyNetworkState(State,UserId);
             }
+            if(locked)_battle.ShowResultMessage("PREPARATION IS LOCKED");
         }
         while (_states.TryDequeue(out var state))
         {
@@ -245,6 +254,8 @@ public partial class OnlineBattle : Node
             if (state.Revision < _lastRevision) continue;
             bool changed = state.Revision != _lastRevision;
             State = state;_lastRevision = state.Revision;
+            MatchReplayStore.RecordPreparation(state,UserId);
+            MatchReplayStore.Observe(state,UserId);
             if(state.Roster.Any(p=>p.UserId==UserId && p.Hp<=0) || state.Players.Any(p=>p!=null && p.UserId==UserId && p.Hp<=0)){ShowDefeat();return;}
             if (!changed) continue;
             _message = ""; _roomControls.Hide();
@@ -269,7 +280,7 @@ public partial class OnlineBattle : Node
             }
             _identity.Text = $"ARENA  /  ROUND {state.Round:00}";
             if (state.Phase == "preparation")
-            { _battle.HideResult();if (_planRound != state.Round) _replayGeneration++; }
+            { _blood.Clear();_battle.HideResult();if (_planRound != state.Round) _replayGeneration++; }
             if (state.Phase == "battle" && state.Battle != null && _planRound != state.Round)
             {
                 MatchReplayStore.Record(state,UserId);
@@ -324,18 +335,22 @@ public partial class OnlineBattle : Node
     private void ShowDefeat()
     {
         if(_defeatModal!=null || _exiting)return;
+        if(_blood.Armed&&!_blood.Eliminated)return;
         _replayGeneration++;
         _surrenderModal?.Hide();_shop.CloseDetails();_shop.LockNetworkInteraction();
         _battle.HideResult();_matchLobby.Hide();_roundTitle.Hide();
-        _defeatRemaining=15;
+        _defeatRemaining=20;
         var layer=new CanvasLayer {Layer=31};AddChild(layer);
         _defeatModal=new GameModal {Name="DefeatModal"};layer.AddChild(_defeatModal);
-        var effect=new TextureRect {Name="DefeatEffect",Texture=GD.Load<Texture2D>("res://assets/effects/Bloody Screen Effects/Effect_4.png"),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.Scale,MouseFilter=Control.MouseFilterEnum.Ignore};
-        _defeatModal.AddChild(effect);_defeatModal.MoveChild(effect,1);effect.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _blood.Complete(!_shop.NetworkUnits.Values.Any(unit=>unit.IsAlly&&!unit.IsDead));
+        var effect=_blood.Image;effect.Reparent(_defeatModal);_defeatModal.MoveChild(effect,1);effect.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         var title=DeckMenuUi.Text("DEFEAT",32);title.HorizontalAlignment=HorizontalAlignment.Center;_defeatModal.Body.AddChild(title);
         var buttons=new HBoxContainer();buttons.AddThemeConstantOverride("separation",12);_defeatModal.Body.AddChild(buttons);
         _defeatLobby=DeckMenuUi.Button("BACK TO LOBBY (15s)",ReturnToLobby,220,44);_defeatLobby.Name="DefeatLobbyButton";buttons.AddChild(_defeatLobby);
         var replay=DeckMenuUi.Button("WATCH REPLAY",WatchReplay,180,44);replay.Name="WatchReplayButton";replay.Disabled=MatchReplayStore.Rounds.Count==0;buttons.AddChild(replay);
+        bool replayAvailable=!replay.Disabled;_defeatLobby.Disabled=replay.Disabled=true;
+        var fade=_defeatModal.FadeIn(5);
+        fade.Finished+=()=>{if(!_exiting){_defeatLobby.Disabled=false;replay.Disabled=!replayAvailable;}};
     }
     private async void WatchReplay()
     {
@@ -388,45 +403,55 @@ public partial class OnlineBattle : Node
         }
         if (_exiting || generation != _replayGeneration) throw new OperationCanceledException();
     }
+    private double _presentationTimeMs;
+    private bool _presentationPlaying;
+    private async Task WaitForPresentation(long time,int generation)
+    {
+        while(_presentationTimeMs<time&&Connection!.ServerNowMs<time){
+            if(_exiting||generation!=_replayGeneration)throw new OperationCanceledException();
+            await ToSignal(_tree,SceneTree.SignalName.ProcessFrame);
+        }
+        if(_exiting||generation!=_replayGeneration)throw new OperationCanceledException();
+    }
     private async void PlayReplay(OnlinePlan plan, int generation)
     {
         try
         {
+            _shop.SetReplayPlan(plan);
+            int playerHp=State?.Players.FirstOrDefault(p=>p?.UserId==UserId)?.Hp??int.MaxValue;
+            _blood.Prepare(plan,LocalTeam,playerHp<=plan.PlayerDamage);
+            _presentationTimeMs=Math.Max(plan.StartMs,Connection!.ServerNowMs);_presentationPlaying=true;_battle.SpeedEnabled=true;
             foreach (var combat in plan.Events)
             {
                 if (Connection!.ServerNowMs >= plan.EndMs || combat.AtMs >= plan.EndMs) break;
-                await WaitUntil(combat.AtMs,generation);
+                await WaitForPresentation(combat.AtMs,generation);
                 if (Connection!.ServerNowMs >= plan.EndMs) break;
-                if (!_shop.NetworkUnits.TryGetValue(combat.Attacker,out var attacker) || !_shop.NetworkUnits.TryGetValue(combat.Target,out var target))
+                if (!_shop.NetworkUnits.TryGetValue(combat.Attacker,out var attacker))
                     throw new InvalidOperationException("Replay unit is missing.");
+                var target=_shop.NetworkUnits.TryGetValue(combat.Target,out var existingTarget)?existingTarget:attacker;
                 if (Connection!.ServerNowMs >= combat.AtMs + 2400)
                 {
-                    target.ApplyServerHealth(combat.TargetHp);
-                    if (combat.Dead)
-                    {
-                        target.Sprite.Play(BattleAnimations.Die);
-                        target.Sprite.SetFrameAndProgress(target.Sprite.SpriteFrames.GetFrameCount(BattleAnimations.Die)-1,0);
-                        target.Sprite.Stop();
-                    }
+                    _shop.ApplyCombatEvent(combat);
                     continue;
                 }
                 await _battle.PlayServerEvent(attacker,target,combat,plan.EndMs);
             }
+            if(_exiting||generation!=_replayGeneration)throw new OperationCanceledException();
+            _presentationPlaying=false;_battle.SpeedEnabled=false;
             await WaitUntil(plan.EndMs,generation);
             // Resolve skipped animation events without changing the computed outcome.
             foreach (var combat in plan.Events)
-                if (_shop.NetworkUnits.TryGetValue(combat.Target,out var finalTarget)) {
-                    finalTarget.ApplyServerHealth(combat.TargetHp);
-                    if (combat.Dead) { finalTarget.Sprite.Play(BattleAnimations.Die);finalTarget.Sprite.SetFrameAndProgress(finalTarget.Sprite.SpriteFrames.GetFrameCount(BattleAnimations.Die)-1,0);finalTarget.Sprite.Stop(); }
-                }
+                _shop.ApplyCombatEvent(combat);
             if (State?.Phase == "game_over") ShowFinalResult(State);
             else _battle.ShowServerResult(plan.Winner);
         }
         catch (OperationCanceledException) { }
         catch (Exception exception) { if (!_exiting) { _message = "Replay error: " + exception.Message;GD.PushError(exception.ToString()); } }
+        finally {if(generation==_replayGeneration){_presentationPlaying=false;_battle.SpeedEnabled=false;}}
     }
     public override void _ExitTree()
     {
+        if(_blood!=null){_shop.CombatHitApplied-=_blood.Apply;_battle.CombatHitProgress-=_blood.Preview;_blood.LastUnitDied-=ShowDefeat;}
         _exiting = true;_replayGeneration++;
         if (Connection != null) _ = Connection.Close();
     }

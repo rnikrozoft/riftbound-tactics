@@ -120,8 +120,8 @@ public partial class DeckBuilder : Control
         _details.AddChild(DeckMenuUi.Text("CARD DETAILS",18));_details.AddChild(DeckMenuUi.Art(kind,160,190));
         var name=DeckMenuUi.Text(CardCatalog.Name(kind),18);name.AutowrapMode=TextServer.AutowrapMode.WordSmart;name.CustomMinimumSize=new(190,50);_details.AddChild(name);
         var stats=CharacterData.Stats(kind,1);var character=CharacterData.Get(kind);
-        _details.AddChild(DeckMenuUi.Text($"Cost {CardCatalog.Cost(kind)}   /   1-star stats\nHP {stats.Hp}   ATK {stats.Attack}   Speed {stats.Speed}",14));
-        var description=DeckMenuUi.Text($"{character.Description}\n\n{character.AbilityName}\n{character.AbilityDescription}\n\n{character.PassiveName}\n{character.PassiveDescription}",14);description.AutowrapMode=TextServer.AutowrapMode.WordSmart;_details.AddChild(description);
+        _details.AddChild(DeckMenuUi.Text($"Cost {CardCatalog.Cost(kind)}   /   1-star stats\nHP / ATK {stats.Hp}   ARMOR {stats.Armor}",14));
+        var description=DeckMenuUi.Text(CharacterData.CombatDescription(kind,1),14);description.AutowrapMode=TextServer.AutowrapMode.WordSmart;_details.AddChild(description);
         var entry=Draft.Cards.Find(c=>c.Kind==kind);
         if(entry!=null)
         {

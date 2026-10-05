@@ -1,0 +1,18 @@
+LICENSE - 48 Buff & Debuff Icons
+
+YOU MAY
+- Use these icons in unlimited personal and commercial projects
+- Use them in games you sell, in free games, and in client work
+- Modify, recolour, crop and combine them however you need
+- Ship them inside a compiled game, app or Roblox experience
+
+YOU MAY NOT
+- Resell, redistribute or give away the asset files themselves,
+  as-is or modified, whether free or paid
+- Include them in another asset pack, template or UI library
+- Claim authorship of the artwork
+
+No attribution required, though it is always welcome.
+
+This license is granted per download and cannot be transferred.
+If your team needs multiple seats, one download covers your whole studio.

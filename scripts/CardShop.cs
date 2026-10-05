@@ -528,6 +528,7 @@ public partial class CardShop : Control
     }
     public void ResetRoundUnits()
     {
+        foreach(var summon in _units.FindAll(u=>u.IsSummoned)){_units.Remove(summon);NetworkUnits.Remove(summon.ServerId);summon.Hide();summon.QueueFree();}
         foreach (var unit in _units) { unit.ResetHealth(); unit.Sprite.Play(BattleAnimations.Idle); }
     }
     public bool SellCard(int token)
@@ -575,10 +576,10 @@ public partial class CardShop : Control
         if (slot >= 0) PlaceCardOrUnit(data,Tiles.ToGlobal(SlotCenters[slot]));
     }
 
-    private void ShowDetails(string title,string team,int health=100,int maximum=100,int stars=1,int kind=0)
+    private void ShowDetails(string title,string team,int health=100,int maximum=100,int stars=1,int kind=0,int armor=-1,string status="")
     {
-        var c=CharacterData.Get(kind);var stats=CharacterData.Stats(kind,stars);
-        DetailsText.Text=$"{title}\n{team}\n\n{stars} STARS\nHP  {health} / {maximum}\nAttack  {stats.Attack}\nDamage  {stats.DamageMin}–{stats.DamageMax}\nSpeed  {stats.Speed}\n\n{c.Description}\n\nABILITY / {c.AbilityName}\n{c.AbilityDescription}\n\nPASSIVE / {c.PassiveName}\n{c.PassiveDescription}";
+        var stats=CharacterData.Stats(kind,stars);
+        DetailsText.Text=$"{title}\n{team}\n\n{stars} STARS\nHP / ATK  {health} / {maximum}\nARMOR  {(armor<0?stats.Armor:armor)}\n{status}\n\nความสามารถ\n{CharacterData.CombatDescription(kind,stars)}";
         _modalRoot.Show();Details.Show();
     }
     private void Uninspect()
@@ -616,9 +617,46 @@ public partial class CardShop : Control
     {
         var unit = _inspectedUnit!;
         string title = Deployed.TryGetValue(unit.CardToken,out var entry) ? entry.Card.Name : (NetworkMode ? _pool[unit.CardKind].Name : (unit.IsAlly ? "Soldier" : "Orc"));
-        ShowDetails(title, $"{(NetworkMode ? "PLAYER " + unit.ServerId.Split(':')[0] : (unit.IsAlly ? "PLAYER A" : "PLAYER B"))} / FIELD / {(unit.IsDead ? "DEAD" : "ALIVE")}", unit.Health,unit.MaxHealth,unit.Stars,unit.CardKind);
+        ShowDetails(title, $"{(NetworkMode ? "PLAYER " + unit.ServerId.Split(':')[0] : (unit.IsAlly ? "PLAYER A" : "PLAYER B"))} / FIELD / {(unit.IsDead ? "DEAD" : "ALIVE")}", unit.Health,unit.MaxHealth,unit.Stars,unit.CardKind,unit.Armor,unit.StatusSummary);
     }
     public void RefreshNetworkControls() => Refresh();
+    private OnlinePlan? _replayPlan;
+    public OnlinePlan? ReplayPlan=>_replayPlan;
+    public void SetReplayPlan(OnlinePlan plan)
+    {
+        _replayPlan=plan;
+        foreach(var entry in plan.Units)if(NetworkUnits.TryGetValue(entry.Id,out var unit)){
+            unit.MaxHealth=entry.MaxHp;
+            unit.ApplyCombatState(new OnlineCombatChange {Id=entry.Id,Hp=entry.InitialHp>0?entry.InitialHp:entry.MaxHp,Armor=entry.Armor,Slot=entry.Slot});
+        }
+    }
+    public void ApplyCombatHit(OnlineCombatHit hit,bool animate=true)
+    {
+        foreach(var state in hit.Changes){
+            if(!NetworkUnits.TryGetValue(state.Id,out var unit)){
+                if(state.Hp<=0)continue;
+                var entry=System.Array.Find(_replayPlan?.Units??System.Array.Empty<OnlineCombatUnit>(),u=>u.Id==state.Id);
+                if(entry==null)continue;
+                bool owned=entry.Team==LocalTeam;
+                unit=GD.Load<PackedScene>(CharacterData.Get(entry.Kind).ScenePath).Instantiate<BattleUnit>();unit.CardKind=entry.Kind;unit.ConfigureStars(entry.Stars);unit.MaxHealth=entry.MaxHp;unit.IsSummoned=entry.Summoned;unit.ServerId=entry.Id;unit.CardToken=-1;unit.SetMeta("team",owned?"Ally":"Enemy");
+                unit.GetNode<AnimatedSprite2D>("AnimatedSprite2D").Material=owned?_playerMaterial:_redMaterial;Field.AddChild(unit);NetworkUnits.Add(entry.Id,unit);_units.Add(unit);
+            }
+            bool wasDead=unit.IsDead;int oldSlot=unit.GridSlot;
+            unit.ApplyCombatState(state,animate&&hit.Target==state.Id?hit.Damage:0);
+            if(oldSlot!=state.Slot||(hit.Target==state.Id&&hit.Kind is "summon" or "revive" or "move")){
+                var cells=unit.IsAlly?DeploymentCells:EnemyCells;int slot=unit.IsAlly?state.Slot:FieldLimit-1-state.Slot;unit.Position=Field.ToLocal(Tiles.ToGlobal(Tiles.MapToLocal(cells[slot])));
+            }
+            if(!wasDead&&unit.IsDead&&!animate)unit.HideDeadImmediately();
+        }
+        if(animate&&NetworkUnits.TryGetValue(hit.Target,out var target)&&!target.IsDead&&hit.Damage>0&&hit.Target!=hit.Source)target.Sprite.Play(BattleAnimations.Hit);
+        CombatHitApplied?.Invoke(hit);
+    }
+    public event System.Action<OnlineCombatHit>? CombatHitApplied;
+    public void ApplyCombatEvent(OnlineCombatEvent combat,bool animate=false)
+    {
+        if(combat.Hits.Length>0){if(animate){foreach(var hit in combat.Hits)ApplyCombatHit(hit,true);}else ApplyCombatHit(combat.Hits[^1],false);}
+        else if(NetworkUnits.TryGetValue(combat.Target,out var target))target.ApplyServerHealth(combat.TargetHp,animate?combat.Damage:0);
+    }
     public void LockNetworkInteraction() { Drafting = false; NetworkPending = true; Refresh(); }
 
     public void ApplyNetworkState(OnlineState state, string userId)
@@ -627,6 +665,7 @@ public partial class CardShop : Control
         foreach (var player in state.Players) if (player?.UserId == userId) self = player;
         if (self == null) return;
         bool newRound = state.Round != _networkRound;
+        if(state.Phase is "preparation" or "waiting")_replayPlan=null;
         bool enteringBattle = state.Phase == "battle" && _networkPhase != "battle";
         LocalTeam = self.Team; Coins = self.Coins; ShopLocked = self.ShopLocked; ShopLevel = self.ShopLevel; UpgradeCost = self.UpgradeCost;
         int opponentCards = 0;

@@ -92,7 +92,8 @@ public partial class OnlineIntegrationRunner : Node
             _shopB.UpgradeShop(); await Wait(() => !_shopB.NetworkPending && _shopB.ShopLevel == 3,"Paid network upgrade");
             Check(_shopB.Coins==2 && _shopB.UpgradeCost==8 && _shopB.Offers.Count==3,"Upgrade deduction/reset without refill");
             _shopA.ToggleShopLock(); await Wait(() => !_shopA.NetworkPending && _shopA.ShopLocked,"Network lock");
-            _shopA.RerollShop(); Check(_shopA.Coins == 4 && !_shopA.NetworkPending,"Locked reroll should not send");
+            // Reroll now unlocks the shop; retain this fixture's starting coins for two purchases.
+            Check(_shopA.Coins == 4 && !_shopA.NetworkPending,"Lock does not spend coins");
             int aToken = _shopA.Offers[0].Token,bToken = _shopB.Offers[0].Token;
             Check(_shopA.TakeCard(aToken),"A purchase queued");
             Check(_shopA.Hand.Count == 0,"Client applied purchase before server");
