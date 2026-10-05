@@ -1,0 +1,172 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/flame_golem/flame_golem_idle.png" id="idle"]
+
+[ext_resource type="Texture2D" path="res://assets/characters/flame_golem/flame_golem_walk.png" id="walk"]
+
+[ext_resource type="Texture2D" path="res://assets/characters/flame_golem/flame_golem_attack01.png" id="attack"]
+
+[ext_resource type="Texture2D" path="res://assets/characters/flame_golem/flame_golem_hit.png" id="hit"]
+
+[ext_resource type="Texture2D" path="res://assets/characters/flame_golem/flame_golem_death.png" id="die"]
+
+[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="unit"]
+
+[sub_resource type="AtlasTexture" id="idle_0"]
+atlas = ExtResource("idle")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="idle_1"]
+atlas = ExtResource("idle")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="idle_2"]
+atlas = ExtResource("idle")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="idle_3"]
+atlas = ExtResource("idle")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="idle_4"]
+atlas = ExtResource("idle")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="idle_5"]
+atlas = ExtResource("idle")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_0"]
+atlas = ExtResource("walk")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_1"]
+atlas = ExtResource("walk")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_2"]
+atlas = ExtResource("walk")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_3"]
+atlas = ExtResource("walk")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_4"]
+atlas = ExtResource("walk")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_5"]
+atlas = ExtResource("walk")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_6"]
+atlas = ExtResource("walk")
+region = Rect2(600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_7"]
+atlas = ExtResource("walk")
+region = Rect2(700, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_8"]
+atlas = ExtResource("walk")
+region = Rect2(800, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_9"]
+atlas = ExtResource("walk")
+region = Rect2(900, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_10"]
+atlas = ExtResource("walk")
+region = Rect2(1000, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="walk_11"]
+atlas = ExtResource("walk")
+region = Rect2(1100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_0"]
+atlas = ExtResource("attack")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_1"]
+atlas = ExtResource("attack")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_2"]
+atlas = ExtResource("attack")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_3"]
+atlas = ExtResource("attack")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_4"]
+atlas = ExtResource("attack")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_5"]
+atlas = ExtResource("attack")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_6"]
+atlas = ExtResource("attack")
+region = Rect2(600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_7"]
+atlas = ExtResource("attack")
+region = Rect2(700, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="attack_8"]
+atlas = ExtResource("attack")
+region = Rect2(800, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="hit_0"]
+atlas = ExtResource("hit")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="hit_1"]
+atlas = ExtResource("hit")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="hit_2"]
+atlas = ExtResource("hit")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="hit_3"]
+atlas = ExtResource("hit")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="die_0"]
+atlas = ExtResource("die")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="die_1"]
+atlas = ExtResource("die")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="die_2"]
+atlas = ExtResource("die")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="die_3"]
+atlas = ExtResource("die")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="die_4"]
+atlas = ExtResource("die")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="die_5"]
+atlas = ExtResource("die")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="SpriteFrames" id="Frames"]
+animations = [{"frames": [{"duration": 1.0, "texture": SubResource("idle_0")}, {"duration": 1.0, "texture": SubResource("idle_1")}, {"duration": 1.0, "texture": SubResource("idle_2")}, {"duration": 1.0, "texture": SubResource("idle_3")}, {"duration": 1.0, "texture": SubResource("idle_4")}, {"duration": 1.0, "texture": SubResource("idle_5")}], "loop": true, "name": &"idle", "speed": 8.0}, {"frames": [{"duration": 1.0, "texture": SubResource("walk_0")}, {"duration": 1.0, "texture": SubResource("walk_1")}, {"duration": 1.0, "texture": SubResource("walk_2")}, {"duration": 1.0, "texture": SubResource("walk_3")}, {"duration": 1.0, "texture": SubResource("walk_4")}, {"duration": 1.0, "texture": SubResource("walk_5")}, {"duration": 1.0, "texture": SubResource("walk_6")}, {"duration": 1.0, "texture": SubResource("walk_7")}, {"duration": 1.0, "texture": SubResource("walk_8")}, {"duration": 1.0, "texture": SubResource("walk_9")}, {"duration": 1.0, "texture": SubResource("walk_10")}, {"duration": 1.0, "texture": SubResource("walk_11")}], "loop": true, "name": &"walk", "speed": 8.0}, {"frames": [{"duration": 1.0, "texture": SubResource("attack_0")}, {"duration": 1.0, "texture": SubResource("attack_1")}, {"duration": 1.0, "texture": SubResource("attack_2")}, {"duration": 1.0, "texture": SubResource("attack_3")}, {"duration": 1.0, "texture": SubResource("attack_4")}, {"duration": 1.0, "texture": SubResource("attack_5")}, {"duration": 1.0, "texture": SubResource("attack_6")}, {"duration": 1.0, "texture": SubResource("attack_7")}, {"duration": 1.0, "texture": SubResource("attack_8")}], "loop": false, "name": &"attack", "speed": 12.0}, {"frames": [{"duration": 1.0, "texture": SubResource("hit_0")}, {"duration": 1.0, "texture": SubResource("hit_1")}, {"duration": 1.0, "texture": SubResource("hit_2")}, {"duration": 1.0, "texture": SubResource("hit_3")}], "loop": false, "name": &"hit", "speed": 12.0}, {"frames": [{"duration": 1.0, "texture": SubResource("die_0")}, {"duration": 1.0, "texture": SubResource("die_1")}, {"duration": 1.0, "texture": SubResource("die_2")}, {"duration": 1.0, "texture": SubResource("die_3")}, {"duration": 1.0, "texture": SubResource("die_4")}, {"duration": 1.0, "texture": SubResource("die_5")}], "loop": false, "name": &"die", "speed": 12.0}]
+
+[node name="flame_golem" type="CharacterBody2D"]
+texture_filter = 1
+script = ExtResource("unit")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("Frames")
+animation = &"idle"
+autoplay = "idle"
