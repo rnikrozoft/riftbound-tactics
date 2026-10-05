@@ -4,6 +4,7 @@ using System.IO;
 
 public static class GameAccount
 {
+    public static string DisplayName {get;set;}="";
     private static string? _deviceId;
     // Keep an exclusive slot lease until this process exits. Other running
     // instances use another persisted slot instead of sharing the same account.

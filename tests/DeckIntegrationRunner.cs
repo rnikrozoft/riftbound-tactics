@@ -68,7 +68,7 @@ public partial class DeckIntegrationRunner : Node
             Check(!editor.ReplaceCard(replacement,30),"cross-hero replacement rejected");
             Check(editor.ChangeCopies(replacement,1)&&editor.Draft.Cards.First(c=>c.Kind==replacement).Copies==2,"increase copies");
             Check(editor.ChangeCopies(replacement,-1)&&!editor.ChangeCopies(replacement,-1),"one copy minimum without cycling");
-            editor.Filter(4);Check(editor.VisibleCardCount==4,"cost filter limits neutral catalog");
+            editor.Filter(4);Check(editor.VisibleCardCount==CardCatalog.Options(4,4).Count(),"cost filter limits neutral catalog");
             editor.Filter(0,"Warden");Check(editor.VisibleCardCount==5,"search matches card names");
             editor.Filter(0);editor.RemoveCard(replacement);Check(editor.Draft.Validate()!="","incomplete deck blocked");
             Check(editor.AddCard(replacement)&&editor.Draft.Validate()=="","fill missing slot with one copy");
@@ -92,9 +92,9 @@ public partial class DeckIntegrationRunner : Node
             string selectedBefore=DeckStore.SelectedId;
             foreach(string menu in new[]{"Decks","Shop","Leaderboard","Achievements"}){lobby.Navigate(menu);await Frames();Check(lobby.ActiveMenu==menu&&DeckStore.SelectedId==selectedBefore,"menu navigation preserves selected deck");}
             await Capture("deck-main-menu");lobby.Navigate("Play");Check(lobby.ActiveMenu=="Play","return to play");lobby.QueueFree();await Frames();
-            var deck=starter.Clone();deck.Name="Guardian test";deck.Heroes[0]=3;
-            deck.Cards.RemoveAll(c=>CardCatalog.Group(c.Kind)==0);
-            for(int cost=2;cost<=6;cost++)foreach(int kind in CardCatalog.Options(3,cost))deck.Cards.Add(new(){Kind=kind});
+            var deck=new DeckDefinition {Name="Monster expedition",Heroes=new[]{5,6,7}};
+            foreach(int group in deck.Heroes.Append(4))for(int cost=2;cost<=6;cost++)
+                foreach(int kind in CardCatalog.Options(group,cost).Take(2))deck.Cards.Add(new(){Kind=kind});
             foreach(var c in deck.Cards)c.Copies=1;
             Check(deck.Validate()=="","custom forty-card single-copy deck valid");
             BattleLaunch.Deck=deck;BattleLaunch.Create=true;BattleLaunch.Pending=true;
@@ -108,7 +108,7 @@ public partial class DeckIntegrationRunner : Node
             Check(net.State!.Players.Select(p=>p!.UserId).Distinct().Count()==2,"two authenticated players");
             Check(net.State.Players[0]!.Offers.All(c=>deck.Cards.Any(d=>d.Kind==c.Kind)),"creator offers from selected deck");
             Check(opponentState!.Players[1]!.Offers.All(c=>starter.Cards.Any(d=>d.Kind==c.Kind)),"joiner has independent selected deck");
-            var card=shop.Offers.First();net.SendAction("buy",card.Token);
+            var card=shop.Offers.First(c=>CharacterData.All.Single(d=>d.Name==c.Name).Group!=4);net.SendAction("buy",card.Token);
             await Wait(()=>!shop.NetworkPending&&shop.Hand.Count==1,"purchase single copy");
             Check(shop.Hand[0].Name==CardCatalog.Name(net.State!.Players[0]!.Hand[0].Kind),"client catalog matches server IDs");
             int purchased=net.State.Players[0]!.Hand[0].Kind;

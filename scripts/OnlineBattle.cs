@@ -28,13 +28,22 @@ public partial class OnlineBattle : Node
     private long _sequence, _pendingSequence, _lastRevision = -1;
     private int _planRound, _replayGeneration;
     private bool _exiting, _connecting;
+    private GameModal? _defeatModal;
+    private TextureButton _defeatLobby=null!;
+    private double _defeatRemaining;
     private DeckDefinition? _selectedDeck;
     private bool _launchPending, _launchCreate, _matchmaking;
     private Label _roster = null!;
+    private PanelContainer _rosterPanel=null!;
+    private Label _roundTitle=null!;
     private string _launchCode = "";
+    private GameModal _surrenderModal=null!;
+    private TextureButton _matchLobby=null!, _back=null!;
     private volatile bool _transportLost;
     private string _message = "";
     private string _displayedStatus = "";
+    private readonly System.Collections.Generic.Dictionary<string,string> _rosterNames=new();
+    private bool _fetchingRosterNames;
 
     public override void _Ready()
     {
@@ -44,10 +53,12 @@ public partial class OnlineBattle : Node
         _shop.Online = this; _shop.ZoneA.Hide(); _shop.ZoneB.Hide();
         _profileA = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileA");
         _profileB = GetParent().GetNode<PlayerProfile>("UI/SafeArea/Content/ProfileB");
+        _profileB.Hide();
         _selectedDeck = BattleLaunch.Deck?.Clone();
         _launchPending = BattleLaunch.Pending; _launchCreate = BattleLaunch.Create; _launchCode = BattleLaunch.Code;
         _matchmaking=BattleLaunch.Matchmaking;BattleLaunch.Matchmaking=false;
         BattleLaunch.Pending = false;
+        MatchReplayStore.Clear();
         BuildUi();
         Callable.From(ConnectDebugUser).CallDeferred();
     }
@@ -58,17 +69,28 @@ public partial class OnlineBattle : Node
             CustomMinimumSize = new(width,30), TextureFilter = CanvasItem.TextureFilterEnum.Nearest
         };
         TravelBookUi.StyleButton(button);
-        var label = new Label { Text = text, Modulate = Colors.Black, HorizontalAlignment = HorizontalAlignment.Center,
+        var label = new Label { Text = text, Modulate = Colors.White, HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,MouseFilter = Control.MouseFilterEnum.Ignore };
-        button.AddChild(label); label.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        GameUi.Label(label,13);button.AddChild(label); label.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         button.Pressed += action; return button;
     }
     private void BuildUi()
     {
-        var panel = new VBoxContainer { Name = "RoomUI", Position = new(12,12),Size = new(330,120),MouseFilter = Control.MouseFilterEnum.Ignore };
-        GetParent().GetNode<Control>("UI/SafeArea/Content").AddChild(panel);
-        _identity = new Label { Text = "Connecting / new debug user...",MouseFilter = Control.MouseFilterEnum.Ignore };
-        panel.AddChild(_identity);
+        var panel = new VBoxContainer { Name = "RoomUI",MouseFilter = Control.MouseFilterEnum.Ignore };
+        var frame=new PanelContainer {Name="ArenaStatus",Position=new(16,76),CustomMinimumSize=new(230,0)};_rosterPanel=frame;
+        frame.AddThemeStyleboxOverride("panel",GameUi.Box());
+        GetParent().GetNode<Control>("UI/SafeArea/Content").AddChild(frame);frame.AddChild(panel);
+        panel.AddThemeConstantOverride("separation",9);
+        var content=GetParent().GetNode<Control>("UI/SafeArea/Content");
+        var back=Button("SURRENDER",ShowSurrender,100);back.Name="BackButton";back.Position=new(16,16);content.AddChild(back);
+        _back=back;
+        _matchLobby=Button("BACK TO LOBBY",ReturnToLobby,180);_matchLobby.Name="MatchLobbyButton";
+        content.AddChild(_matchLobby);_matchLobby.AnchorLeft=_matchLobby.AnchorRight=_matchLobby.AnchorTop=_matchLobby.AnchorBottom=.5f;
+        _matchLobby.OffsetLeft=-90;_matchLobby.OffsetRight=90;_matchLobby.OffsetTop=68;_matchLobby.OffsetBottom=112;
+        GameUi.Primary(_matchLobby);_matchLobby.Hide();
+        _roundTitle=new Label {Name="RoundTitle",Text="Searching",AnchorLeft=.5f,AnchorRight=.5f,OffsetLeft=-220,OffsetRight=220,OffsetTop=8,OffsetBottom=44,HorizontalAlignment=HorizontalAlignment.Center,MouseFilter=Control.MouseFilterEnum.Ignore};GameUi.Label(_roundTitle,24);content.AddChild(_roundTitle);
+        _identity = new Label { Text = "CONNECTING TO THE ARENA",MouseFilter = Control.MouseFilterEnum.Ignore };
+        GameUi.Label(_identity,13);_identity.AddThemeColorOverride("font_color",GameUi.Gold);panel.AddChild(_identity);_identity.Hide();
         _roomControls = new HBoxContainer(); panel.AddChild(_roomControls);
         var inputFrame = new NinePatchRect {
             Texture = TravelBookUi.Texture("Popup01a"), PatchMarginLeft = 4,PatchMarginRight = 4,PatchMarginTop = 4,PatchMarginBottom = 4,
@@ -86,12 +108,40 @@ public partial class OnlineBattle : Node
         _code.TextSubmitted += code => JoinRoom();
         _create = Button("CREATE",() => CreateRoom(),90);_join = Button("JOIN",() => JoinRoom(),80);
         _roomControls.AddChild(_create);_roomControls.AddChild(_join);
-        _status = new Label { Text = "Starting connection...",AutowrapMode = TextServer.AutowrapMode.WordSmart,CustomMinimumSize = new(330,48),MouseFilter = Control.MouseFilterEnum.Ignore };
-        panel.AddChild(_status);
-        _roster=new Label {MouseFilter=Control.MouseFilterEnum.Ignore};_roster.AddThemeFontSizeOverride("font_size",12);panel.AddChild(_roster);
+        _status = new Label { Text = "Starting connection...",AutowrapMode = TextServer.AutowrapMode.WordSmart,CustomMinimumSize = new(250,48),MouseFilter = Control.MouseFilterEnum.Ignore };
+        GameUi.Label(_status,13);panel.AddChild(_status);_status.Hide();
+        _roster=new Label {MouseFilter=Control.MouseFilterEnum.Ignore};GameUi.Label(_roster,13,true);_roster.AddThemeConstantOverride("line_spacing",8);panel.AddChild(_roster);
         if (_matchmaking) _roomControls.Hide();
         _create.Disabled = _join.Disabled = true;
-        panel.AddChild(Button("LOBBY",()=>GetTree().ChangeSceneToFile("res://scenes/lobby.tscn"),90));
+        if (_matchmaking) frame.Hide();
+    }
+    public void ShowSurrender()
+    {
+        if(_exiting)return;
+        if(State?.Phase=="game_over") {ReturnToLobby();return;}
+        _shop.CloseDetails();
+        if(_surrenderModal==null){
+            var layer=new CanvasLayer {Layer=30};AddChild(layer);_surrenderModal=new GameModal();layer.AddChild(_surrenderModal);
+            _surrenderModal.Body.AddChild(DeckMenuUi.Text("SURRENDER?",26));
+            var message=DeckMenuUi.Text("Leave this match and return to the lobby?",15);message.AutowrapMode=TextServer.AutowrapMode.WordSmart;_surrenderModal.Body.AddChild(message);
+            var buttons=new HBoxContainer();_surrenderModal.Body.AddChild(buttons);
+            buttons.AddChild(DeckMenuUi.Button("CANCEL",CancelSurrender,156,42));
+            buttons.AddChild(DeckMenuUi.Button("SURRENDER",ReturnToLobby,156,42));
+            _surrenderModal.Cancel=CancelSurrender;
+        }
+        _surrenderModal.Show();
+    }
+    private void CancelSurrender()
+    {
+        _surrenderModal.Hide();
+        // A queued cancel from the old dialog must not strand a completed match.
+        if(State?.Phase=="game_over" && _defeatModal==null)ReturnToLobby();
+    }
+    public async void ReturnToLobby()
+    {
+        if(_exiting)return;_exiting=true;_replayGeneration++;Connected=false;_shop.LockNetworkInteraction();SetProcess(false);
+        if(Connection!=null)await Connection.Close();
+        if(IsInsideTree())_tree.ChangeSceneToFile("res://scenes/lobby.tscn");
     }
     private async void ConnectDebugUser()
     {
@@ -111,7 +161,7 @@ public partial class OnlineBattle : Node
             await Connection.Connect();
             if (_exiting) { await Connection.Close(); return; }
             Connected = true;
-            _identity.Text = "DEBUG USER " + UserId[..8];
+            _identity.Text = "COMMANDER CONNECTED";
             _create.Disabled = _join.Disabled = false;
             _message = "Create a room or enter a 6-digit code.";
             if (_launchPending) { _launchPending=false; _code.Text=_launchCode; if (_matchmaking) FindMatch(); else EnterRoom(_launchCreate); }
@@ -139,7 +189,7 @@ public partial class OnlineBattle : Node
             var room = await Connection.EnterRoom(create,_code.Text.Trim(),_selectedDeck);
             if (_exiting) return;
             _code.Text = room.Code;_roomControls.Hide();
-            _message = "Waiting for second player...";
+            _message = "Waiting for your opponent...";
         }
         catch (Exception exception)
         { if (!_exiting) { _message = exception.Message;_create.Disabled = _join.Disabled = false; } }
@@ -172,6 +222,13 @@ public partial class OnlineBattle : Node
     }
     public override void _Process(double delta)
     {
+        if(_exiting)return;
+        if(_defeatModal!=null) {
+            _defeatRemaining-=delta;
+            _defeatLobby.GetChild<Label>(0).Text=$"BACK TO LOBBY ({Math.Max(0,(int)Math.Ceiling(_defeatRemaining))}s)";
+            if(_defeatRemaining<=0)ReturnToLobby();
+            return;
+        }
         if (Connection != null && Connected) _battle.ServerVisualTimeMs = Connection.ServerNowMs;
         while (_errors.TryDequeue(out var error))
         {
@@ -188,11 +245,12 @@ public partial class OnlineBattle : Node
             if (state.Revision < _lastRevision) continue;
             bool changed = state.Revision != _lastRevision;
             State = state;_lastRevision = state.Revision;
+            if(state.Roster.Any(p=>p.UserId==UserId && p.Hp<=0) || state.Players.Any(p=>p!=null && p.UserId==UserId && p.Hp<=0)){ShowDefeat();return;}
             if (!changed) continue;
             _message = ""; _roomControls.Hide();
             _shop.ApplyNetworkState(state,UserId);
             PositionProfiles(_shop.LocalTeam);
-            _profileA.Visible=state.Players.Any(p=>p?.Team=="A");_profileB.Visible=state.Players.Any(p=>p?.Team=="B");
+            _profileA.Visible=state.Players.Any(p=>p?.Team=="A" && !string.IsNullOrWhiteSpace(p.UserId));_profileB.Visible=state.Players.Any(p=>p?.Team=="B" && !string.IsNullOrWhiteSpace(p.UserId));
             foreach (var player in state.Players)
                 if (player != null) { var profile = player.Team == "A" ? _profileA : _profileB; profile.SetCoins(player.Coins); profile.SetHealth(player.Hp); }
             if (state.Phase == "game_over") ShowFinalResult(state);
@@ -205,14 +263,16 @@ public partial class OnlineBattle : Node
                 foreach(var player in state.Players)
                     if(player!=null) {var ranked=state.Roster.FirstOrDefault(p=>p.UserId==player.UserId);if(ranked!=null&&!ranked.Bot)(player.Team=="A"?_profileA:_profileB).SetMmr(ranked.Rating);}
 
-                _roster.Text=string.Join("\n",state.Roster.Select((p,i)=>$"{(p.UserId==UserId ? "YOU" : p.Bot ? "BOT" : "PLAYER")} {i+1} / HP {p.Hp}/30{(p.Place>0 ? $" / #{p.Place}" : "")}"));
+                UpdateRosterNames(state);
+                FetchRosterNames();
                 if (state.Phase=="eliminated") {_replayGeneration++;_battle.HideResult();}
             }
-            _identity.Text = $"ROOM {state.Code} / PLAYER {_shop.LocalTeam} / {UserId[..8]}";
+            _identity.Text = $"ARENA  /  ROUND {state.Round:00}";
             if (state.Phase == "preparation")
             { _battle.HideResult();if (_planRound != state.Round) _replayGeneration++; }
             if (state.Phase == "battle" && state.Battle != null && _planRound != state.Round)
             {
+                MatchReplayStore.Record(state,UserId);
                 _planRound = state.Round;
                 PlayReplay(state.Battle,++_replayGeneration);
             }
@@ -226,13 +286,13 @@ public partial class OnlineBattle : Node
             string a = State.Players[0]?.Ready == true ? "READY" : "PREPARING";
             string b = State.Players.Length > 1 && State.Players[1]?.Ready == true ? "READY" : "PREPARING";
             status = State.Phase switch {
-                "waiting" => "Waiting for second player...",
+                "waiting" => "Waiting for your opponent...",
                 "preparation" => State.Roster.Length>0 ? $"PREPARATION {remaining:00}s / {State.Roster.Count(p=>p.Hp>0&&p.Ready)}/{State.Roster.Count(p=>p.Hp>0)} READY" : $"PREPARATION {remaining:00}s / A {a} / B {b}",
                 "battle" => State.Roster.Length>0
                     ? (Connection!.ServerNowMs >= (State.Battle?.EndMs ?? long.MaxValue)
-                        ? $"WAITING FOR OTHER BATTLES / SHOP LOCKED / {Math.Max(0,(State.DeadlineMs-Connection.ServerNowMs+999)/1000)}s MAX"
+                        ? $"OTHER BATTLES IN PROGRESS / {Math.Max(0,(State.DeadlineMs-Connection.ServerNowMs+999)/1000)}s MAX"
                         : $"BATTLE / {Math.Max(0,(State.DeadlineMs-Connection.ServerNowMs+999)/1000)}s MAX")
-                    : "BATTLE / SERVER REPLAY",
+                    : "BATTLE IN PROGRESS",
                 "finished" => "PREPARING NEXT ROUND...",
                 "eliminated" => "ELIMINATED / Left match / Return to Lobby",
                 "game_over" => State.Roster.Length>0 ? (State.WinnerId==UserId ? "MATCH OVER / YOU WIN" : "MATCH OVER / Final standings") : $"MATCH OVER / PLAYER {State.Winner} WINS",
@@ -243,12 +303,70 @@ public partial class OnlineBattle : Node
             foreach (var player in State.Players)
                 if (player != null && !player.Connected) status += $" / {player.Team} DISCONNECTED";
         }
+        bool playing=State!=null && State.Round>0 && State.Phase!="waiting";
+        _roundTitle.Text=playing?$"Round {State!.Round}":"Searching";
+        _roundTitle.Visible=!playing || State!.Phase=="preparation";
+        _rosterPanel.Visible=playing && State!.Roster.Length>0 || (!playing && !_matchmaking);
+        _status.Visible=!string.IsNullOrEmpty(_message) && !_message.StartsWith("SEARCHING") && !_message.Contains("Searching");
+        if (_status.Visible) _rosterPanel.Show();
         if (status != _displayedStatus) { _displayedStatus = status;_status.Text = status; }
     }
     private void ShowFinalResult(OnlineState state)
     {
+        bool won=state.Roster.Length>0 ? state.WinnerId==UserId : state.Winner==LocalTeam;
+        if(!won){ShowDefeat();return;}
+        if(_surrenderModal!=null)_surrenderModal.Hide();
+        _matchLobby.Show();
+        _back.GetChild<Label>(0).Text="LOBBY";
         if (state.Roster.Length==0) _battle.ShowMatchResult(state.Winner);
         else _battle.ShowLeagueResult(state.WinnerId==UserId,state.Roster.FirstOrDefault(p=>p.UserId==UserId)?.Place??0);
+    }
+    private void ShowDefeat()
+    {
+        if(_defeatModal!=null || _exiting)return;
+        _replayGeneration++;
+        _surrenderModal?.Hide();_shop.CloseDetails();_shop.LockNetworkInteraction();
+        _battle.HideResult();_matchLobby.Hide();_roundTitle.Hide();
+        _defeatRemaining=15;
+        var layer=new CanvasLayer {Layer=31};AddChild(layer);
+        _defeatModal=new GameModal {Name="DefeatModal"};layer.AddChild(_defeatModal);
+        var effect=new TextureRect {Name="DefeatEffect",Texture=GD.Load<Texture2D>("res://assets/effects/Bloody Screen Effects/Effect_4.png"),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.Scale,MouseFilter=Control.MouseFilterEnum.Ignore};
+        _defeatModal.AddChild(effect);_defeatModal.MoveChild(effect,1);effect.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        var title=DeckMenuUi.Text("DEFEAT",32);title.HorizontalAlignment=HorizontalAlignment.Center;_defeatModal.Body.AddChild(title);
+        var buttons=new HBoxContainer();buttons.AddThemeConstantOverride("separation",12);_defeatModal.Body.AddChild(buttons);
+        _defeatLobby=DeckMenuUi.Button("BACK TO LOBBY (15s)",ReturnToLobby,220,44);_defeatLobby.Name="DefeatLobbyButton";buttons.AddChild(_defeatLobby);
+        var replay=DeckMenuUi.Button("WATCH REPLAY",WatchReplay,180,44);replay.Name="WatchReplayButton";replay.Disabled=MatchReplayStore.Rounds.Count==0;buttons.AddChild(replay);
+    }
+    private async void WatchReplay()
+    {
+        if(_exiting || MatchReplayStore.Rounds.Count==0)return;
+        _exiting=true;_replayGeneration++;Connected=false;SetProcess(false);_shop.LockNetworkInteraction();
+        if(Connection!=null)await Connection.Close();
+        if(IsInsideTree())_tree.ChangeSceneToFile("res://scenes/match_replay.tscn");
+    }
+    private void UpdateRosterNames(OnlineState state)
+    {
+        _roster.Text=string.Join("\n",state.Roster.Select((p,i)=> {
+            string name=_rosterNames.TryGetValue(p.UserId,out var known) && !string.IsNullOrWhiteSpace(known) ? known : p.UserId==UserId ? "YOU" : p.Bot ? "BOT" : "PLAYER";
+            var letters=new System.Globalization.StringInfo(name);
+            if(letters.LengthInTextElements>14)name=letters.SubstringByTextElements(0,13)+"…";
+            return $"{i+1:00}   {name}   {p.Hp:00} HP{(p.Place>0 ? $" / #{p.Place}" : "")}";
+        }));
+    }
+    private async void FetchRosterNames()
+    {
+        if(_fetchingRosterNames || State==null || Connection?.Session==null)return;
+        var ids=State.Roster.Where(p=>!p.Bot && !string.IsNullOrWhiteSpace(p.UserId) && !_rosterNames.ContainsKey(p.UserId)).Select(p=>p.UserId).Distinct().ToArray();
+        if(ids.Length==0)return;
+        _fetchingRosterNames=true;
+        try {
+            var users=await Connection.Client.GetUsersAsync(Connection.Session,ids);
+            if(_exiting || !IsInsideTree())return;
+            foreach(var user in users.Users)_rosterNames[user.Id]=string.IsNullOrWhiteSpace(user.DisplayName)?user.Username:user.DisplayName;
+            foreach(var id in ids)if(!_rosterNames.ContainsKey(id))_rosterNames[id]="";
+            if(State!=null)UpdateRosterNames(State);
+        } catch(Exception e) {if(!_exiting)GD.Print("Roster names unavailable: "+e.Message);}
+        finally {_fetchingRosterNames=false;}
     }
     private void PositionProfiles(string localTeam)
     {
@@ -313,6 +431,3 @@ public partial class OnlineBattle : Node
         if (Connection != null) _ = Connection.Close();
     }
 }
-
-
-

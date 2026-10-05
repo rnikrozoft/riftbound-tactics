@@ -2,7 +2,7 @@
   {
     "name": "epic_explosion_001_large_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/epic_explosion_001/epic_explosion_001_large_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/epic_explosion_001/epic_explosion_001_large_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -87,7 +87,7 @@
   {
     "name": "epic_explosion_001_small_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/epic_explosion_001/epic_explosion_001_small_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/epic_explosion_001/epic_explosion_001_small_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -172,7 +172,7 @@
   {
     "name": "epic_explosion_002_large_yellow",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/epic_explosion_002/epic_explosion_002_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/epic_explosion_002/epic_explosion_002_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -269,7 +269,7 @@
   {
     "name": "epic_explosion_002_small_yellow",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/epic_explosion_002/epic_explosion_002_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/epic_explosion_002/epic_explosion_002_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -366,7 +366,7 @@
   {
     "name": "stylized_explosion_001_large_yellow",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_001/stylized_explosion_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/stylized_explosion_001/stylized_explosion_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -427,7 +427,7 @@
   {
     "name": "stylized_explosion_001_small_yellow",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_001/stylized_explosion_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/stylized_explosion_001/stylized_explosion_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -488,7 +488,7 @@
   {
     "name": "stylized_explosion_002_large_violet",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_002/stylized_explosion_002_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/stylized_explosion_002/stylized_explosion_002_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -555,7 +555,7 @@
   {
     "name": "stylized_explosion_002_small_violet",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_002/stylized_explosion_002_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/stylized_explosion_002/stylized_explosion_002_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -622,7 +622,7 @@
   {
     "name": "stylized_explosion_003_large_yellow",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_003/stylized_explosion_003_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/stylized_explosion_003/stylized_explosion_003_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -713,7 +713,7 @@
   {
     "name": "stylized_explosion_003_small_yellow",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_003/stylized_explosion_003_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/stylized_explosion_003/stylized_explosion_003_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -804,7 +804,7 @@
   {
     "name": "symmetrical_explosion_001_large_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/symmetrical_explosion_001/symmetrical_explosion_001_large_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/symmetrical_explosion_001/symmetrical_explosion_001_large_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -859,7 +859,7 @@
   {
     "name": "symmetrical_explosion_001_small_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/symmetrical_explosion_001/symmetrical_explosion_001_small_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/symmetrical_explosion_001/symmetrical_explosion_001_small_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -914,7 +914,7 @@
   {
     "name": "symmetrical_explosion_002_large_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/symmetrical_explosion_002/symmetrical_explosion_002_large_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/symmetrical_explosion_002/symmetrical_explosion_002_large_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -987,7 +987,7 @@
   {
     "name": "symmetrical_explosion_002_small_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/symmetrical_explosion_002/symmetrical_explosion_002_small_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/symmetrical_explosion_002/symmetrical_explosion_002_small_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -1060,7 +1060,7 @@
   {
     "name": "symmetrical_explosion_004_large_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/symmetrical_explosion_004/symmetrical_explosion_004_large_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/symmetrical_explosion_004/symmetrical_explosion_004_large_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -1139,7 +1139,7 @@
   {
     "name": "symmetrical_explosion_004_small_orange",
     "category": "Explosions",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/symmetrical_explosion_004/symmetrical_explosion_004_small_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/explosions/symmetrical_explosion_004/symmetrical_explosion_004_small_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -1206,7 +1206,7 @@
   {
     "name": "spell_absorb_001_large_violet",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_absorb_001/spell_absorb_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_absorb_001/spell_absorb_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -1399,7 +1399,7 @@
   {
     "name": "spell_absorb_001_small_violet",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_absorb_001/spell_absorb_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_absorb_001/spell_absorb_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -1592,7 +1592,7 @@
   {
     "name": "spell_attack_up_001_large_red",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_attack_up_001/spell_attack_up_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_attack_up_001/spell_attack_up_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -1707,7 +1707,7 @@
   {
     "name": "spell_attack_up_001_small_red",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_attack_up_001/spell_attack_up_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_attack_up_001/spell_attack_up_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -1822,7 +1822,7 @@
   {
     "name": "spell_death_001_large_red",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_death_001/spell_death_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_death_001/spell_death_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -2129,7 +2129,7 @@
   {
     "name": "spell_death_001_small_red",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_death_001/spell_death_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_death_001/spell_death_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -2436,7 +2436,7 @@
   {
     "name": "spell_defense_up_001_large_blue",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_defense_up_001/spell_defense_up_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_defense_up_001/spell_defense_up_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -2551,7 +2551,7 @@
   {
     "name": "spell_defense_up_001_small_blue",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_defense_up_001/spell_defense_up_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_defense_up_001/spell_defense_up_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -2666,7 +2666,7 @@
   {
     "name": "spell_haste_001_large_green",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_haste_001/spell_haste_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_haste_001/spell_haste_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -2847,7 +2847,7 @@
   {
     "name": "spell_haste_001_small_green",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_haste_001/spell_haste_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_haste_001/spell_haste_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -3028,7 +3028,7 @@
   {
     "name": "spell_heal_001_large_red",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_heal_001/spell_heal_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_heal_001/spell_heal_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -3131,7 +3131,7 @@
   {
     "name": "spell_heal_001_small_red",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_heal_001/spell_heal_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_heal_001/spell_heal_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -3234,7 +3234,7 @@
   {
     "name": "spell_poison_001_large_green",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_poison_001/spell_poison_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_poison_001/spell_poison_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -3343,7 +3343,7 @@
   {
     "name": "spell_poison_001_small_green",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_poison_001/spell_poison_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/spell_poison_001/spell_poison_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -3452,7 +3452,7 @@
   {
     "name": "status_poison_001_large_green",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/status_poison_001/status_poison_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/status_poison_001/status_poison_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -3603,7 +3603,7 @@
   {
     "name": "status_poison_001_small_green",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/status_poison_001/status_poison_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/status_poison_001/status_poison_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -3754,7 +3754,7 @@
   {
     "name": "status_sparkling_001_large_yellow",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/status_sparkling_001/status_sparkling_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/status_sparkling_001/status_sparkling_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -3905,7 +3905,7 @@
   {
     "name": "status_sparkling_001_small_yellow",
     "category": "Fantasy Spells",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/status_sparkling_001/status_sparkling_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/fantasy_spells/status_sparkling_001/status_sparkling_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4056,7 +4056,7 @@
   {
     "name": "directional_impact_001_large_blue",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_001/directional_impact_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_001/directional_impact_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -4105,7 +4105,7 @@
   {
     "name": "directional_impact_001_small_blue",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_001/directional_impact_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_001/directional_impact_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -4154,7 +4154,7 @@
   {
     "name": "directional_impact_002_large_white",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_002/directional_impact_002_large_white/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_002/directional_impact_002_large_white/spritesheet.png",
     "frames": [
       [
         0,
@@ -4203,7 +4203,7 @@
   {
     "name": "directional_impact_002_small_white",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_002/directional_impact_002_small_white/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_002/directional_impact_002_small_white/spritesheet.png",
     "frames": [
       [
         0,
@@ -4252,7 +4252,7 @@
   {
     "name": "directional_impact_003_large_violet",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_003/directional_impact_003_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_003/directional_impact_003_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -4295,7 +4295,7 @@
   {
     "name": "directional_impact_003_small_violet",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_003/directional_impact_003_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_003/directional_impact_003_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -4338,7 +4338,7 @@
   {
     "name": "directional_impact_004_large_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_004/directional_impact_004_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_004/directional_impact_004_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4375,7 +4375,7 @@
   {
     "name": "directional_impact_004_small_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_004/directional_impact_004_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/directional_impact_004/directional_impact_004_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4412,7 +4412,7 @@
   {
     "name": "symmetrical_impact_001_large_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_001/symmetrical_impact_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_001/symmetrical_impact_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4461,7 +4461,7 @@
   {
     "name": "symmetrical_impact_001_small_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_001/symmetrical_impact_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_001/symmetrical_impact_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4510,7 +4510,7 @@
   {
     "name": "symmetrical_impact_002_large_blue",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_002/symmetrical_impact_002_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_002/symmetrical_impact_002_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -4577,7 +4577,7 @@
   {
     "name": "symmetrical_impact_002_small_blue",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_002/symmetrical_impact_002_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_002/symmetrical_impact_002_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -4644,7 +4644,7 @@
   {
     "name": "symmetrical_impact_003_large_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_003/symmetrical_impact_003_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_003/symmetrical_impact_003_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4693,7 +4693,7 @@
   {
     "name": "symmetrical_impact_003_small_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_003/symmetrical_impact_003_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_003/symmetrical_impact_003_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4742,7 +4742,7 @@
   {
     "name": "symmetrical_impact_004_large_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_004/symmetrical_impact_004_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_004/symmetrical_impact_004_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4797,7 +4797,7 @@
   {
     "name": "symmetrical_impact_004_small_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_004/symmetrical_impact_004_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_004/symmetrical_impact_004_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4852,7 +4852,7 @@
   {
     "name": "symmetrical_impact_006_large_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_006/symmetrical_impact_006_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_006/symmetrical_impact_006_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4907,7 +4907,7 @@
   {
     "name": "symmetrical_impact_006_small_yellow",
     "category": "Impacts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_006/symmetrical_impact_006_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/impacts/symmetrical_impact_006/symmetrical_impact_006_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -4962,7 +4962,7 @@
   {
     "name": "lightning_burst_001_large_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_burst_001/lightning_burst_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_burst_001/lightning_burst_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5017,7 +5017,7 @@
   {
     "name": "lightning_burst_001_small_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_burst_001/lightning_burst_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_burst_001/lightning_burst_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5072,7 +5072,7 @@
   {
     "name": "lightning_burst_002_large_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_burst_002/lightning_burst_002_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_burst_002/lightning_burst_002_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5133,7 +5133,7 @@
   {
     "name": "lightning_burst_002_small_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_burst_002/lightning_burst_002_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_burst_002/lightning_burst_002_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5194,7 +5194,7 @@
   {
     "name": "lightning_burst_003_large_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_burst_003/lightning_burst_003_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_burst_003/lightning_burst_003_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5261,7 +5261,7 @@
   {
     "name": "lightning_burst_003_small_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_burst_003/lightning_burst_003_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_burst_003/lightning_burst_003_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5328,7 +5328,7 @@
   {
     "name": "lightning_strike_001_large_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_strike_001/lightning_strike_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_strike_001/lightning_strike_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5377,7 +5377,7 @@
   {
     "name": "lightning_strike_001_small_violet",
     "category": "Lightning",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_strike_001/lightning_strike_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/lightning/lightning_strike_001/lightning_strike_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -5426,7 +5426,7 @@
   {
     "name": "directional_bubble_burst_001_large_green",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_bubble_burst_001/directional_bubble_burst_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_bubble_burst_001/directional_bubble_burst_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -5673,7 +5673,7 @@
   {
     "name": "directional_bubble_burst_001_small_green",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_bubble_burst_001/directional_bubble_burst_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_bubble_burst_001/directional_bubble_burst_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -5920,7 +5920,7 @@
   {
     "name": "directional_coin_burst_001_large_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_coin_burst_001/directional_coin_burst_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_coin_burst_001/directional_coin_burst_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -6113,7 +6113,7 @@
   {
     "name": "directional_coin_burst_001_small_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_coin_burst_001/directional_coin_burst_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_coin_burst_001/directional_coin_burst_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -6306,7 +6306,7 @@
   {
     "name": "directional_music_burst_001_large_red",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_music_burst_001/directional_music_burst_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_music_burst_001/directional_music_burst_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -6439,7 +6439,7 @@
   {
     "name": "directional_music_burst_001_small_red",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_music_burst_001/directional_music_burst_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_music_burst_001/directional_music_burst_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -6572,7 +6572,7 @@
   {
     "name": "directional_music_burst_002_large_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_music_burst_002/directional_music_burst_002_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_music_burst_002/directional_music_burst_002_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -6681,7 +6681,7 @@
   {
     "name": "directional_music_burst_002_small_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_music_burst_002/directional_music_burst_002_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/directional_music_burst_002/directional_music_burst_002_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -6790,7 +6790,7 @@
   {
     "name": "round_firework_burst_001_large_green",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_firework_burst_001/round_firework_burst_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_firework_burst_001/round_firework_burst_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -6887,7 +6887,7 @@
   {
     "name": "round_firework_burst_001_small_green",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_firework_burst_001/round_firework_burst_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_firework_burst_001/round_firework_burst_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -6984,7 +6984,7 @@
   {
     "name": "round_firework_burst_002_large_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_firework_burst_002/round_firework_burst_002_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_firework_burst_002/round_firework_burst_002_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -7153,7 +7153,7 @@
   {
     "name": "round_firework_burst_002_small_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_firework_burst_002/round_firework_burst_002_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_firework_burst_002/round_firework_burst_002_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -7322,7 +7322,7 @@
   {
     "name": "round_heart_burst_001_large_red",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_heart_burst_001/round_heart_burst_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_heart_burst_001/round_heart_burst_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -7467,7 +7467,7 @@
   {
     "name": "round_heart_burst_001_small_red",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_heart_burst_001/round_heart_burst_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_heart_burst_001/round_heart_burst_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -7612,7 +7612,7 @@
   {
     "name": "round_light_burst_001_large_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_light_burst_001/round_light_burst_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_light_burst_001/round_light_burst_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -7673,7 +7673,7 @@
   {
     "name": "round_light_burst_001_small_yellow",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_light_burst_001/round_light_burst_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_light_burst_001/round_light_burst_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -7734,7 +7734,7 @@
   {
     "name": "round_sparkle_burst_001_large_blue",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_sparkle_burst_001/round_sparkle_burst_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_sparkle_burst_001/round_sparkle_burst_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -7825,7 +7825,7 @@
   {
     "name": "round_sparkle_burst_001_small_blue",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_sparkle_burst_001/round_sparkle_burst_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_sparkle_burst_001/round_sparkle_burst_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -7916,7 +7916,7 @@
   {
     "name": "round_sparkle_burst_002_large_green",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_sparkle_burst_002/round_sparkle_burst_002_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_sparkle_burst_002/round_sparkle_burst_002_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -8031,7 +8031,7 @@
   {
     "name": "round_sparkle_burst_002_small_green",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_sparkle_burst_002/round_sparkle_burst_002_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_sparkle_burst_002/round_sparkle_burst_002_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -8146,7 +8146,7 @@
   {
     "name": "round_sparkle_burst_003_large_red",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_sparkle_burst_003/round_sparkle_burst_003_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_sparkle_burst_003/round_sparkle_burst_003_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -8255,7 +8255,7 @@
   {
     "name": "round_sparkle_burst_003_small_red",
     "category": "Magic Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_sparkle_burst_003/round_sparkle_burst_003_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/magic_bursts/round_sparkle_burst_003/round_sparkle_burst_003_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -8364,7 +8364,7 @@
   {
     "name": "scifi_charge_up_001_large_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_charge_up_001/scifi_charge_up_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_charge_up_001/scifi_charge_up_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -8443,7 +8443,7 @@
   {
     "name": "scifi_charge_up_001_small_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_charge_up_001/scifi_charge_up_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_charge_up_001/scifi_charge_up_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -8522,7 +8522,7 @@
   {
     "name": "scifi_heartbeat_fast_001_large_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_heartbeat_fast_001/scifi_heartbeat_fast_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_heartbeat_fast_001/scifi_heartbeat_fast_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -8661,7 +8661,7 @@
   {
     "name": "scifi_heartbeat_fast_001_small_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_heartbeat_fast_001/scifi_heartbeat_fast_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_heartbeat_fast_001/scifi_heartbeat_fast_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -8800,7 +8800,7 @@
   {
     "name": "scifi_heartbeat_flatline_001_large_red",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_heartbeat_flatline_001/scifi_heartbeat_flatline_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_heartbeat_flatline_001/scifi_heartbeat_flatline_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -8939,7 +8939,7 @@
   {
     "name": "scifi_heartbeat_flatline_001_small_red",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_heartbeat_flatline_001/scifi_heartbeat_flatline_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_heartbeat_flatline_001/scifi_heartbeat_flatline_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -9078,7 +9078,7 @@
   {
     "name": "scifi_heartbeat_slow_001_large_green",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_heartbeat_slow_001/scifi_heartbeat_slow_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_heartbeat_slow_001/scifi_heartbeat_slow_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -9217,7 +9217,7 @@
   {
     "name": "scifi_heartbeat_slow_001_small_green",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_heartbeat_slow_001/scifi_heartbeat_slow_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_heartbeat_slow_001/scifi_heartbeat_slow_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -9356,7 +9356,7 @@
   {
     "name": "scifi_muzzle_flash_001_large_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_muzzle_flash_001/scifi_muzzle_flash_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_muzzle_flash_001/scifi_muzzle_flash_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -9399,7 +9399,7 @@
   {
     "name": "scifi_muzzle_flash_001_small_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_muzzle_flash_001/scifi_muzzle_flash_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_muzzle_flash_001/scifi_muzzle_flash_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -9442,7 +9442,7 @@
   {
     "name": "scifi_muzzle_flash_003_large_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_muzzle_flash_003/scifi_muzzle_flash_003_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_muzzle_flash_003/scifi_muzzle_flash_003_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -9497,7 +9497,7 @@
   {
     "name": "scifi_muzzle_flash_003_small_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_muzzle_flash_003/scifi_muzzle_flash_003_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_muzzle_flash_003/scifi_muzzle_flash_003_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -9552,7 +9552,7 @@
   {
     "name": "scifi_spark_burst_001_large_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_spark_burst_001/scifi_spark_burst_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_spark_burst_001/scifi_spark_burst_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -9631,7 +9631,7 @@
   {
     "name": "scifi_spark_burst_001_small_yellow",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_spark_burst_001/scifi_spark_burst_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_spark_burst_001/scifi_spark_burst_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -9710,7 +9710,7 @@
   {
     "name": "scifi_warp_001_large_green",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_warp_001/scifi_warp_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_warp_001/scifi_warp_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -9777,7 +9777,7 @@
   {
     "name": "scifi_warp_001_small_green",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_warp_001/scifi_warp_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_warp_001/scifi_warp_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -9844,7 +9844,7 @@
   {
     "name": "scifi_warp_002_large_red",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_warp_002/scifi_warp_002_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_warp_002/scifi_warp_002_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -9911,7 +9911,7 @@
   {
     "name": "scifi_warp_002_small_red",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_warp_002/scifi_warp_002_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_warp_002/scifi_warp_002_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -9978,7 +9978,7 @@
   {
     "name": "scifi_warp_003_large_blue",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_warp_003/scifi_warp_003_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_warp_003/scifi_warp_003_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -10057,7 +10057,7 @@
   {
     "name": "scifi_warp_003_small_blue",
     "category": "Sci-fi",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_warp_003/scifi_warp_003_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/sci_fi/scifi_warp_003/scifi_warp_003_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -10136,7 +10136,7 @@
   {
     "name": "directional_smoke_burst_001_large_white",
     "category": "Smoke Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/directional_smoke_burst_001/directional_smoke_burst_001_large_white/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/smoke_bursts/directional_smoke_burst_001/directional_smoke_burst_001_large_white/spritesheet.png",
     "frames": [
       [
         0,
@@ -10269,7 +10269,7 @@
   {
     "name": "directional_smoke_burst_001_small_white",
     "category": "Smoke Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/directional_smoke_burst_001/directional_smoke_burst_001_small_white/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/smoke_bursts/directional_smoke_burst_001/directional_smoke_burst_001_small_white/spritesheet.png",
     "frames": [
       [
         0,
@@ -10402,7 +10402,7 @@
   {
     "name": "stylized_skull_smoke_burst_001_large_white",
     "category": "Smoke Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/stylized_skull_smoke_burst_001/stylized_skull_smoke_burst_001_large_white/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/smoke_bursts/stylized_skull_smoke_burst_001/stylized_skull_smoke_burst_001_large_white/spritesheet.png",
     "frames": [
       [
         0,
@@ -10481,7 +10481,7 @@
   {
     "name": "stylized_skull_smoke_burst_001_small_white",
     "category": "Smoke Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/stylized_skull_smoke_burst_001/stylized_skull_smoke_burst_001_small_white/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/smoke_bursts/stylized_skull_smoke_burst_001/stylized_skull_smoke_burst_001_small_white/spritesheet.png",
     "frames": [
       [
         0,
@@ -10560,7 +10560,7 @@
   {
     "name": "symmetrical_smoke_burst_001_large_brown",
     "category": "Smoke Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/symmetrical_smoke_burst_001/symmetrical_smoke_burst_001_large_brown/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/smoke_bursts/symmetrical_smoke_burst_001/symmetrical_smoke_burst_001_large_brown/spritesheet.png",
     "frames": [
       [
         0,
@@ -10627,7 +10627,7 @@
   {
     "name": "symmetrical_smoke_burst_001_small_brown",
     "category": "Smoke Bursts",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/symmetrical_smoke_burst_001/symmetrical_smoke_burst_001_small_brown/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/smoke_bursts/symmetrical_smoke_burst_001/symmetrical_smoke_burst_001_small_brown/spritesheet.png",
     "frames": [
       [
         0,
@@ -10694,7 +10694,7 @@
   {
     "name": "burst_splatter_001_large_red",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/burst_splatter_001/burst_splatter_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/burst_splatter_001/burst_splatter_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -10761,7 +10761,7 @@
   {
     "name": "burst_splatter_001_small_red",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/burst_splatter_001/burst_splatter_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/burst_splatter_001/burst_splatter_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -10828,7 +10828,7 @@
   {
     "name": "burst_splatter_003_large_green",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/burst_splatter_003/burst_splatter_003_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/burst_splatter_003/burst_splatter_003_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -10883,7 +10883,7 @@
   {
     "name": "burst_splatter_003_small_green",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/burst_splatter_003/burst_splatter_003_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/burst_splatter_003/burst_splatter_003_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -10938,7 +10938,7 @@
   {
     "name": "directional_splatter_001_large_red",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/directional_splatter_001/directional_splatter_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/directional_splatter_001/directional_splatter_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -10993,7 +10993,7 @@
   {
     "name": "directional_splatter_001_small_red",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/directional_splatter_001/directional_splatter_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/directional_splatter_001/directional_splatter_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11048,7 +11048,7 @@
   {
     "name": "directional_splatter_003_large_red",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/directional_splatter_003/directional_splatter_003_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/directional_splatter_003/directional_splatter_003_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11097,7 +11097,7 @@
   {
     "name": "directional_splatter_003_small_red",
     "category": "Splatters",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/directional_splatter_003/directional_splatter_003_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/splatters/directional_splatter_003/directional_splatter_003_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11146,7 +11146,7 @@
   {
     "name": "symbol_alert_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_001/symbol_alert_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_alert_001/symbol_alert_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11237,7 +11237,7 @@
   {
     "name": "symbol_alert_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_001/symbol_alert_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_alert_001/symbol_alert_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11328,7 +11328,7 @@
   {
     "name": "symbol_alert_002_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_002/symbol_alert_002_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_alert_002/symbol_alert_002_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11431,7 +11431,7 @@
   {
     "name": "symbol_alert_002_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_002/symbol_alert_002_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_alert_002/symbol_alert_002_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11534,7 +11534,7 @@
   {
     "name": "symbol_alert_text_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_text_001/symbol_alert_text_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_alert_text_001/symbol_alert_text_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11733,7 +11733,7 @@
   {
     "name": "symbol_alert_text_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_text_001/symbol_alert_text_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_alert_text_001/symbol_alert_text_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -11932,7 +11932,7 @@
   {
     "name": "symbol_attack_up_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_attack_up_001/symbol_attack_up_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_attack_up_001/symbol_attack_up_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -12299,7 +12299,7 @@
   {
     "name": "symbol_attack_up_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_attack_up_001/symbol_attack_up_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_attack_up_001/symbol_attack_up_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -12666,7 +12666,7 @@
   {
     "name": "symbol_bonus_text_001_large_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_bonus_text_001/symbol_bonus_text_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_bonus_text_001/symbol_bonus_text_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -12901,7 +12901,7 @@
   {
     "name": "symbol_bonus_text_001_small_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_bonus_text_001/symbol_bonus_text_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_bonus_text_001/symbol_bonus_text_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -13130,7 +13130,7 @@
   {
     "name": "symbol_bonus_text_002_large_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_bonus_text_002/symbol_bonus_text_002_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_bonus_text_002/symbol_bonus_text_002_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -13401,7 +13401,7 @@
   {
     "name": "symbol_bonus_text_002_small_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_bonus_text_002/symbol_bonus_text_002_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_bonus_text_002/symbol_bonus_text_002_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -13666,7 +13666,7 @@
   {
     "name": "symbol_complete_text_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_complete_text_001/symbol_complete_text_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_complete_text_001/symbol_complete_text_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -14009,7 +14009,7 @@
   {
     "name": "symbol_complete_text_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_complete_text_001/symbol_complete_text_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_complete_text_001/symbol_complete_text_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -14346,7 +14346,7 @@
   {
     "name": "symbol_cool_text_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_cool_text_001/symbol_cool_text_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_cool_text_001/symbol_cool_text_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -14569,7 +14569,7 @@
   {
     "name": "symbol_cool_text_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_cool_text_001/symbol_cool_text_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_cool_text_001/symbol_cool_text_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -14786,7 +14786,7 @@
   {
     "name": "symbol_crown_001_large_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_crown_001/symbol_crown_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_crown_001/symbol_crown_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -15063,7 +15063,7 @@
   {
     "name": "symbol_crown_001_small_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_crown_001/symbol_crown_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_crown_001/symbol_crown_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -15340,7 +15340,7 @@
   {
     "name": "symbol_defense_up_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_defense_up_001/symbol_defense_up_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_defense_up_001/symbol_defense_up_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -15707,7 +15707,7 @@
   {
     "name": "symbol_defense_up_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_defense_up_001/symbol_defense_up_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_defense_up_001/symbol_defense_up_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -16074,7 +16074,7 @@
   {
     "name": "symbol_failure_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_failure_001/symbol_failure_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_failure_001/symbol_failure_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -16441,7 +16441,7 @@
   {
     "name": "symbol_failure_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_failure_001/symbol_failure_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_failure_001/symbol_failure_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -16808,7 +16808,7 @@
   {
     "name": "symbol_game_over_text_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_game_over_text_001/symbol_game_over_text_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_game_over_text_001/symbol_game_over_text_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -17079,7 +17079,7 @@
   {
     "name": "symbol_game_over_text_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_game_over_text_001/symbol_game_over_text_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_game_over_text_001/symbol_game_over_text_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -17350,7 +17350,7 @@
   {
     "name": "symbol_game_over_text_002_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_game_over_text_002/symbol_game_over_text_002_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_game_over_text_002/symbol_game_over_text_002_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -17717,7 +17717,7 @@
   {
     "name": "symbol_game_over_text_002_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_game_over_text_002/symbol_game_over_text_002_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_game_over_text_002/symbol_game_over_text_002_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -18078,7 +18078,7 @@
   {
     "name": "symbol_level_up_text_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_level_up_text_001/symbol_level_up_text_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_level_up_text_001/symbol_level_up_text_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -18349,7 +18349,7 @@
   {
     "name": "symbol_level_up_text_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_level_up_text_001/symbol_level_up_text_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_level_up_text_001/symbol_level_up_text_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -18614,7 +18614,7 @@
   {
     "name": "symbol_lightbulb_001_large_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_lightbulb_001/symbol_lightbulb_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_lightbulb_001/symbol_lightbulb_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -18693,7 +18693,7 @@
   {
     "name": "symbol_lightbulb_001_small_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_lightbulb_001/symbol_lightbulb_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_lightbulb_001/symbol_lightbulb_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -18772,7 +18772,7 @@
   {
     "name": "symbol_magic_up_001_large_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_magic_up_001/symbol_magic_up_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_magic_up_001/symbol_magic_up_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -19139,7 +19139,7 @@
   {
     "name": "symbol_magic_up_001_small_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_magic_up_001/symbol_magic_up_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_magic_up_001/symbol_magic_up_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -19506,7 +19506,7 @@
   {
     "name": "symbol_place_1st_001_large_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_1st_001/symbol_place_1st_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_1st_001/symbol_place_1st_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -19873,7 +19873,7 @@
   {
     "name": "symbol_place_1st_001_small_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_1st_001/symbol_place_1st_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_1st_001/symbol_place_1st_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -20240,7 +20240,7 @@
   {
     "name": "symbol_place_2nd_001_large_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_2nd_001/symbol_place_2nd_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_2nd_001/symbol_place_2nd_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -20607,7 +20607,7 @@
   {
     "name": "symbol_place_2nd_001_small_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_2nd_001/symbol_place_2nd_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_2nd_001/symbol_place_2nd_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -20974,7 +20974,7 @@
   {
     "name": "symbol_place_3rd_001_large_orange",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_3rd_001/symbol_place_3rd_001_large_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_3rd_001/symbol_place_3rd_001_large_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -21341,7 +21341,7 @@
   {
     "name": "symbol_place_3rd_001_small_orange",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_3rd_001/symbol_place_3rd_001_small_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_3rd_001/symbol_place_3rd_001_small_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -21708,7 +21708,7 @@
   {
     "name": "symbol_place_4th_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_4th_001/symbol_place_4th_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_4th_001/symbol_place_4th_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -22075,7 +22075,7 @@
   {
     "name": "symbol_place_4th_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_4th_001/symbol_place_4th_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_4th_001/symbol_place_4th_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -22442,7 +22442,7 @@
   {
     "name": "symbol_place_5th_001_large_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_5th_001/symbol_place_5th_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_5th_001/symbol_place_5th_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -22809,7 +22809,7 @@
   {
     "name": "symbol_place_5th_001_small_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_5th_001/symbol_place_5th_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_5th_001/symbol_place_5th_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -23176,7 +23176,7 @@
   {
     "name": "symbol_place_6th_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_6th_001/symbol_place_6th_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_6th_001/symbol_place_6th_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -23543,7 +23543,7 @@
   {
     "name": "symbol_place_6th_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_6th_001/symbol_place_6th_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_6th_001/symbol_place_6th_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -23910,7 +23910,7 @@
   {
     "name": "symbol_place_7th_001_large_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_7th_001/symbol_place_7th_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_7th_001/symbol_place_7th_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -24277,7 +24277,7 @@
   {
     "name": "symbol_place_7th_001_small_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_7th_001/symbol_place_7th_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_7th_001/symbol_place_7th_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -24644,7 +24644,7 @@
   {
     "name": "symbol_place_8th_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_8th_001/symbol_place_8th_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_8th_001/symbol_place_8th_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -25011,7 +25011,7 @@
   {
     "name": "symbol_place_8th_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_place_8th_001/symbol_place_8th_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_place_8th_001/symbol_place_8th_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -25378,7 +25378,7 @@
   {
     "name": "symbol_question_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_question_001/symbol_question_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_question_001/symbol_question_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -25565,7 +25565,7 @@
   {
     "name": "symbol_question_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_question_001/symbol_question_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_question_001/symbol_question_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -25752,7 +25752,7 @@
   {
     "name": "symbol_rank_A_001_large_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_A_001/symbol_rank_A_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_a_001/symbol_rank_a_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -26119,7 +26119,7 @@
   {
     "name": "symbol_rank_A_001_small_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_A_001/symbol_rank_A_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_a_001/symbol_rank_a_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -26486,7 +26486,7 @@
   {
     "name": "symbol_rank_B_001_large_orange",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_B_001/symbol_rank_B_001_large_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_b_001/symbol_rank_b_001_large_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -26853,7 +26853,7 @@
   {
     "name": "symbol_rank_B_001_small_orange",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_B_001/symbol_rank_B_001_small_orange/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_b_001/symbol_rank_b_001_small_orange/spritesheet.png",
     "frames": [
       [
         0,
@@ -27220,7 +27220,7 @@
   {
     "name": "symbol_rank_C_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_C_001/symbol_rank_C_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_c_001/symbol_rank_c_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -27587,7 +27587,7 @@
   {
     "name": "symbol_rank_C_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_C_001/symbol_rank_C_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_c_001/symbol_rank_c_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -27954,7 +27954,7 @@
   {
     "name": "symbol_rank_D_001_large_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_D_001/symbol_rank_D_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_d_001/symbol_rank_d_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -28321,7 +28321,7 @@
   {
     "name": "symbol_rank_D_001_small_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_D_001/symbol_rank_D_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_d_001/symbol_rank_d_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -28688,7 +28688,7 @@
   {
     "name": "symbol_rank_F_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_F_001/symbol_rank_F_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_f_001/symbol_rank_f_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -29055,7 +29055,7 @@
   {
     "name": "symbol_rank_F_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_F_001/symbol_rank_F_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_f_001/symbol_rank_f_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -29422,7 +29422,7 @@
   {
     "name": "symbol_rank_S_001_large_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_S_001/symbol_rank_S_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_s_001/symbol_rank_s_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -29789,7 +29789,7 @@
   {
     "name": "symbol_rank_S_001_small_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_rank_S_001/symbol_rank_S_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_rank_s_001/symbol_rank_s_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -30156,7 +30156,7 @@
   {
     "name": "symbol_success_001_large_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_success_001/symbol_success_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_success_001/symbol_success_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -30523,7 +30523,7 @@
   {
     "name": "symbol_success_001_small_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_success_001/symbol_success_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_success_001/symbol_success_001_small_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -30890,7 +30890,7 @@
   {
     "name": "symbol_thumbs_down_001_large_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_thumbs_down_001/symbol_thumbs_down_001_large_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_thumbs_down_001/symbol_thumbs_down_001_large_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -31257,7 +31257,7 @@
   {
     "name": "symbol_thumbs_down_001_small_red",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_thumbs_down_001/symbol_thumbs_down_001_small_red/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_thumbs_down_001/symbol_thumbs_down_001_small_red/spritesheet.png",
     "frames": [
       [
         0,
@@ -31624,7 +31624,7 @@
   {
     "name": "symbol_thumbs_up_001_large_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_thumbs_up_001/symbol_thumbs_up_001_large_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_thumbs_up_001/symbol_thumbs_up_001_large_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -31991,7 +31991,7 @@
   {
     "name": "symbol_thumbs_up_001_small_blue",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_thumbs_up_001/symbol_thumbs_up_001_small_blue/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_thumbs_up_001/symbol_thumbs_up_001_small_blue/spritesheet.png",
     "frames": [
       [
         0,
@@ -32358,7 +32358,7 @@
   {
     "name": "symbol_warning_001_large_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_warning_001/symbol_warning_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_warning_001/symbol_warning_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -32725,7 +32725,7 @@
   {
     "name": "symbol_warning_001_small_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_warning_001/symbol_warning_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_warning_001/symbol_warning_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -33092,7 +33092,7 @@
   {
     "name": "symbol_wow_text_001_large_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_wow_text_001/symbol_wow_text_001_large_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_wow_text_001/symbol_wow_text_001_large_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -33303,7 +33303,7 @@
   {
     "name": "symbol_wow_text_001_small_yellow",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_wow_text_001/symbol_wow_text_001_small_yellow/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_wow_text_001/symbol_wow_text_001_small_yellow/spritesheet.png",
     "frames": [
       [
         0,
@@ -33508,7 +33508,7 @@
   {
     "name": "symbol_you_lost_text_001_large_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_you_lost_text_001/symbol_you_lost_text_001_large_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_you_lost_text_001/symbol_you_lost_text_001_large_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -33803,7 +33803,7 @@
   {
     "name": "symbol_you_lost_text_001_small_violet",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_you_lost_text_001/symbol_you_lost_text_001_small_violet/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_you_lost_text_001/symbol_you_lost_text_001_small_violet/spritesheet.png",
     "frames": [
       [
         0,
@@ -34092,7 +34092,7 @@
   {
     "name": "symbol_you_won_text_001_large_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_you_won_text_001/symbol_you_won_text_001_large_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_you_won_text_001/symbol_you_won_text_001_large_green/spritesheet.png",
     "frames": [
       [
         0,
@@ -34351,7 +34351,7 @@
   {
     "name": "symbol_you_won_text_001_small_green",
     "category": "Symbols",
-    "texture": "res://assets/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_you_won_text_001/symbol_you_won_text_001_small_green/spritesheet.png",
+    "texture": "res://assets/effects/pixel/spritesheets/symbols/symbol_you_won_text_001/symbol_you_won_text_001_small_green/spritesheet.png",
     "frames": [
       [
         0,

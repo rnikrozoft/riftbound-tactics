@@ -9,8 +9,9 @@ public partial class PlayerProfile : NinePatchRect
     private Label _name = null!, _uid = null!, _rank = null!, _score = null!;
     private Label _coins = null!;
     private int _hp = 30;
+    private TextureProgressBar? _health;
     public void SetHealth(int hp) { _hp = hp; UpdateBalance(); }
-    private void UpdateBalance() { if (_coins != null) _coins.Text = $"Coin: {_balance}  |  HP: {_hp}/30"; }
+    private void UpdateBalance() { if (_coins != null) _coins.Text = $"{_balance} GOLD    /    {_hp} HP"; if (_health!=null) _health.Value=_hp; }
     private int _balance = CardShop.StartingCoins;
     public void SetCoins(int coins) { _balance = coins; UpdateBalance(); }
     private TextureRect _portrait = null!;
@@ -27,20 +28,28 @@ public partial class PlayerProfile : NinePatchRect
         _rank = GetNode<Label>("Rank"); _score = GetNode<Label>("Score");
         _coins = GetNode<Label>("Coins"); SetCoins(_balance);
         _portrait = GetNode<TextureRect>("PortraitFrame/Portrait");
-        var character = GD.Load<PackedScene>(Team == "A" ? "res://scenes/Character.tscn" : "res://scenes/Orc.tscn").Instantiate<Node2D>();
+        var character = GD.Load<PackedScene>(Team == "A" ? "res://scenes/characters/knight.tscn" : "res://scenes/characters/orc.tscn").Instantiate<Node2D>();
         var sprite = character.GetNode<AnimatedSprite2D>("AnimatedSprite2D");
-        _fallbackPortrait = new AtlasTexture { Atlas = sprite.SpriteFrames.GetFrameTexture("idle", 0), Region = new Rect2(30,24,40,52) };
+        _fallbackPortrait = new AtlasTexture { Atlas = sprite.SpriteFrames.GetFrameTexture("idle", 0), Region = Team=="A" ? new Rect2(40,36,20,28) : new Rect2(35,32,30,36) };
         _portrait.Texture = _fallbackPortrait;
         character.Free();
+        SelfModulate=new Color(.19f,.24f,.31f);
+        GameUi.Label(_name,15);GameUi.Label(_rank,12,true);GameUi.Label(_score,12,true);GameUi.Label(_coins,14);
+        _coins.AddThemeColorOverride("font_color",GameUi.Gold);
+        _uid.Hide();
+        _health=new TextureProgressBar {Position=new(94,115),Size=new(166,5),MaxValue=30,Value=_hp,
+            TextureUnder=TravelBookUi.Texture("Bar01a"),TextureProgress=TravelBookUi.Texture("Fill01a"),
+            NinePatchStretch=true,StretchMarginLeft=1,StretchMarginRight=1,MouseFilter=MouseFilterEnum.Ignore};
+        AddChild(_health);
         ShowMock();
     }
     private void ShowMock()
     {
-        _name.Text = $"PLAYER {Team} / {(Team == "A" ? "Knight" : "Raider")}";
-        _uid.Text = "UID: " + (string.IsNullOrEmpty(_userId) ? $"mock-player-{Team.ToLowerInvariant()}" : _userId);
+        _name.Text = $"{(Team == "A" ? "COMMANDER" : "OPPONENT")} / {(Team == "A" ? "Knight" : "Raider")}";
+        _uid.Text = "UID: " + (string.IsNullOrEmpty(_userId) ? "Local arena" : _userId);
         _uid.TooltipText = _uid.Text;
-        _rank.Text = _mmr.HasValue ? $"MMR: {_mmr.Value}" : "Rank: Silver II (mock)";
-        _score.Text = "Leaderboard: 1,250 (mock)";
+        _rank.Text = _mmr.HasValue ? $"MMR: {_mmr.Value}" : "TACTICAL ARENA";
+        _score.Text = "Unranked";
     }
     public void SetPlayer(string userId, NakamaConnection? connection, string leaderboardId, bool refresh = false)
     {
@@ -51,8 +60,8 @@ public partial class PlayerProfile : NinePatchRect
         _portrait.Texture = _fallbackPortrait;
         if (userId.StartsWith("bot:") || userId.StartsWith("ghost:"))
         {
-            _name.Text=userId.StartsWith("ghost:")?"ELIMINATED PLAYER / COPY":"BOT / Raider";
-            _rank.Text="Rank: Bot opponent";_score.Text="Leaderboard: â€”";return;
+            _name.Text=userId.StartsWith("ghost:")?"ELIMINATED PLAYER / COPY":"ARENA BOT / Raider";
+            _rank.Text="Rank: Bot opponent";_score.Text="Practice opponent";return;
         }
         if (!string.IsNullOrWhiteSpace(userId) && connection != null) LoadProfile(connection, userId, leaderboardId, generation);
     }
@@ -90,7 +99,7 @@ public partial class PlayerProfile : NinePatchRect
             var record = records.OwnerRecords.FirstOrDefault(r => r.OwnerId == userId);
             if (record == null) { _score.Text="Leaderboard: Unranked";if (!_mmr.HasValue) _rank.Text="Rank: Unranked";return; }
             _score.Text = "Leaderboard: #" + record.Rank;
-            if (!_mmr.HasValue && _rank.Text.EndsWith("(mock)") && !string.IsNullOrEmpty(record.Rank)) _rank.Text = "Rank: #" + record.Rank;
+            if (!_mmr.HasValue && _rank.Text=="TACTICAL ARENA" && !string.IsNullOrEmpty(record.Rank)) _rank.Text = "Rank: #" + record.Rank;
         }
         catch (Exception exception) { if (Current(generation)) GD.PushWarning("Player leaderboard lookup: " + exception.Message); }
     }

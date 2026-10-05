@@ -18,18 +18,33 @@ public partial class MatchmakingUiRunner : Node
    BattleLaunch.Deck=DeckDefinition.Starter();BattleLaunch.Pending=true;BattleLaunch.Matchmaking=true;
    var main=GD.Load<PackedScene>("res://scenes/main.tscn").Instantiate<Node2D>();AddChild(main);
    var online=main.GetNode<OnlineBattle>("OnlineBattle");
+   await Frames(12);
+   var content=main.GetNode<Control>("UI/SafeArea/Content");
+   if(content.GetNode<PlayerProfile>("ProfileB").Visible)throw new Exception("opponent profile must stay hidden while searching");
+   if(content.GetNode<Label>("RoundTitle").Text!="Searching")throw new Exception("searching title");
+   if(content.GetNode<TextureButton>("BackButton").Position!=new Vector2(16,16))throw new Exception("top-left back");
+   GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-searching.png");
    await Wait(()=>online.State?.Phase=="preparation","matchmaking UI preparation");await Frames(12);
+   if(content.GetNode<Label>("RoundTitle").Text!="Round 1")throw new Exception("round title must replace searching");
+   var actions=content.GetNode<Control>("CardShop/BattleActions");
+   if(actions.AnchorTop!=.5f || actions.AnchorLeft!=1)throw new Exception("battle actions on right center");
+   if(actions.GetNode<PreparationCountdown>("PreparationCountdown").Seconds<=0)throw new Exception("countdown must show full preparation time");
    if(online.State!.Roster.Length!=6)throw new Exception("missing six-seat roster");
    var own=online.State.Players.First(p=>p?.UserId==online.UserId)!;
    var left=main.GetNode<PlayerProfile>(own.Team=="A"?"UI/SafeArea/Content/ProfileA":"UI/SafeArea/Content/ProfileB");
    if(left.AnchorLeft!=0)throw new Exception("own profile must be left");
    var shop=main.GetNode<CardShop>("UI/SafeArea/Content/CardShop");
+   if(!content.GetNode<PlayerProfile>("ProfileB").Visible)throw new Exception("matched opponent profile missing");
+   foreach(var view in shop.ShopRow.GetChildren().OfType<ShopCard>()) {
+    if(view.GetNode<TextureRect>("ClassEmblem").Visible || !view.GetNode<TextureRect>("Star1").Visible)throw new Exception("shop card must show stars instead of group arrows");
+   }
    int offer=own.Offers[0].Token;online.SendAction("buy",offer);
    await Wait(()=>online.State!.Players.First(p=>p?.UserId==online.UserId)!.Hand.Length==1,"UI purchase");
    int token=online.State!.Players.First(p=>p?.UserId==online.UserId)!.Hand[0].Token;
    online.SendAction("deploy",token,0);
    await Wait(()=>online.State!.Players.First(p=>p?.UserId==online.UserId)!.Units.Length==1,"UI deployment");await Frames(5);
    GetViewport().GetTexture().GetImage().SavePng("res://tests/deck-matchmaking-battle.png");
+   GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-battle-layout.png");
    online.SendAction("ready");await Wait(()=>online.State?.Phase=="battle","network battle replay");await Frames(10);
    var plan=online.State!.Battle!;if(plan.Events.Length==0)throw new Exception("expected a real combat replay");
    var first=plan.Events[0];

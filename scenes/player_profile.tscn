@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/PlayerProfile.cs" id="1"]
-[ext_resource type="Texture2D" path="res://assets/01_TravelBookLite/Sprites/UI_TravelBook_Popup01a.png" id="2"]
-[ext_resource type="Texture2D" path="res://assets/01_TravelBookLite/Sprites/UI_TravelBook_Slot01a.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/ui/travel_book/sprites/UI_TravelBook_Popup01a.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/ui/travel_book/sprites/UI_TravelBook_Slot01a.png" id="3"]
 
 [node name="PlayerProfile" type="NinePatchRect"]
 texture_filter = 1

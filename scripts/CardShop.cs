@@ -11,13 +11,15 @@ public partial class CardShop : Control
     public int PlayerHpA { get; private set; } = 30;
     public int PlayerHpB { get; private set; } = 30;
     private ulong _preparationDeadline;
-    private PreparationCountdown _countdown = null!;
+    private PreparationCountdown _countdown = null!, _centerCountdown=null!;
+    private Control _modalRoot=null!;
     public const int ShopLimit = 5, HandLimit = 10, FieldLimit = 6;
     public static readonly Vector2I[] EnemyCells = { new(54,14),new(54,18),new(54,22),new(58,14),new(58,18),new(58,22) };
     public static readonly Vector2I[] DeploymentCells = {
         new(44,14), new(44,18), new(44,22), new(48,14), new(48,18), new(48,22)
     };
-    public const int StartingCoins = 4, RerollCost = 2, MaxShopLevel = 6, CardKinds = CardCatalog.Count;
+    public const int StartingCoins = 4, RerollCost = 2, MaxShopLevel = 6;
+    public static int CardKinds=>CardCatalog.Count;
     public int Coins { get; private set; }
     public int ShopLevel { get; private set; } = 2;
     public int UpgradeCost { get; private set; } = 2;
@@ -26,6 +28,7 @@ public partial class CardShop : Control
     public static int RoundIncome(int round) => round < 1 ? 0 : new[] {4,6,9,12,15,18,20}[System.Math.Min(round,7)-1];
     public static int ShopSlots(int level) => level == 2 ? 3 : level <= 4 ? 4 : 5;
     public static int UpgradeBaseCost(int level) => level switch { 2 => 2, 3 => 8, 4 => 10, 5 => 14, _ => 0 };
+    private readonly HashSet<int> _lockedOfferTokens = new();
     public bool ShopLocked { get; private set; }
     private TextureButton _reroll = null!, _lock = null!, _upgrade = null!;
     private Label _upgradeLabel = null!;
@@ -60,9 +63,8 @@ public partial class CardShop : Control
     private readonly RandomNumberGenerator _rng = new();
     private Label _shopLabel = null!, _handLabel = null!, _notice = null!, _nextText = null!;
     private TextureButton _next = null!;
+    private Control _battleActions=null!;
     private Material? _playerMaterial;
-    private PackedScene _unitScene = null!;
-    private Texture2D _sheet = null!;
     private bool _deploymentMode;
     public bool NetworkMode { get; private set; }
     public bool NetworkPending { get; set; }
@@ -70,7 +72,6 @@ public partial class CardShop : Control
     public OnlineBattle? Online { get; set; }
     public Dictionary<string,BattleUnit> NetworkUnits { get; } = new(12);
     private Material? _redMaterial;
-    private PackedScene _orcScene = null!;
     private int _networkRound;
     private string _networkPhase = "";
     private readonly List<string> _removedNetworkUnits = new(12);
@@ -103,9 +104,6 @@ public partial class CardShop : Control
                 else _units.Add(unit);
             }
         for (int i = 0; i < FieldLimit; i++) SlotCenters[i] = Tiles.MapToLocal(DeploymentCells[i]);
-        _unitScene = GD.Load<PackedScene>("res://scenes/Character.tscn");
-        _orcScene = GD.Load<PackedScene>("res://scenes/Orc.tscn");
-        _sheet = GD.Load<Texture2D>("res://assets/cards/pixelCardAssest_V01.png");
         for (int kind=0;kind<CardKinds;kind++)
             _pool.Add(new(kind,CardCatalog.Name(kind),CardCatalog.Art(kind),CardCatalog.Cost(kind)));
         var selectedDeck = BattleLaunch.Deck ?? DeckDefinition.Starter();
@@ -115,8 +113,7 @@ public partial class CardShop : Control
         if (NetworkMode) { ZoneA.Hide(); ZoneB.Hide(); }
     }
 
-    private AtlasTexture Atlas(Rect2 region) => new() { Atlas = _sheet, Region = region };
-    private static Label TextLabel() => new() { MouseFilter = MouseFilterEnum.Ignore };
+    private static Label TextLabel() { var label=new Label {MouseFilter=MouseFilterEnum.Ignore};GameUi.Label(label,14);return label; }
     private void BuildUi()
     {
         if (_deploymentMode)
@@ -127,11 +124,13 @@ public partial class CardShop : Control
         }
         ZoneA = new ShopZone {
             Name = "ZoneA", Shop = this, AnchorLeft = .5f, AnchorRight = .5f,
-            OffsetLeft = -260, OffsetRight = 260, OffsetBottom = 167, MouseFilter = MouseFilterEnum.Stop
+            OffsetLeft = -260, OffsetRight = 260, OffsetTop=46, OffsetBottom = 189, MouseFilter = MouseFilterEnum.Stop
         };
         AddChild(ZoneA);
-        _shopLabel = TextLabel(); _shopLabel.Size = new(460,24);
-        _shopLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        GameUi.Backdrop(ZoneA,true);
+
+        _shopLabel = TextLabel(); _shopLabel.AnchorRight = 1; _shopLabel.OffsetBottom = 24;
+        _shopLabel.HorizontalAlignment = HorizontalAlignment.Center;_shopLabel.AddThemeColorOverride("font_color",GameUi.Gold);
         ZoneA.AddChild(_shopLabel);
         ShopRow = new HBoxContainer { Position = new(20,28), Size = new(452,100), Alignment = BoxContainer.AlignmentMode.Center };
         ZoneA.AddChild(ShopRow);
@@ -143,31 +142,34 @@ public partial class CardShop : Control
         var rerollPrice = TextLabel(); rerollPrice.Position = new(-12,25); rerollPrice.Size = new(48,14);
         rerollPrice.Text = $"{RerollCost} coin"; rerollPrice.AddThemeFontSizeOverride("font_size",11);
         rerollPrice.HorizontalAlignment = HorizontalAlignment.Center; _reroll.AddChild(rerollPrice);
-        _reroll.TooltipText = $"Reroll shop / {RerollCost} coin (unlock first)";
+        _reroll.TooltipText = $"Reroll shop / {RerollCost} coin / unlock automatically";
         _lock = ShopAction("Lock", "IconPause01a", new(480,100), ToggleShopLock);
         _lockLabel = TextLabel(); _lockLabel.Position = new(468,125); _lockLabel.Size = new(48,14);
         _lockLabel.AddThemeFontSizeOverride("font_size",11); _lockLabel.HorizontalAlignment = HorizontalAlignment.Center;
         ZoneA.AddChild(_lockLabel);
-        var coin = new TextureRect { Texture = TravelBookUi.Texture("IconCoin01a"), Position = new(374,141), Size = new(20,22), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
+        var coin = new TextureRect { Texture = TravelBookUi.Texture("IconCoin01a"), Position = new(20,2), Size = new(20,22), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
         ZoneA.AddChild(coin);
-        _coinLabel = TextLabel(); _coinLabel.Position = new(400,140); _coinLabel.Size = new(110,26); ZoneA.AddChild(_coinLabel);
+        _coinLabel = TextLabel(); _coinLabel.Position = new(46,0); _coinLabel.Size = new(90,26); ZoneA.AddChild(_coinLabel);
+        _battleActions=new Control {Name="BattleActions",AnchorLeft=1,AnchorRight=1,AnchorTop=.5f,AnchorBottom=.5f,OffsetLeft=-164,OffsetRight=-16,OffsetTop=-52,OffsetBottom=52,MouseFilter=MouseFilterEnum.Ignore};AddChild(_battleActions);
         _next = new TextureButton {
-            Position = new(20,137), Size = new(160,30), IgnoreTextureSize = true,
+            Name="BattleButton",Position = new(0,48), Size = new(148,44), IgnoreTextureSize = true,
             TextureNormal = TravelBookUi.Texture("FrameSelect01a"), StretchMode = TextureButton.StretchModeEnum.Scale
         };
         TravelBookUi.StyleButton(_next);
-        _next.Pressed += ConfirmTurn; ZoneA.AddChild(_next);
-        _nextText = TextLabel(); _nextText.Name = "Text"; _nextText.Text = "BATTLE"; _nextText.Modulate = Colors.Black;
+        _next.Pressed += ConfirmTurn; _battleActions.AddChild(_next);
+        _nextText = TextLabel(); _nextText.Name = "Text"; _nextText.Text = "BATTLE"; _nextText.Modulate = Colors.White;
         _nextText.HorizontalAlignment = HorizontalAlignment.Center;
         _nextText.VerticalAlignment = VerticalAlignment.Center;
-        _next.AddChild(_nextText); _nextText.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        _notice = TextLabel(); _notice.Position = new(190,140); ZoneA.AddChild(_notice);
+        _next.AddChild(_nextText); _nextText.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);GameUi.Primary(_next);
+        _notice = TextLabel(); _notice.Position = new(190,140); ZoneA.AddChild(_notice);_notice.Hide();
         ZoneB = new HandZone {
             Name = "ZoneB", Shop = this, AnchorTop = 1, AnchorRight = 1, AnchorBottom = 1, OffsetTop = -125
         };
         AddChild(ZoneB);
+        var handSurface=GameUi.Backdrop(ZoneB);handSurface.OffsetLeft=296;handSurface.OffsetRight=-296;handSurface.OffsetTop=2;handSurface.OffsetBottom=-8;
+
         _handLabel = TextLabel(); _handLabel.AnchorRight = 1; _handLabel.OffsetBottom = 24;
-        _handLabel.HorizontalAlignment = HorizontalAlignment.Center; ZoneB.AddChild(_handLabel);
+        _handLabel.HorizontalAlignment = HorizontalAlignment.Center; ZoneB.AddChild(_handLabel);_handLabel.Hide();
         HandRow = new HBoxContainer {
             AnchorLeft = .5f, AnchorRight = .5f, OffsetLeft = -338, OffsetRight = 338,
             OffsetTop = 26, OffsetBottom = 109, MouseFilter = MouseFilterEnum.Ignore, Alignment = BoxContainer.AlignmentMode.Center
@@ -176,29 +178,32 @@ public partial class CardShop : Control
         OpponentHandZone = new Control { Name = "OpponentHand", AnchorRight = 1, OffsetBottom = 115, MouseFilter = MouseFilterEnum.Ignore };
         AddChild(OpponentHandZone);
         _opponentHandLabel = TextLabel(); _opponentHandLabel.AnchorRight = 1; _opponentHandLabel.OffsetBottom = 24;
-        _opponentHandLabel.HorizontalAlignment = HorizontalAlignment.Center; OpponentHandZone.AddChild(_opponentHandLabel);
+        _opponentHandLabel.HorizontalAlignment = HorizontalAlignment.Center; OpponentHandZone.AddChild(_opponentHandLabel); _opponentHandLabel.Hide();
         OpponentHandRow = new HBoxContainer { AnchorLeft = .5f, AnchorRight = .5f, OffsetLeft = -338, OffsetRight = 338,
             OffsetTop = 26, OffsetBottom = 109, Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = MouseFilterEnum.Ignore };
         OpponentHandZone.AddChild(OpponentHandRow);
-        var back = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/cards/cardBacks.png"), Region = new Rect2(14,12,96,128) };
+        var back = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/ui/cards/card_backs.png"), Region = new Rect2(14,12,96,128) };
         for (int i = 0; i < HandLimit; i++) {
             var card = new TextureRect { Texture = back, CustomMinimumSize = new(62,83), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, TextureFilter = TextureFilterEnum.Nearest, MouseFilter = MouseFilterEnum.Ignore };
             OpponentHandRow.AddChild(card); _opponentBacks.Add(card); card.Hide();
         }
         OpponentHandZone.Hide();
-        Details = new NinePatchRect {
-            Name = "Details", Texture = TravelBookUi.Texture("BookCover01a"), PatchMarginLeft = 8, PatchMarginRight = 8,
-            PatchMarginTop = 8, PatchMarginBottom = 8, AnchorLeft = 1, AnchorRight = 1, AnchorBottom = 1, OffsetLeft = -300, OffsetBottom = -156
-        };
-        AddChild(Details);
-        var paper = new TextureRect { Texture = TravelBookUi.Texture("BookPageRight01a"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, MouseFilter = MouseFilterEnum.Ignore };
-        Details.AddChild(paper); paper.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        paper.OffsetLeft = paper.OffsetTop = 6; paper.OffsetRight = paper.OffsetBottom = -6;
-        DetailsText = TextLabel(); DetailsText.Position = new(22,24); DetailsText.Size = new(256,430);
-        DetailsText.AutowrapMode = TextServer.AutowrapMode.WordSmart; DetailsText.Modulate = Colors.Black;
-        Details.AddChild(DetailsText); Details.Hide();
-        _countdown = new PreparationCountdown { Name = "PreparationCountdown" }; AddChild(_countdown);
+        var modalLayer=new CanvasLayer {Name="DetailsLayer",Layer=20};AddChild(modalLayer);
+        _modalRoot=new Control {Name="DetailsModal",MouseFilter=MouseFilterEnum.Stop};modalLayer.AddChild(_modalRoot);_modalRoot.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        var shade=new ColorRect {Color=new Color(0,0,0,.65f),MouseFilter=MouseFilterEnum.Stop};_modalRoot.AddChild(shade);shade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        shade.GuiInput+=input=>{if(input is InputEventMouseButton {ButtonIndex:MouseButton.Left,Pressed:true})CloseDetails();};
+        Details=new NinePatchRect {Name="Details",Texture=TravelBookUi.Texture("BookCover01a"),PatchMarginLeft=8,PatchMarginRight=8,PatchMarginTop=8,PatchMarginBottom=8,AnchorLeft=.5f,AnchorRight=.5f,AnchorTop=.5f,AnchorBottom=.5f,OffsetLeft=-220,OffsetRight=220,OffsetTop=-280,OffsetBottom=280,MouseFilter=MouseFilterEnum.Stop};
+        _modalRoot.AddChild(Details);
+        var paper=new TextureRect {Texture=TravelBookUi.Texture("BookPageRight01a"),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,MouseFilter=MouseFilterEnum.Ignore,SelfModulate=new Color(.12f,.17f,.23f)};
+        Details.AddChild(paper);paper.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);paper.OffsetLeft=paper.OffsetTop=6;paper.OffsetRight=paper.OffsetBottom=-6;
+        var close=DeckMenuUi.Button("CLOSE",CloseDetails,80,30);Details.AddChild(close);close.AnchorLeft=close.AnchorRight=1;close.OffsetLeft=-96;close.OffsetRight=-16;close.OffsetTop=12;close.OffsetBottom=42;
+        var detailsScroll=new ScrollContainer {HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};Details.AddChild(detailsScroll);detailsScroll.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);detailsScroll.OffsetLeft=24;detailsScroll.OffsetTop=52;detailsScroll.OffsetRight=-24;detailsScroll.OffsetBottom=-24;
+        DetailsText=TextLabel();DetailsText.SizeFlagsHorizontal=SizeFlags.ExpandFill;DetailsText.AutowrapMode=TextServer.AutowrapMode.WordSmart;detailsScroll.AddChild(DetailsText);
+        void FitDetails(){var half=new Vector2(Mathf.Min(440,_modalRoot.Size.X-32),Mathf.Min(560,_modalRoot.Size.Y-32))/2;Details.OffsetLeft=-half.X;Details.OffsetRight=half.X;Details.OffsetTop=-half.Y;Details.OffsetBottom=half.Y;}
+        _modalRoot.Resized+=FitDetails;FitDetails();Details.Hide();_modalRoot.Hide();
+        _countdown = new PreparationCountdown { Name = "PreparationCountdown",Size=new(148,40) }; _battleActions.AddChild(_countdown);
+        _centerCountdown=new PreparationCountdown {Name="CenterCountdown",CenterBurst=true};AddChild(_centerCountdown);
     }
 
     public Task PrepareTurn(int number)
@@ -211,10 +216,16 @@ public partial class CardShop : Control
         Coins += RoundIncome(number);
         if (number > 1) UpgradeCost = Mathf.Max(0, UpgradeCost - 2);
         ZoneA.Show(); ZoneB.Show(); _shopLabel.Show();
-        if (!ShopLocked) RollShop(); else { FillShop(); Refresh(); }
+        var replacedNames = new HashSet<string>();
+        if (ShopLocked) {
+            foreach(var card in Offers) if(!_lockedOfferTokens.Contains(card.Token)) replacedNames.Add(card.Name);
+            Offers.RemoveAll(card=>!_lockedOfferTokens.Contains(card.Token));
+            if(Offers.Count==0){ShopLocked=false;_lockedOfferTokens.Clear();}
+        }
+        if (!ShopLocked) RollShop(); else { FillShop(replacedNames); Refresh(); }
         return _turnReady.Task;
     }
-    public void UpdateCountdown(int remaining, bool active) => _countdown.UpdateCountdown(remaining, active);
+    public void UpdateCountdown(int remaining, bool active) { _countdown.UpdateCountdown(remaining,active);_centerCountdown.UpdateCountdown(remaining,active); }
     public override void _Process(double delta)
     {
         if (NetworkMode || _countdown == null) return;
@@ -235,19 +246,21 @@ public partial class CardShop : Control
         };
         var image = new TextureRect { Texture = TravelBookUi.Texture(icon), Position = new(6,6), Size = new(12,12), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
         if (name == "Upgrade") { image.PivotOffset = new(6,6); image.Rotation = -Mathf.Pi / 2; }
-        button.AddChild(image); button.Pressed += action; ZoneA.AddChild(button); return button;
+        TravelBookUi.StyleButton(button);button.AddChild(image); button.Pressed += action; ZoneA.AddChild(button); return button;
     }
     public void RerollShop()
     {
-        if (!Drafting || NetworkPending || ShopLocked || Coins < RerollCost) return;
+        if (!Drafting || NetworkPending || Coins < RerollCost) return;
         if (NetworkMode) { Online?.SendAction("reroll"); return; }
-        Coins -= RerollCost; CloseDetails(); RollShop();
+        Coins -= RerollCost; ShopLocked = false; _lockedOfferTokens.Clear(); CloseDetails(); RollShop();
     }
     public void ToggleShopLock()
     {
         if (!Drafting || NetworkPending) return;
         if (NetworkMode) { Online?.SendAction("lock"); return; }
-        ShopLocked = !ShopLocked; Refresh();
+        ShopLocked = !ShopLocked; _lockedOfferTokens.Clear();
+        if(ShopLocked)foreach(var card in Offers)_lockedOfferTokens.Add(card.Token);
+        Refresh();
     }
     private bool Affordable(int token)
     {
@@ -266,15 +279,16 @@ public partial class CardShop : Control
     {
         Offers.Clear(); FillShop(); Refresh();
     }
-    private void FillShop()
+    private void FillShop(HashSet<string>? excludedNames=null)
     {
         var candidates = new List<int>();
         for (int i=0; i<_pool.Count; i++)
         {
-            if (_remainingCopies[i] <= 0 || _pool[i].Price > ShopLevel) continue;
+            if (_remainingCopies[i] <= 0 || !CharacterData.Get(i).Enabled || _pool[i].Price > ShopLevel) continue;
             bool present = false; foreach (var card in Offers) if (card.Name == _pool[i].Name) { present = true; break; }
             if (!present) candidates.Add(i);
         }
+        if(excludedNames!=null){var preferred=candidates.FindAll(kind=>!excludedNames.Contains(_pool[kind].Name));if(preferred.Count>=OfferLimit-Offers.Count)candidates=preferred;}
         while (Offers.Count < OfferLimit && candidates.Count > 0)
         {
             int index = _rng.RandiRange(0,candidates.Count-1); int kind = candidates[index]; candidates.RemoveAt(index);
@@ -349,7 +363,7 @@ public partial class CardShop : Control
         Drafting = false; Finished = true; _nextRound = new();
         Refresh(); ZoneA.Hide(); ShopRow.Hide(); _shopLabel.Hide();
         _next.Disabled = GameOver; _nextText.Text = GameOver ? "GAME OVER" : "NEXT ROUND"; _notice.Text = GameOver ? $"PLAYER {winner} WINS MATCH" : $"BATTLE FINISHED / {damage} HP DAMAGE";
-        _countdown.UpdateCountdown(0, false);
+        UpdateCountdown(0, false);
     }
 
     private void PlayHandUpgrade(int token)
@@ -377,22 +391,51 @@ public partial class CardShop : Control
     private void Refresh()
     {
         RefreshViews(Offers,_shopViews,ShopRow,true); RefreshViews(Hand,_handViews,HandRow,false);
-        _shopLabel.Text = NetworkMode ? $"SHOP / PLAYER {LocalTeam}  {Offers.Count}/{OfferLimit}  |  Lv.{ShopLevel}  |  TURN {TurnNumber}" : $"A / SHOP  {Offers.Count}/{OfferLimit}  |  Lv.{ShopLevel}  |  TURN {TurnNumber}";
-        _handLabel.Text = $"{(NetworkMode ? "HAND / PLAYER " + LocalTeam : "B / HAND")}  {Hand.Count}/{HandLimit}  |  {(Drafting ? "DRAG TO SHOP TO SELL" : "BATTLE / HAND LOCKED")}";
+        _shopLabel.Text = $"LEVEL {ShopLevel}";
+        _handLabel.Text = $"{("YOUR HAND")}  {Hand.Count}/{HandLimit}  |  {(Drafting ? "DRAG TO DEPLOY OR SELL" : "BATTLE IN PROGRESS")}";
         _notice.Text = _deploymentMode ? $"FIELD {Deployed.Count}/{FieldLimit}" : (Hand.Count == HandLimit ? "HAND FULL" : "CHOOSE CARDS");
         _next.Disabled = !Drafting || ReadyForBattle || NetworkPending || (_deploymentMode && Deployed.Count == 0);
         _nextText.Text = ReadyForBattle ? "READY" : "BATTLE"; ShopRow.Visible = Drafting;
-        _coinLabel.Text = Coins.ToString();
+        _coinLabel.Text = $"{Coins} GOLD";
         if (!NetworkMode) GetParent().GetNode<PlayerProfile>("ProfileA").SetCoins(Coins);
         _reroll.Visible = _lock.Visible = _lockLabel.Visible = _upgrade.Visible = Drafting;
         _upgrade.Disabled = !Drafting || NetworkPending || ShopLevel >= MaxShopLevel || Coins < UpgradeCost;
         _upgradeLabel.Text = ShopLevel >= MaxShopLevel ? "MAX" : $"UP {UpgradeCost}";
         _upgrade.TooltipText = ShopLevel >= MaxShopLevel ? "Shop Lv.6 / maximum level" : $"Upgrade Lv.{ShopLevel} to Lv.{ShopLevel+1} / {UpgradeCost} coin / next-round discount 2 / unlock cards up to {ShopLevel+1} coin";
-        _reroll.Disabled = !Drafting || NetworkPending || ShopLocked || Coins < RerollCost;
+        _reroll.Disabled = !Drafting || NetworkPending || Coins < RerollCost;
         _lock.Disabled = !Drafting || NetworkPending;
         _lockLabel.Text = ShopLocked ? "LOCKED" : "LOCK";
         _lock.TooltipText = ShopLocked ? "Shop locked / keep remaining offers next round / click to unlock" : "Lock shop / keep remaining offers next round / free";
+        _battleActions.Visible=Drafting || (Finished && !GameOver);
+        if(Finished) {
+            _battleActions.AnchorLeft=_battleActions.AnchorRight=.5f;
+            _battleActions.OffsetLeft=-74;_battleActions.OffsetRight=74;
+            _battleActions.OffsetTop=68;_battleActions.OffsetBottom=112;
+            _next.Position=Vector2.Zero;
+        } else {
+            _battleActions.AnchorLeft=_battleActions.AnchorRight=1;
+            _battleActions.OffsetLeft=-164;_battleActions.OffsetRight=-16;
+            _battleActions.OffsetTop=-52;_battleActions.OffsetBottom=52;
+            _next.Position=new Vector2(0,48);
+        }
+        RefreshUpgradeHints();
         LayoutRevision++;
+    }
+
+    private void RefreshUpgradeHints()
+    {
+        var matchingTokens=new HashSet<int>();
+        for(int i=0;i<_shopViews.Count;i++) {
+            var owned=i<Offers.Count && Drafting ? OwnedCopy(Offers[i].Token) : null;
+            bool upgrade=owned!=null && owned.Stars<4;
+            UpgradeHint.Set(_shopViews[i],upgrade);
+            if(upgrade)matchingTokens.Add(owned!.Token);
+        }
+        for(int i=0;i<_handViews.Count;i++)
+            UpgradeHint.Set(_handViews[i],Drafting && i<Hand.Count && matchingTokens.Contains(Hand[i].Token));
+        foreach(var unit in _units)
+            if(GodotObject.IsInstanceValid(unit) && !unit.IsQueuedForDeletion())
+                UpgradeHint.Set(unit,Drafting && unit.IsAlly && Deployed.ContainsKey(unit.CardToken) && matchingTokens.Contains(unit.CardToken));
     }
 
     public BattleUnit? PickUnit(Vector2 position) => Drafting ? PickFrom(position, true) : null;
@@ -459,10 +502,12 @@ public partial class CardShop : Control
             else Occupants[oldSlot] = null;
             moving.GridSlot = slot; moving.SetMeta("grid_cell",DeploymentCells[slot]);
             moving.Position = Field.ToLocal(Tiles.ToGlobal(SlotCenters[slot])); Occupants[slot] = moving;
-            LayoutRevision++; return true;
+            _battleActions.Visible=Drafting || (Finished && !GameOver);
+        LayoutRevision++; return true;
         }
         int index = FindToken(Hand,data.Token); var card = Hand[index]; Hand.RemoveAt(index);
-        var unit = _unitScene.Instantiate<BattleUnit>();
+        var definition=CharacterData.Get(_pool.FindIndex(c=>c.Name==card.Name));
+        var unit = GD.Load<PackedScene>(definition.ScenePath).Instantiate<BattleUnit>();
         unit.Name = $"Deployed_{card.Token}"; unit.Position = Field.ToLocal(Tiles.ToGlobal(SlotCenters[slot]));
         unit.HasBattled = card.Veteran; unit.CardKind = _pool.FindIndex(c=>c.Name==card.Name); unit.ConfigureStars(card.Stars); unit.CardToken = card.Token; unit.GridSlot = slot;
         unit.SetMeta("team","Ally"); unit.SetMeta("grid_cell",DeploymentCells[slot]); unit.SetMeta("card_token",card.Token);
@@ -530,16 +575,11 @@ public partial class CardShop : Control
         if (slot >= 0) PlaceCardOrUnit(data,Tiles.ToGlobal(SlotCenters[slot]));
     }
 
-    private void ShowDetails(string title, string team, int health = 100, int maximum = 100, int stars = 1)
+    private void ShowDetails(string title,string team,int health=100,int maximum=100,int stars=1,int kind=0)
     {
-        if (!Details.Visible)
-        {
-            Field.Position -= new Vector2(150, 0);
-            ZoneA.OffsetLeft = -410; ZoneA.OffsetRight = 110; ZoneB.OffsetRight = 0; OpponentHandZone.OffsetRight = -300;
-        }
-        DetailsText.Text = $"{title}\n{team}\n\n{stars} STARS\nHP  {health} / {maximum}\nAttack  {30 * stars}\nSpeed  {10 + 2 * (stars - 1)}\n\nABILITY / Lorem Strike\nLorem ipsum dolor sit amet, consectetur adipiscing elit.\n\nPASSIVE / Lorem Guard\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nPlaceholder abilities and stats.";
-        GetParent().GetNode<Control>("EffectsLabButton").Hide();
-        Details.Show();
+        var c=CharacterData.Get(kind);var stats=CharacterData.Stats(kind,stars);
+        DetailsText.Text=$"{title}\n{team}\n\n{stars} STARS\nHP  {health} / {maximum}\nAttack  {stats.Attack}\nDamage  {stats.DamageMin}–{stats.DamageMax}\nSpeed  {stats.Speed}\n\n{c.Description}\n\nABILITY / {c.AbilityName}\n{c.AbilityDescription}\n\nPASSIVE / {c.PassiveName}\n{c.PassiveDescription}";
+        _modalRoot.Show();Details.Show();
     }
     private void Uninspect()
     {
@@ -550,17 +590,19 @@ public partial class CardShop : Control
     {
         Uninspect();
         if (Details == null || !Details.Visible) return;
-        Field.Position += new Vector2(150, 0); Details.Hide();
-        GetParent().GetNode<Control>("EffectsLabButton").Show();
-        ZoneA.OffsetLeft = -260; ZoneA.OffsetRight = 260; ZoneB.OffsetRight = 0; OpponentHandZone.OffsetRight = 0;
+        Details.Hide();_modalRoot.Hide();
+    }
+    public override void _UnhandledKeyInput(InputEvent input)
+    {
+        if(Details.Visible && input is InputEventKey {Keycode:Key.Escape,Pressed:true}){CloseDetails();GetViewport().SetInputAsHandled();}
     }
     public void ShowCardDetails(int token)
     {
         Uninspect();
         int index = FindToken(Offers,token);
-        if (index >= 0) { ShowDetails(Offers[index].Name,NetworkMode ? $"PLAYER {LocalTeam} / SHOP" : "SHOP CARD"); return; }
+        if (index >= 0) { {int kind=_pool.FindIndex(c=>c.Name==Offers[index].Name);var stats=CharacterData.Stats(kind,1);ShowDetails(Offers[index].Name,NetworkMode ? $"PLAYER {LocalTeam} / SHOP" : "SHOP CARD",stats.Hp,stats.Hp,1,kind);} return; }
         index = FindToken(Hand,token);
-        if (index >= 0) ShowDetails(Hand[index].Name,$"PLAYER {(NetworkMode ? LocalTeam : "A")} / HAND",100*Hand[index].Stars,100*Hand[index].Stars,Hand[index].Stars);
+        if (index >= 0) {int kind=_pool.FindIndex(c=>c.Name==Hand[index].Name);var stats=CharacterData.Stats(kind,Hand[index].Stars);ShowDetails(Hand[index].Name,$"PLAYER {(NetworkMode ? LocalTeam : "A")} / HAND",stats.Hp,stats.Hp,Hand[index].Stars,kind);}
     }
     public void ShowUnitDetails(BattleUnit unit)
     {
@@ -574,7 +616,7 @@ public partial class CardShop : Control
     {
         var unit = _inspectedUnit!;
         string title = Deployed.TryGetValue(unit.CardToken,out var entry) ? entry.Card.Name : (NetworkMode ? _pool[unit.CardKind].Name : (unit.IsAlly ? "Soldier" : "Orc"));
-        ShowDetails(title, $"{(NetworkMode ? "PLAYER " + unit.ServerId.Split(':')[0] : (unit.IsAlly ? "PLAYER A" : "PLAYER B"))} / FIELD / {(unit.IsDead ? "DEAD" : "ALIVE")}", unit.Health,unit.MaxHealth,unit.Stars);
+        ShowDetails(title, $"{(NetworkMode ? "PLAYER " + unit.ServerId.Split(':')[0] : (unit.IsAlly ? "PLAYER A" : "PLAYER B"))} / FIELD / {(unit.IsDead ? "DEAD" : "ALIVE")}", unit.Health,unit.MaxHealth,unit.Stars,unit.CardKind);
     }
     public void RefreshNetworkControls() => Refresh();
     public void LockNetworkInteraction() { Drafting = false; NetworkPending = true; Refresh(); }
@@ -649,14 +691,16 @@ public partial class CardShop : Control
                 bool existed = NetworkUnits.TryGetValue(id,out var unit);
                 if (!existed)
                 {
-                    unit = (owned ? _unitScene : _orcScene).Instantiate<BattleUnit>();
+                    var definition=CharacterData.Get(entry.Kind);
+                    unit = GD.Load<PackedScene>(definition.ScenePath).Instantiate<BattleUnit>();
+                    unit.CardKind=entry.Kind;unit.ConfigureStars(entry.Stars);
                     unit.Name = $"Online_{player.Team}_{entry.Token}";
                     unit.SetMeta("team",owned ? "Ally" : "Enemy");
                     unit.GetNode<AnimatedSprite2D>("AnimatedSprite2D").Material = owned ? _playerMaterial : _redMaterial;
                     Field.AddChild(unit);
                     _units.Add(unit); NetworkUnits.Add(id,unit);
                 }
-                unit!.ConfigureStars(entry.Stars,existed && state.Phase == "preparation"); unit.CardToken = entry.Token; unit.CardKind = entry.Kind; unit.GridSlot = entry.Slot;
+                unit!.CardKind=entry.Kind;unit.ConfigureStars(entry.Stars,existed && state.Phase == "preparation"); unit.CardToken = entry.Token; unit.GridSlot = entry.Slot;
                 unit.HasBattled = entry.Veteran; unit.ServerId = id;
                 var cell = owned ? DeploymentCells[entry.Slot] : EnemyCells[FieldLimit - 1 - entry.Slot];
                 unit.SetMeta("grid_cell",cell);

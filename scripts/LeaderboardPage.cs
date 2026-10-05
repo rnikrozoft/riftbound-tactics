@@ -17,11 +17,11 @@ public partial class LeaderboardPage : VBoxContainer
     {
         SizeFlagsVertical=SizeFlags.ExpandFill;
         var header=new HBoxContainer();AddChild(header);
-        var title=DeckMenuUi.Text("LEADERBOARD / MMR",26);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(title);
+        var title=DeckMenuUi.Text("ARENA RANKINGS",26);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(title);
         _refresh=DeckMenuUi.Button("REFRESH",()=>Load(),120);header.AddChild(_refresh);
         AddChild(DeckMenuUi.Text("Ranked standings use MMR. Placement and opponent ratings determine changes; bots do not affect MMR.",15));
-        _own=DeckMenuUi.Text("Your rank: loading...",18);AddChild(_own);
-        AddChild(Row("RANK","PLAYER","MMR","GAMES","UID",true));
+        _own=DeckMenuUi.Text("Your rank: loading...",18);AddChild(_own);_own.AddThemeColorOverride("font_color",GameUi.Gold);
+        AddChild(Row("RANK","COMMANDER","RATING","GAMES","",true));
         var scroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};AddChild(scroll);
         _rows=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};scroll.AddChild(_rows);
         var footer=new HBoxContainer();AddChild(footer);
@@ -29,22 +29,22 @@ public partial class LeaderboardPage : VBoxContainer
         _next=DeckMenuUi.Button("NEXT >",()=>Load(_nextCursor),140);footer.AddChild(_next);
         _status=DeckMenuUi.Text("",14);footer.AddChild(_status);Controls();
     }
-    private HBoxContainer Row(string rank,string name,string score,string wins,string uid,bool heading=false)
+    private PanelContainer Row(string rank,string name,string score,string wins,string uid,bool heading=false)
     {
         var row=new HBoxContainer {CustomMinimumSize=new(0,36)};
-        string[] values={rank,name,score,wins,uid};int[] widths={72,270,100,90,280};
+        string[] values={rank,name,score,wins};int[] widths={72,270,110,90};
         for(int i=0;i<values.Length;i++)
         {
             var label=DeckMenuUi.Text(values[i],heading?15:i==4?12:16);label.CustomMinimumSize=new(widths[i],0);label.TooltipText=values[i];label.TextOverrunBehavior=TextServer.OverrunBehavior.TrimEllipsis;
-            if(i==1)label.SizeFlagsHorizontal=SizeFlags.ExpandFill;row.AddChild(label);
+            if(i==1)label.SizeFlagsHorizontal=SizeFlags.ExpandFill;label.TooltipText=i==1?uid:values[i];row.AddChild(label);
         }
-        return row;
+        var frame=new PanelContainer();frame.AddThemeStyleboxOverride("panel",GameUi.Box(heading,10));frame.AddChild(row);return frame;
     }
     private static string RatedGames(string metadata) { try { using var doc=System.Text.Json.JsonDocument.Parse(metadata);return doc.RootElement.GetProperty("rated_games").ToString(); } catch { return "0"; } }
     public void Open()=>Load();
     public async void Load(string cursor="")
     {
-        if(_loading||_exiting)return;_loading=true;Controls();_status.Text="Loading from Nakama...";
+        if(_loading||_exiting)return;_loading=true;Controls();_status.Text="Loading arena rankings...";
         try
         {
             if(_connection==null){_connection=GameAccount.Connection();await _connection.Connect();}

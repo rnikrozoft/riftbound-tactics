@@ -69,7 +69,7 @@ public partial class DamageSimulator : Node
         }
         if (!_loop && _shakeLeft <= 0) SetProcess(false);
     }
-    private TextureButton Button(string text, Action action, float width = 340)
+    private TextureButton Button(string text, Action action, float width = 310)
     {
         var button = new TextureButton {
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest, IgnoreTextureSize = true,
@@ -77,32 +77,35 @@ public partial class DamageSimulator : Node
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
         TravelBookUi.StyleButton(button);
-        var label = new Label { Name = "Text", Text = text, Modulate = Colors.Black,
+        var label = new Label { Name = "Text", Text = text, Modulate = Colors.White,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = Control.MouseFilterEnum.Ignore };
-        button.AddChild(label); label.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        GameUi.Label(label,14);button.AddChild(label); label.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         button.Pressed += action; return button;
     }
     private void BuildUi()
     {
         var content = GetNode<Control>("LabUI/SafeArea/Content");
         var sidebar = new VBoxContainer();
-        content.AddChild(sidebar); sidebar.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.LeftWide); sidebar.OffsetRight = 360;
-        sidebar.AddChild(new Label { Text = $"DAMAGE EFFECTS / {Catalog.Length} VARIANTS" });
+        content.AddChild(sidebar); sidebar.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.LeftWide); sidebar.OffsetLeft=16;sidebar.OffsetTop=16;sidebar.OffsetBottom=-16;sidebar.OffsetRight = 344;
+        var leftSurface=new Panel {AnchorBottom=1,OffsetLeft=8,OffsetTop=8,OffsetRight=352,OffsetBottom=-8,MouseFilter=Control.MouseFilterEnum.Ignore};leftSurface.AddThemeStyleboxOverride("panel",GameUi.Box());content.AddChild(leftSurface);content.MoveChild(leftSurface,0);
+        sidebar.AddChild(DeckMenuUi.Text($"EFFECTS LIBRARY / {Catalog.Length}",16));
         _categoryButton = Button("CATEGORY: Impacts",NextCategory); sidebar.AddChild(_categoryButton);
         var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         sidebar.AddChild(scroll);
         _list = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; scroll.AddChild(_list);
-        var controls = new VBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -370, OffsetBottom = 360 };
+        var controls = new VBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -344, OffsetRight=-16, OffsetTop=16, OffsetBottom = 380 };
+        var rightSurface=new Panel {AnchorLeft=1,AnchorRight=1,OffsetLeft=-352,OffsetRight=-8,OffsetTop=8,OffsetBottom=460,MouseFilter=Control.MouseFilterEnum.Ignore};rightSurface.AddThemeStyleboxOverride("panel",GameUi.Box());content.AddChild(rightSurface);
         content.AddChild(controls);
-        _title = new Label { CustomMinimumSize = new(370,50), AutowrapMode = TextServer.AutowrapMode.WordSmart }; controls.AddChild(_title);
+        _title = new Label { CustomMinimumSize = new(310,50), AutowrapMode = TextServer.AutowrapMode.WordSmart }; GameUi.Label(_title,16);controls.AddChild(_title);
         controls.AddChild(Button("PLAY DAMAGE (-25 HP)",PlayDamage));
         controls.AddChild(Button("LOOP: OFF",() => { _loop = !_loop; SetToggle(controls,2,"LOOP",_loop); SetProcess(_loop || _shakeLeft > 0); }));
         controls.AddChild(Button("HITSTOP: ON",() => { _hitstop = !_hitstop; SetToggle(controls,3,"HITSTOP",_hitstop); }));
         controls.AddChild(Button("CAMERA SHAKE: ON",() => { _shake = !_shake; SetToggle(controls,4,"CAMERA SHAKE",_shake); }));
         controls.AddChild(Button("RESET HP",ResetTarget));
         _keepButton = Button("KEEP THIS EFFECT",ToggleFavorite); controls.AddChild(_keepButton);
-        _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; controls.AddChild(_status);
+        _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; GameUi.Label(_status,13,true);controls.AddChild(_status);
+        controls.AddChild(Button("CHARACTER ANIMATIONS",()=>_tree.ChangeSceneToFile("res://scenes/character_animation_lab.tscn")));
         controls.AddChild(Button("BACK TO BATTLE",() => _tree.ChangeSceneToFile("res://scenes/main.tscn")));
     }
     private static void SetToggle(VBoxContainer controls, int index, string title, bool enabled) =>

@@ -37,6 +37,7 @@ public partial class BattleDemo : Node
     private float _shakeLeft, _floatTime;
     public long ServerVisualTimeMs { get; set; }
     private bool _exiting;
+    private FinishingFocus _focus = null!;
     private static readonly NodePath PositionPath = new("position");
     public int TurnCount { get; private set; }
 
@@ -48,6 +49,7 @@ public partial class BattleDemo : Node
         _result = GetParent().GetNode<Control>("UI/SafeArea/Content/BattleResult");
         _resultText = _result.GetNode<Label>("Text");
         _shop = GetParent().GetNode<CardShop>("UI/SafeArea/Content/CardShop");
+        _focus = new FinishingFocus { Name = "FinishingFocus" }; AddChild(_focus);
         CollectTeams();
         if (AutoStart && !NetworkEnabled) Callable.From(StartBattle).CallDeferred();
     }
@@ -144,7 +146,7 @@ public partial class BattleDemo : Node
         }
         string winner = _teamA.Count > 0 ? "A" : _teamB.Count > 0 ? "B" : "DRAW";
         _resultText.Text = winner == "DRAW" ? "DRAW" : $"PLAYER {winner} WINS";
-        if (CardShopEnabled) _result.Hide(); else _result.Show();
+        _result.Show();
         if (CardShopEnabled) {
             int stars = 0; foreach (var survivor in winner == "A" ? _teamA : _teamB) stars += survivor.Stars;
             _shop.FinishBattle(winner, stars);
@@ -155,6 +157,26 @@ public partial class BattleDemo : Node
 
     private async Task TakeTurn(BattleUnit attacker, BattleUnit target, OnlineCombatEvent? serverEvent = null)
     {
+        float speed = target.Sprite.SpeedScale;
+        try { await TakeTurnPresentation(attacker,target,serverEvent); }
+        finally {
+            RestoreSprites();
+            _focus.Reset();
+            if (GodotObject.IsInstanceValid(target)) target.Sprite.SpeedScale = speed;
+        }
+    }
+
+    private async Task TakeTurnPresentation(BattleUnit attacker, BattleUnit target, OnlineCombatEvent? serverEvent)
+    {
+        int damage = serverEvent == null ? _rng.RandiRange(Math.Min(DamageMin,DamageMax),Math.Max(DamageMin,DamageMax)) * attacker.Stars : serverEvent.Damage;
+        bool finishing = !target.IsDead && (serverEvent != null ? serverEvent.TargetHp <= 0 : damage >= target.Health);
+        if (finishing) {
+            var focus = _focus.Begin(attacker);
+            await ToSignal(focus,Tween.SignalName.Finished); CheckAlive();
+            while (_focus.ChargePlaying) await Frame();
+            var zoomOut = _focus.ZoomOut();
+            await ToSignal(zoomOut,Tween.SignalName.Finished); CheckAlive();
+        }
         var sprite = attacker.Sprite; var targetSprite = target.Sprite;
         var home = attacker.Position; var targetHome = target.Position;
         bool facing = sprite.FlipH, targetFacing = targetSprite.FlipH;
@@ -169,11 +191,12 @@ public partial class BattleDemo : Node
         while (sprite.Frame < 2 && sprite.IsPlaying())
         { await ToSignal(sprite, AnimatedSprite2D.SignalName.FrameChanged); CheckAlive(); }
         targetSprite.FlipH = attackPosition.X < targetHome.X;
-        if (serverEvent != null) target.ApplyServerHealth(serverEvent.TargetHp);
-        else target.TakeDamage(_rng.RandiRange(Math.Min(DamageMin, DamageMax), Math.Max(DamageMin, DamageMax)) * attacker.Stars);
+        if (serverEvent != null) target.ApplyServerHealth(serverEvent.TargetHp,serverEvent.Damage);
+        else target.TakeDamage(damage);
         bool lethal = target.IsDead;
         if (lethal) { _teamA.Remove(target); _teamB.Remove(target); }
         targetSprite.Play(lethal ? BattleAnimations.Die : BattleAnimations.Hit);
+        if (lethal && finishing) _focus.Impact(target);
         _shakeLeft = ShakeDuration;
         FreezeSprites();
         EmitSignal(SignalName.Impact, attacker, target);
@@ -216,8 +239,8 @@ public partial class BattleDemo : Node
     }
     public void ShowServerResult(string winner)
     {
-        _resultText.Text = winner == "DRAW" ? "DRAW" : $"PLAYER {winner} WINS";
-        _result.Hide(); EmitSignal(SignalName.BattleFinished,winner);
+        _resultText.Text = winner=="DRAW" ? "ROUND DRAW" : winner==_shop.LocalTeam ? "ROUND WON" : "ROUND LOST";
+        _result.Show(); EmitSignal(SignalName.BattleFinished,winner);
     }
     public void ShowMatchResult(string winner) { _resultText.Text = $"PLAYER {winner} WINS MATCH"; _result.Show(); }
     public void ShowLeagueResult(bool won, int place) { _resultText.Text = won ? "YOU WIN MATCH" : $"MATCH OVER / PLACEMENT #{place}"; _result.Show(); }
@@ -239,6 +262,7 @@ public partial class BattleDemo : Node
     {
         _exiting = true;
         RestoreSprites();
+        if (GodotObject.IsInstanceValid(_focus)) _focus.Reset();
         if (GodotObject.IsInstanceValid(_field)) _field.ArenaOffset = Vector2.Zero;
     }
 }

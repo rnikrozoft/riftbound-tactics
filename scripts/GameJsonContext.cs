@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 [JsonSerializable(typeof(HashSet<string>))]
 [JsonSerializable(typeof(DeckDefinition))]
 [JsonSerializable(typeof(List<DeckDefinition>))]
+[JsonSerializable(typeof(CharacterCatalogData))]
 [JsonSerializable(typeof(OnlineState))]
 [JsonSerializable(typeof(OnlineAction))]
 [JsonSerializable(typeof(RoomRequest))]

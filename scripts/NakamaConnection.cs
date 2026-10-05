@@ -138,12 +138,17 @@ public sealed class NakamaConnection
         string ticket=_ticket;_ticket="";
         if (ticket!="") try { await Socket.RemoveMatchmakerAsync(ticket); } catch { /* Already matched/removed. */ }
     }
+    private bool _closed;
     public async Task Close()
     {
+        if(_closed)return;
         _searchCancellation.Cancel();
         if (Socket == null) return;
+        _closed=true;
         await RemoveTicket();
         if (_searchActive) try { await Socket.RpcAsync("queue_cancel","{}"); } catch { }
+        string match=MatchId;MatchId="";
+        if(match!="")try{await Socket.LeaveMatchAsync(match);}catch{}
         Socket.ReceivedMatchState -= OnMatchState;
         try { await Socket.CloseAsync(); } catch { /* Shutdown must not interrupt scene teardown. */ }
     }
