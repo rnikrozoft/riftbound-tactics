@@ -59,3 +59,7 @@ Online integration: `Godot_console.exe --headless --path . res://tests/online_in
 During battle the hidden shop is replaced by a centered row of opponent card backs from assets/cards/cardBacks.png. Only the opponent's hand_count is public; card identities remain redacted. No placeholder backs appear for an empty hand. Opening details shifts the opponent row together with the player hand.
 
 Opponent deployment slots rotate 180 degrees around the battlefield center: owner slots 0,1,2,3,4,5 render as enemy slots 5,4,3,2,1,0. This preserves front/back relationships from the other player's view. Server slot IDs and combat unit IDs remain unchanged.
+
+## Character content
+
+Guest login downloads character definitions from the backend's JSON catalog through `character_catalog`. `CharacterData` supplies group names, prices, enabled flags, copy limits, images, scene resources, descriptions and four star-stat rows. The packaged `data/characters.json` provides the offline baseline. Orc, Demon and Blood Monster are independently selectable character groups, with ten cards each. A deck selects three character groups and ten Neutral slots. New asset paths must be included in a client release before the server enables that character. Unknown ability mechanics require a combat implementation; editing descriptive text alone does not grant an effect.
