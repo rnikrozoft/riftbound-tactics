@@ -133,6 +133,7 @@ public partial class MatchReplayViewer : Node
     private async Task PlayBattle(OnlineState saved,int token)
     {
         ResetArena();SetBattle(saved);var battle=_battle;var shop=_shop;var plan=saved.Battle!;
+        battle.BeginCombatPresentation(shop.ReplayPlan!);
         _label.Text=$"ROUND {saved.Round} / BATTLE";long start=PlaybackClockMs;
         foreach(var combat in plan.Events){
             await Wait(start+Math.Max(0,combat.AtMs-plan.StartMs),token);
@@ -143,7 +144,7 @@ public partial class MatchReplayViewer : Node
             Check(token);
         }
         foreach(var combat in plan.Events)shop.ApplyCombatEvent(combat);
-        battle.ShowServerResult(plan.Winner);await Wait(PlaybackClockMs+1200,token);
+        battle.EndCombatPresentation();battle.ShowServerResult(plan.Winner);await Wait(PlaybackClockMs+1200,token);
     }
     private void UpdatePlayButton()=>_playPause.GetNode<Label>("Text").Text=_playing&&!_paused?"PAUSE":"PLAY";
     public void TogglePlayback()

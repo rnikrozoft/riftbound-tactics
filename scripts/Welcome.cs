@@ -30,9 +30,9 @@ public partial class Welcome : Control
     {
         if(_busy||_exiting)return;_busy=true;_guest.Disabled=true;_status.Text="Connecting...";
         try {
-            _connection=GameAccount.Connection();await _connection.Connect();
+            PlayerInventory.Reset();GameAccount.RequiresLogin=false;GameAccount.Session=null;BattleRecovery.Notice="";_connection=GameAccount.Connection();await _connection.Connect();
             if(_exiting){await _connection.Close();return;}
-            await CharacterData.Refresh(_connection);
+            await PlayerInventory.Load(_connection,importLegacy:true);
             var account=await _connection.Client.GetAccountAsync(_connection.Session);
             if(_exiting)return;
             _name.Text=account.User.DisplayName??"";_status.Text="";_modal.Show();_name.GrabFocus();

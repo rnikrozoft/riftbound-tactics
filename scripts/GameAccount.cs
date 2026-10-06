@@ -6,21 +6,22 @@ public static class GameAccount
 {
     public static string DisplayName {get;set;}="";
     private static string? _deviceId;
-    // Keep an exclusive slot lease until this process exits. Other running
-    // instances use another persisted slot instead of sharing the same account.
+    // Reserve a persisted account slot for this process. Parallel game instances
+    // get different identities; restarting reuses the first available saved slot.
     private static FileStream? _instanceLease;
     public static int InstanceSlot {get;private set;}
+    internal static Nakama.ISession? Session;
+    public static bool RequiresLogin {get;set;}
     private static string AccountPath()
     {
-        for(int slot=1;slot<=64;slot++)
-        {
+        for(int slot=1;slot<=64;slot++){
             string lease=ProjectSettings.GlobalizePath($"user://account-instance-{slot}.lock");
-            try {_instanceLease=new FileStream(lease,FileMode.OpenOrCreate,System.IO.FileAccess.ReadWrite,FileShare.None);}
+            try{_instanceLease=new FileStream(lease,FileMode.OpenOrCreate,System.IO.FileAccess.ReadWrite,FileShare.None);}
             catch(IOException){continue;}
             InstanceSlot=slot;
             return slot==1?"user://account-device.txt":$"user://account-device-{slot}.txt";
         }
-        throw new Exception("Cannot reserve an account slot for this game instance.");
+        throw new InvalidOperationException("Cannot reserve an account slot for this game instance.");
     }
     public static string DeviceId
     {
@@ -41,7 +42,8 @@ public static class GameAccount
     }
     public static NakamaConnection Connection()
     {
+        if(RequiresLogin)throw new InvalidOperationException("Login again to continue.");
         string host=OS.GetEnvironment("RIFTBOUND_HOST");if(string.IsNullOrWhiteSpace(host))host="127.0.0.1";
-        return new NakamaConnection(host,deviceId:DeviceId);
+        return new NakamaConnection(host,deviceId:DeviceId,session:Session);
     }
 }

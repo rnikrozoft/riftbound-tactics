@@ -53,8 +53,13 @@ public static class CharacterImpactEffects
     };
     private sealed record Visual(SpriteFrames Frames,Vector2 Center,Vector2 Foot,float Scale);
     private static readonly Dictionary<string,Visual> Cache=new();
-    private static Dictionary<string,DamageSimulator.EffectEntry>? _catalog;
+    private static Dictionary<string,EffectEntry>? _catalog;
     public static string Resolve(int kind,string animation)
+    {
+        var choice=CombatVisualSettings.Find(kind,animation);
+        return choice!=null?choice.Effect:DefaultEffect(kind,animation);
+    }
+    public static string DefaultEffect(int kind,string animation)
     {
         string slug=CharacterData.Get(kind).ScenePath.GetFile().GetBaseName();
         int number=int.TryParse(animation.Replace("attack",""),out int parsed)?parsed:1;
@@ -66,7 +71,7 @@ public static class CharacterImpactEffects
     private static Visual Load(string name)
     {
         if(Cache.TryGetValue(name,out var visual))return visual;
-        _catalog??=(JsonSerializer.Deserialize(FileAccess.GetFileAsString("res://data/effect_catalog.json"),GameJsonContext.Default.EffectEntryArray)??Array.Empty<DamageSimulator.EffectEntry>()).ToDictionary(e=>e.Name);
+        _catalog??=(JsonSerializer.Deserialize(FileAccess.GetFileAsString("res://data/effect_catalog.json"),GameJsonContext.Default.EffectEntryArray)??Array.Empty<EffectEntry>()).ToDictionary(e=>e.Name);
         var entry=_catalog[name];var texture=GD.Load<Texture2D>(entry.Texture);
         var frames=new SpriteFrames();frames.RemoveAnimation("default");frames.AddAnimation(BattleAnimations.Effect);
         frames.SetAnimationLoopMode(BattleAnimations.Effect,SpriteFrames.LoopMode.None);frames.SetAnimationSpeed(BattleAnimations.Effect,15);
@@ -83,6 +88,10 @@ public static class CharacterImpactEffects
     }
     public static AnimatedSprite2D? Play(BattleUnit source,BattleUnit target,string animation,string kind,int damage)
     {
+        string lookupAnimation=kind=="counter"?"attack01":animation;
+        var choice=CombatVisualSettings.Find(source.CardKind,lookupAnimation);
+        bool eligible=(damage>0&&kind is "damage" or "splash" or "counter" or "execute")||kind is "heal" or "revive" or "curse" or "summon";
+        if(choice!=null&&eligible)return PlayChoice(source,target,choice,kind);
         string? name=kind switch {
             "heal"=>"spell_heal_001_small_red",
             "revive"=>"spell_heal_001_large_red",
@@ -90,17 +99,29 @@ public static class CharacterImpactEffects
             "summon"=>"spell_death_001_large_red",
             "armor"=>"spell_defense_up_001_small_blue",
             "poison"=>damage>0?"spell_poison_001_small_green":null,
-            _=>damage>0?Resolve(source.CardKind,kind=="counter"?"attack01":animation):null
+            _=>damage>0?DefaultEffect(source.CardKind,lookupAnimation):null
         };
         if(name==null)return null;
+        return Create(source,target,name,kind,null);
+    }
+    public static AnimatedSprite2D? PlayChoice(BattleUnit source,BattleUnit target,CombatVisualChoice choice,string kind="damage")
+    {
+        if(choice.Effect.Length==0)return null;
+        return Create(source,target,choice.Effect,kind,choice);
+    }
+    private static AnimatedSprite2D Create(BattleUnit source,BattleUnit target,string name,string kind,CombatVisualChoice? choice)
+    {
         var visual=Load(name);
         bool ground=name.StartsWith("directional_impact_002")||name.StartsWith("directional_impact_003")||name.StartsWith("directional_impact_004")||kind=="summon";
+        if(choice?.Anchor=="body")ground=false;
+        if(choice?.Anchor=="feet")ground=true;
+        float scale=visual.Scale*(choice?.Scale??1);
         float rotation=name.StartsWith("directional_impact_001")?(target.GlobalPosition-source.GlobalPosition).Angle():0;
         var feet=CharacterVisual.GroundAnchor(target.Sprite);
         var anchor=target.Position+(ground?feet:(feet+CharacterVisual.HeadAnchor(target.Sprite))*.5f);
-        var offset=(ground?visual.Foot:visual.Center)*visual.Scale;
-        var effect=new AnimatedSprite2D {Name="CombatImpact",SpriteFrames=visual.Frames,Scale=Vector2.One*visual.Scale,
-            Rotation=rotation,Position=anchor-offset.Rotated(rotation),ZIndex=10,TextureFilter=CanvasItem.TextureFilterEnum.Nearest};
+        var offset=(ground?visual.Foot:visual.Center)*scale;
+        var effect=new AnimatedSprite2D {Name="CombatImpact",SpriteFrames=visual.Frames,Scale=Vector2.One*scale,
+            Rotation=rotation,Position=anchor-offset.Rotated(rotation)+new Vector2(choice?.OffsetX??0,choice?.OffsetY??0),ZIndex=10,TextureFilter=CanvasItem.TextureFilterEnum.Nearest};
         effect.SetMeta("effect_name",name);effect.SetMeta("hit_target",target.ServerId);effect.SetMeta("hit_source",source.ServerId);
         // A sibling survives the victim's fade and inherits arena movement and replay pause.
         target.GetParent().AddChild(effect);

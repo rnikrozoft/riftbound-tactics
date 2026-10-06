@@ -25,7 +25,7 @@ public partial class OnlineBattle : Node
     private LineEdit _code = null!;
     private TextureButton _create = null!, _join = null!;
     private SceneTree _tree = null!;
-    private long _sequence, _pendingSequence, _lastRevision = -1;
+    private long _pendingSequence, _lastRevision = -1;
     private int _planRound, _replayGeneration;
     private bool _exiting, _connecting;
     private GameModal? _defeatModal;
@@ -62,7 +62,7 @@ public partial class OnlineBattle : Node
         _launchPending = BattleLaunch.Pending; _launchCreate = BattleLaunch.Create; _launchCode = BattleLaunch.Code;
         _matchmaking=BattleLaunch.Matchmaking;BattleLaunch.Matchmaking=false;
         BattleLaunch.Pending = false;
-        MatchReplayStore.Clear();
+        if(!BattleRecovery.Ready)MatchReplayStore.Clear();
         BuildUi();
         Callable.From(ConnectDebugUser).CallDeferred();
     }
@@ -144,9 +144,26 @@ public partial class OnlineBattle : Node
     public async void ReturnToLobby()
     {
         if(_exiting)return;_exiting=true;_replayGeneration++;Connected=false;_shop.LockNetworkInteraction();SetProcess(false);
+        _battle.EndCombatPresentation(true);
         MatchReplayStore.Leave();
         if(Connection!=null)await Connection.Close();
         if(IsInsideTree())_tree.ChangeSceneToFile("res://scenes/lobby.tscn");
+    }
+    private void ReceiveState(OnlineState state)=>_states.Enqueue(state);
+    private void ReceiveError(OnlineError error)=>_errors.Enqueue(error);
+    private void TransportClosed()=>_transportLost=true;
+    private void BindTransport()
+    {
+        Connection!.StateReceived+=ReceiveState;Connection.ErrorReceived+=ReceiveError;Connection.Disconnected+=TransportClosed;
+    }
+    private bool _transferring;
+    private void RecoverToLobby()
+    {
+        if(Connection==null)return;
+        _transferring=true;_exiting=true;_replayGeneration++;Connected=false;
+        _battle.EndCombatPresentation(true);_shop.LockNetworkInteraction();
+        BattleRecovery.Begin(Connection,_selectedDeck);
+        GetTree().ChangeSceneToFile("res://scenes/lobby.tscn");
     }
     private async void ConnectDebugUser()
     {
@@ -156,14 +173,14 @@ public partial class OnlineBattle : Node
         {
             string host = OS.GetEnvironment("RIFTBOUND_HOST");
             if (string.IsNullOrWhiteSpace(host)) host = Host;
-            Connection = new(host,Port,deviceId:_selectedDeck!=null?GameAccount.DeviceId:null);
-            Connection.StateReceived += state => _states.Enqueue(state);
-            Connection.ErrorReceived += error => _errors.Enqueue(error);
-            Connection.Disconnected += () => {
-                _transportLost = true;
-                _errors.Enqueue(new() { Message = "Connection closed. Return to Lobby and search again." });
-            };
-            await Connection.Connect();
+            if(BattleRecovery.Ready){
+                _selectedDeck=BattleRecovery.Deck?.Clone();Connection=BattleRecovery.Take();BindTransport();
+                while(BattleRecovery.Snapshots.TryDequeue(out var snapshot))_states.Enqueue(snapshot);
+                _launchPending=false;_matchmaking=false;Connected=true;_identity.Text="COMMANDER RECONNECTED";
+                return;
+            }
+            Connection = _selectedDeck!=null?GameAccount.Connection():new(host,Port);
+            BindTransport();await Connection.Connect();
             if (_exiting) { await Connection.Close(); return; }
             Connected = true;
             _identity.Text = "COMMANDER CONNECTED";
@@ -219,8 +236,10 @@ public partial class OnlineBattle : Node
     }
     public async void SendAction(string type, int token = 0, int slot = 0)
     {
+        // Matchmaking leagues advance all surviving players together, without a next action.
+        if (type == "next" && State?.Roster.Length > 0) return;
         if (_exiting || _transportLost || !Connected || Connection == null || State == null || _shop.NetworkPending) return;
-        var action = new OnlineAction { Type = type,Token = token,Slot = slot,Round = State.Round,Sequence = ++_sequence };
+        var action = new OnlineAction { Type = type,Token = token,Slot = slot,Round = State.Round,Sequence = Connection.NextActionSequence() };
         _pendingSequence = action.Sequence;_shop.NetworkPending = true; _shop.RefreshNetworkControls();
         try { await Connection.Send(action); }
         catch (Exception exception) { _errors.Enqueue(new() { Message = exception.Message,Sequence = action.Sequence }); }
@@ -259,6 +278,7 @@ public partial class OnlineBattle : Node
             if(state.Roster.Any(p=>p.UserId==UserId && p.Hp<=0) || state.Players.Any(p=>p!=null && p.UserId==UserId && p.Hp<=0)){ShowDefeat();return;}
             if (!changed) continue;
             _message = ""; _roomControls.Hide();
+            if(state.Phase is "preparation" or "waiting")_battle.EndCombatPresentation(true);
             _shop.ApplyNetworkState(state,UserId);
             PositionProfiles(_shop.LocalTeam);
             _profileA.Visible=state.Players.Any(p=>p?.Team=="A" && !string.IsNullOrWhiteSpace(p.UserId));_profileB.Visible=state.Players.Any(p=>p?.Team=="B" && !string.IsNullOrWhiteSpace(p.UserId));
@@ -288,7 +308,7 @@ public partial class OnlineBattle : Node
                 PlayReplay(state.Battle,++_replayGeneration);
             }
         }
-        if (_transportLost) { _shop.UpdateCountdown(0, false); Connected = false; _shop.LockNetworkInteraction(); _replayGeneration++; _transportLost = false; }
+        if (_transportLost) { _transportLost=false;RecoverToLobby();return; }
         string status = _message;
         if (State != null && string.IsNullOrEmpty(status))
         {
@@ -324,6 +344,7 @@ public partial class OnlineBattle : Node
     }
     private void ShowFinalResult(OnlineState state)
     {
+        _battle.EndCombatPresentation();
         bool won=state.Roster.Length>0 ? state.WinnerId==UserId : state.Winner==LocalTeam;
         if(!won){ShowDefeat();return;}
         if(_surrenderModal!=null)_surrenderModal.Hide();
@@ -336,7 +357,7 @@ public partial class OnlineBattle : Node
     {
         if(_defeatModal!=null || _exiting)return;
         if(_blood.Armed&&!_blood.Eliminated)return;
-        _replayGeneration++;
+        _replayGeneration++;_battle.EndCombatPresentation();
         _surrenderModal?.Hide();_shop.CloseDetails();_shop.LockNetworkInteraction();
         _battle.HideResult();_matchLobby.Hide();_roundTitle.Hide();
         _defeatRemaining=20;
@@ -417,7 +438,7 @@ public partial class OnlineBattle : Node
     {
         try
         {
-            _shop.SetReplayPlan(plan);
+            _shop.SetReplayPlan(plan);_battle.BeginCombatPresentation(plan);
             int playerHp=State?.Players.FirstOrDefault(p=>p?.UserId==UserId)?.Hp??int.MaxValue;
             _blood.Prepare(plan,LocalTeam,playerHp<=plan.PlayerDamage);
             _presentationTimeMs=Math.Max(plan.StartMs,Connection!.ServerNowMs);_presentationPlaying=true;_battle.SpeedEnabled=true;
@@ -442,17 +463,19 @@ public partial class OnlineBattle : Node
             // Resolve skipped animation events without changing the computed outcome.
             foreach (var combat in plan.Events)
                 _shop.ApplyCombatEvent(combat);
+            _battle.EndCombatPresentation();
             if (State?.Phase == "game_over") ShowFinalResult(State);
             else _battle.ShowServerResult(plan.Winner);
         }
         catch (OperationCanceledException) { }
         catch (Exception exception) { if (!_exiting) { _message = "Replay error: " + exception.Message;GD.PushError(exception.ToString()); } }
-        finally {if(generation==_replayGeneration){_presentationPlaying=false;_battle.SpeedEnabled=false;}}
+        finally {if(generation==_replayGeneration){_battle.EndCombatPresentation();_presentationPlaying=false;_battle.SpeedEnabled=false;}}
     }
     public override void _ExitTree()
     {
         if(_blood!=null){_shop.CombatHitApplied-=_blood.Apply;_battle.CombatHitProgress-=_blood.Preview;_blood.LastUnitDied-=ShowDefeat;}
         _exiting = true;_replayGeneration++;
-        if (Connection != null) _ = Connection.Close();
+        if(Connection!=null){Connection.StateReceived-=ReceiveState;Connection.ErrorReceived-=ReceiveError;Connection.Disconnected-=TransportClosed;
+            if(!_transferring)_=Connection.Close();}
     }
 }

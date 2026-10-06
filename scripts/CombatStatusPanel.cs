@@ -14,7 +14,6 @@ public partial class CombatStatusPanel : PanelContainer
         AnchorLeft=AnchorRight=1;OffsetLeft=-244;OffsetRight=-16;OffsetTop=64;
         AddThemeStyleboxOverride("panel",GameUi.Box(false,10));
         var box=new VBoxContainer();box.AddThemeConstantOverride("separation",8);AddChild(box);
-        box.AddChild(DeckMenuUi.Text("บัฟและดีบัฟที่มีผล",13));
         var scroll=new ScrollContainer {Name="StatusScroll",HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled,SizeFlagsVertical=SizeFlags.ExpandFill};box.AddChild(scroll);
         _rows=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};_rows.AddThemeConstantOverride("separation",6);scroll.AddChild(_rows);
         Resized+=LayoutPanel;Refresh();
@@ -38,6 +37,6 @@ public partial class CombatStatusPanel : PanelContainer
     {
         if(_rows==null)return;
         float available=Mathf.Max(90,GetParent<Control>().Size.Y-64-160);
-        OffsetBottom=64+Mathf.Min(available,48+_count*60);
+        OffsetBottom=64+Mathf.Min(available,20+_count*60);
     }
 }

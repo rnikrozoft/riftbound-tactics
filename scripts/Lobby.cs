@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 public partial class Lobby : Control
 {
+    private bool _closed,_savingDeck;
+    private CollectionShopPage _collectionPage=null!;
+    private TextureButton _login=null!;
     public string ActiveMenu {get;private set;}="Play";
     private readonly Dictionary<string,TextureButton> _navigation=new();
     private VBoxContainer _lobbyPage=null!,_futurePage=null!,_roomPanel=null!;
@@ -28,17 +31,15 @@ public partial class Lobby : Control
         var shell=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};shell.AddThemeConstantOverride("separation",18);page.AddChild(shell);
         var navigation=DeckMenuUi.Panel(shell,176);
         navigation.AddChild(DeckMenuUi.Text("COMMAND",14));
-        var menus=new[]{"Play","Decks","Shop","Leaderboard","Replays","Achievements"};
-        var icons=new[]{"IconPlay01a","IconHome01a","IconCoin01a","IconStar01a","IconPlay01a","IconTick01a"};
+        var menus=new[]{"Play","Decks","Collection","Shop","Leaderboard","Replays","Achievements"};
+        var icons=new[]{"IconPlay01a","IconHome01a","IconHome01a","IconCoin01a","IconStar01a","IconPlay01a","IconTick01a"};
         foreach(string menu in menus)
         {
             string destination=menu;var button=DeckMenuUi.Button(menu.ToUpperInvariant(),()=>Navigate(destination),152,46);navigation.AddChild(button);_navigation[menu]=button;
             var icon=GameUi.Icon(icons[Array.IndexOf(menus,menu)],16);
             button.AddChild(icon);icon.Position=new(12,15);icon.Size=new(16,16);button.GetNode<Label>("Text").OffsetLeft=24;GameUi.Label(button.GetNode<Label>("Text"),13);
         }
-        navigation.AddChild(DeckMenuUi.Button("ANIMATION LAB",()=>GetTree().ChangeSceneToFile("res://scenes/character_animation_lab.tscn"),152,42));
-        var effects=DeckMenuUi.Button("EFFECTS LIBRARY",()=>GetTree().ChangeSceneToFile("res://scenes/damage_simulator.tscn"),152,42);
-        effects.Name="EffectsLibraryButton";navigation.AddChild(effects);
+        var simulator=DeckMenuUi.Button("COMBAT SIMULATOR",()=>GetTree().ChangeSceneToFile("res://scenes/combat_simulator_lab.tscn"),152,42);simulator.Name="CombatSimulatorButton";navigation.AddChild(simulator);
         navigation.AddChild(new Control {SizeFlagsVertical=SizeFlags.ExpandFill});
         navigation.AddChild(DeckMenuUi.Text("TACTICAL ARENA\nBUILD / DEPLOY / BATTLE",12));
         var content=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};shell.AddChild(content);
@@ -48,6 +49,7 @@ public partial class Lobby : Control
         heading.AddChild(DeckMenuUi.Button("+ NEW DECK",()=>Edit(""),150));
         _leaderboard=new LeaderboardPage {Name="Rankings"};content.AddChild(_leaderboard);_leaderboard.Hide();
         _replays=new ReplayHistoryPage {Name="Replays"};content.AddChild(_replays);_replays.Hide();
+        _collectionPage=new CollectionShopPage {Name="Collection",SizeFlagsVertical=SizeFlags.ExpandFill};content.AddChild(_collectionPage);_collectionPage.Hide();
         _futurePage=new VBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};content.AddChild(_futurePage);_futurePage.Hide();
         var future=DeckMenuUi.Panel(_futurePage);future.GetParent<Control>().SizeFlagsHorizontal=SizeFlags.ExpandFill;
         _futureTitle=DeckMenuUi.Text("",28);future.AddChild(_futureTitle);
@@ -76,22 +78,58 @@ public partial class Lobby : Control
         // Kept as private compatibility controls for older test entry points.
         _code=new LineEdit();_join=new TextureButton();_roomPanel.AddChild(_code);_roomPanel.AddChild(_join);_code.Hide();_join.Hide();
         _status=DeckMenuUi.Text(DeckStore.Error,14);page.AddChild(_status);Render();Navigate(InitialMenu);InitialMenu="Play";
+        _login=DeckMenuUi.Button("LOGIN AGAIN",()=>{_ = BattleRecovery.Cancel();GameAccount.Session=null;GetTree().ChangeSceneToFile("res://scenes/welcome.tscn");},180);
+        _status.GetParent().AddChild(_login);_login.Visible=GameAccount.RequiresLogin;
+        if(BattleRecovery.Pending)Callable.From(RecoverConnection).CallDeferred();
+        else if(BattleRecovery.Notice!="")_status.Text=BattleRecovery.Notice;
     }
+    private async void RecoverConnection()
+    {
+        var connection=BattleRecovery.Connection!;
+        _create.Disabled=true;
+        int attempt=0;
+        while(!_closed&&ReferenceEquals(connection,BattleRecovery.Connection)){
+            _status.Text=$"Connection lost / Reconnecting ({++attempt})...";
+            try{
+                await connection.Reconnect();if(_closed)return;
+                if(connection.MatchId==""){await BattleRecovery.Cancel();_status.Text="Connected / Your match has ended.";_create.Disabled=false;return;}
+                try{await connection.Rejoin(BattleRecovery.Deck);}catch(System.Net.WebSockets.WebSocketException e) when(e.Message=="Match not found" || e.Message=="Player eliminated; this match cannot be rejoined" || e.Message=="Not reserved for this match"){
+                    await BattleRecovery.Cancel();_status.Text="Connected / Your previous match is no longer available.";_create.Disabled=false;return;
+                }
+                // Wait for an authoritative snapshot before passing the socket to gameplay.
+                ulong until=Time.GetTicksMsec()+8000;
+                while(BattleRecovery.Snapshots.IsEmpty&&Time.GetTicksMsec()<until&&!_closed)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                if(_closed)return;
+                if(BattleRecovery.Snapshots.IsEmpty)throw new System.TimeoutException();
+                BattleRecovery.Ready=true;GetTree().ChangeSceneToFile("res://scenes/main.tscn");return;
+            }catch(Nakama.ApiResponseException e) when(e.StatusCode==401||e.StatusCode==403){
+                await BattleRecovery.Cancel();GameAccount.Session=null;GameAccount.RequiresLogin=true;
+                BattleRecovery.Notice="This session ended or the account logged in elsewhere. Login again to continue.";
+                _status.Text=BattleRecovery.Notice;_login.Show();return;
+            }catch(System.Exception){if(_closed)return;}
+            await ToSignal(GetTree().CreateTimer(System.Math.Min(5,attempt+1)),SceneTreeTimer.SignalName.Timeout);
+        }
+    }
+    public override void _ExitTree(){_closed=true;if(BattleRecovery.Pending&&!BattleRecovery.Ready)_ = BattleRecovery.Cancel();}
     public void Navigate(string menu)
     {
         if(!_navigation.ContainsKey(menu))return;
         ActiveMenu=menu;bool decks=menu=="Decks";bool lobby=menu=="Play"||decks;
-        _lobbyPage.Visible=lobby;_futurePage.Visible=!lobby&&menu!="Leaderboard"&&menu!="Replays";_leaderboard.Visible=menu=="Leaderboard";
+        _lobbyPage.Visible=lobby;_futurePage.Visible=!lobby&&menu!="Leaderboard"&&menu!="Replays"&&menu!="Shop"&&menu!="Collection";_leaderboard.Visible=menu=="Leaderboard";
         _replays.Visible=menu=="Replays";if(menu=="Replays")_replays.Open();
+        _collectionPage.Visible=menu is "Shop" or "Collection";if(_collectionPage.Visible)_collectionPage.Open(menu=="Shop");
         if(menu=="Leaderboard")_leaderboard.Open();_roomPanel.Visible=!decks;
         _pageTitle.Text=decks?"YOUR DECK COLLECTION":"ENTER THE ARENA";
         _futureTitle.Text=menu.ToUpperInvariant();
         foreach(var entry in _navigation)GameUi.Selected(entry.Value,entry.Key==menu);
     }
-    public void SelectDeck(string id)
+    public async void SelectDeck(string id)
     {
         if(!DeckStore.Decks.Any(d=>d.Id==id))return;
-        DeckStore.SelectedId=id;DeckStore.Save();_status.Text=DeckStore.Error;Render();
+        if(_savingDeck)return;_savingDeck=true;RefreshControls();
+        try {if(GameAccount.Session!=null)await PlayerInventory.SaveDecks(DeckStore.Decks.Select(d=>d.Clone()).ToList(),id);else{DeckStore.SelectedId=id;DeckStore.Save();}if(!_closed){_status.Text=DeckStore.Error;Render();}}
+        catch(System.Exception e){if(!_closed)_status.Text="Could not select deck: "+e.Message;}
+        finally{_savingDeck=false;if(!_closed)RefreshControls();}
     }
     private static HBoxContainer Heroes(DeckDefinition deck,int width,int height)
     {
@@ -128,14 +166,23 @@ public partial class Lobby : Control
     }
     private void RefreshControls()
     {
-        var deck=DeckStore.Selected;bool valid=deck!=null&&deck.Validate()=="";
-        _create.Disabled=!valid;_join.Disabled=!valid||_code.Text.Length!=6||!_code.Text.All(char.IsDigit);_edit.Disabled=deck==null;
+        var deck=DeckStore.Selected;bool valid=deck!=null&&deck.Validate()==""&&deck.Cards.All(c=>PlayerInventory.CanUse(c.Kind));
+        _create.Disabled=!valid||_savingDeck||BattleRecovery.Pending||GameAccount.RequiresLogin;_join.Disabled=!valid||_code.Text.Length!=6||!_code.Text.All(char.IsDigit);_edit.Disabled=deck==null;
     }
     private void Edit(string id){DeckStore.EditId=id;GetTree().ChangeSceneToFile("res://scenes/deck_builder.tscn");}
-    public void Launch(bool create)
+    public async void Launch(bool create)
     {
-        var deck=DeckStore.Selected;if(deck==null||deck.Validate()!="")return;
+        if(_savingDeck||BattleRecovery.Pending||GameAccount.RequiresLogin)return;
+        var deck=DeckStore.Selected;if(deck==null||deck.Validate()!=""||deck.Cards.Any(c=>!PlayerInventory.CanUse(c.Kind)))return;
         if(!create&&(_code.Text.Length!=6||!_code.Text.All(char.IsDigit)))return;
+        // Recheck the active config before constructing gameplay resources after a server restart.
+        if(GameAccount.Session!=null){
+            _savingDeck=true;RefreshControls();NakamaConnection? c=null;
+            try {c=GameAccount.Connection();await c.Connect(realtime:false);await PlayerInventory.Load(c);if(_closed)return;deck=DeckStore.Selected;if(deck==null||deck.Validate()!=""||deck.Cards.Any(card=>!PlayerInventory.CanUse(card.Kind))){_status.Text="Update your deck with characters available in your collection.";Render();return;}}
+            catch(Nakama.ApiResponseException e) when(e.StatusCode==401||e.StatusCode==403){GameAccount.RequiresLogin=true;if(!_closed){_status.Text="Your session ended. Login again to continue.";_login.Show();}return;}
+            catch(System.Exception e){if(!_closed)_status.Text="Could not load your account: "+e.Message;return;}
+            finally{if(c!=null)await c.Close();_savingDeck=false;if(!_closed)RefreshControls();}
+        }
         BattleLaunch.Matchmaking=true;BattleLaunch.Deck=deck.Clone();BattleLaunch.Create=create;BattleLaunch.Code=_code.Text;BattleLaunch.Pending=true;
         GetTree().ChangeSceneToFile("res://scenes/main.tscn");
     }

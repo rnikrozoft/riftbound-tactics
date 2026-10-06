@@ -68,6 +68,7 @@ public partial class CardShop : Control
     private bool _deploymentMode;
     public bool NetworkMode { get; private set; }
     public bool NetworkPending { get; set; }
+    private bool _automaticRounds;
     public string LocalTeam { get; private set; } = "A";
     public OnlineBattle? Online { get; set; }
     public Dictionary<string,BattleUnit> NetworkUnits { get; } = new(12);
@@ -338,7 +339,7 @@ public partial class CardShop : Control
     public void ConfirmTurn()
     {
         if (GameOver) return;
-        if (NetworkMode) { if (!NetworkPending && (Finished || !ReadyForBattle)) Online?.SendAction(Finished ? "next" : "ready"); return; }
+        if (NetworkMode) { if (!NetworkPending && !(Finished && _automaticRounds) && (Finished || !ReadyForBattle)) Online?.SendAction(Finished ? "next" : "ready"); return; }
         if (Finished)
         {
             Finished = false; _nextRound?.TrySetResult(true);
@@ -406,7 +407,7 @@ public partial class CardShop : Control
         _lock.Disabled = !Drafting || NetworkPending;
         _lockLabel.Text = ShopLocked ? "LOCKED" : "LOCK";
         _lock.TooltipText = ShopLocked ? "Shop locked / keep remaining offers next round / click to unlock" : "Lock shop / keep remaining offers next round / free";
-        _battleActions.Visible=Drafting || (Finished && !GameOver);
+        _battleActions.Visible=Drafting || (Finished && !GameOver && !(NetworkMode && _automaticRounds));
         if(Finished) {
             _battleActions.AnchorLeft=_battleActions.AnchorRight=.5f;
             _battleActions.OffsetLeft=-74;_battleActions.OffsetRight=74;
@@ -502,7 +503,7 @@ public partial class CardShop : Control
             else Occupants[oldSlot] = null;
             moving.GridSlot = slot; moving.SetMeta("grid_cell",DeploymentCells[slot]);
             moving.Position = Field.ToLocal(Tiles.ToGlobal(SlotCenters[slot])); Occupants[slot] = moving;
-            _battleActions.Visible=Drafting || (Finished && !GameOver);
+            _battleActions.Visible=Drafting || (Finished && !GameOver && !(NetworkMode && _automaticRounds));
         LayoutRevision++; return true;
         }
         int index = FindToken(Hand,data.Token); var card = Hand[index]; Hand.RemoveAt(index);
@@ -664,6 +665,7 @@ public partial class CardShop : Control
         OnlinePlayer? self = null;
         foreach (var player in state.Players) if (player?.UserId == userId) self = player;
         if (self == null) return;
+        _automaticRounds = state.Roster.Length > 0;
         bool newRound = state.Round != _networkRound;
         if(state.Phase is "preparation" or "waiting")_replayPlan=null;
         bool enteringBattle = state.Phase == "battle" && _networkPhase != "battle";
@@ -705,7 +707,7 @@ public partial class CardShop : Control
         else if (Finished)
         {
             ShopRow.Hide(); _shopLabel.Hide();
-            _next.Disabled = GameOver || NetworkPending || self.Ready;
+            _next.Disabled = GameOver || _automaticRounds || NetworkPending || self.Ready;
             _nextText.Text = GameOver ? "GAME OVER" : self.Ready ? "WAITING" : "NEXT ROUND";
             _notice.Text = GameOver ? $"PLAYER {state.Winner} WINS MATCH" : $"BATTLE FINISHED / LOST {self.LastDamage} HP";
         }
@@ -714,6 +716,7 @@ public partial class CardShop : Control
 
     private void ReconcileUnits(OnlineState state, bool resetHealth)
     {
+        bool brawlActive = Field.GetNode<BattleDemo>("BattleDemo").BrawlActive;
         _removedNetworkUnits.Clear();
         foreach (var id in NetworkUnits.Keys) _removedNetworkUnits.Add(id);
         Deployed.Clear();
@@ -743,8 +746,8 @@ public partial class CardShop : Control
                 unit.HasBattled = entry.Veteran; unit.ServerId = id;
                 var cell = owned ? DeploymentCells[entry.Slot] : EnemyCells[FieldLimit - 1 - entry.Slot];
                 unit.SetMeta("grid_cell",cell);
-                unit.Position = Field.ToLocal(Tiles.ToGlobal(Tiles.MapToLocal(cell)));
-                unit.Sprite.FlipH = !owned;
+                if(resetHealth||!existed||!brawlActive)unit.Position = Field.ToLocal(Tiles.ToGlobal(Tiles.MapToLocal(cell)));
+                if(!brawlActive)unit.Sprite.FlipH = !owned;
                 if (resetHealth) { unit.ResetHealth(); unit.Sprite.Play(BattleAnimations.Idle); }
                 if (player.Team == LocalTeam)
                 {

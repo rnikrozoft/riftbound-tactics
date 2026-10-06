@@ -175,18 +175,6 @@ public partial class IntegrationRunner : Node
             Check(_shop.Deployed.Count == 5 && _shop.Hand.Count == 9,"Veteran drag sells");
             _field.QueueFree(); await Frames();
 
-            var lab = GD.Load<PackedScene>("res://scenes/damage_simulator.tscn").Instantiate<DamageSimulator>();
-            AddChild(lab); await Frames();
-            Check(lab.Catalog.Length == 192,"Full effect catalog");
-            for (int i = 0; i < lab.Catalog.Length; i++)
-            {
-                var frames = lab.FramesFor(i);
-                Check(frames.GetFrameCount("effect") == lab.Catalog[i].Frames.Length,"Effect frame count");
-                Check(ReferenceEquals(frames,lab.FramesFor(i)),"Effect frames cached");
-            }
-            lab.PlayDamage(); await Until(() => !lab.Busy,"Damage preview");
-            Check(lab.GetNode<BattleUnit>("Battlefield/Enemy_02").Health == 75,"Damage simulator");
-            lab.QueueFree(); await Frames();
             // Change scene during an attack/hitstop to verify async teardown.
             var exitField = GD.Load<PackedScene>("res://scenes/main.tscn").Instantiate<Node2D>();
             var exitBattle = exitField.GetNode<BattleDemo>("BattleDemo");
@@ -194,7 +182,7 @@ public partial class IntegrationRunner : Node
             exitBattle.Impact += (a,b) => exitField.QueueFree();
             AddChild(exitField); await Until(() => !GodotObject.IsInstanceValid(exitField),"Exit during combat");
             await Frames(10);
-            GD.Print($"PASS: {_assertions} checks; C# native drag/drop, six slots, swaps, cards, health/death, inspection, round persistence, 192 effects, scene teardown");
+            GD.Print($"PASS: {_assertions} checks; C# native drag/drop, six slots, swaps, cards, health/death, inspection, round persistence, scene teardown");
             _tree.Quit();
         }
         catch (Exception exception)

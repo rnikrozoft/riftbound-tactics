@@ -47,7 +47,7 @@ public partial class LeaderboardPage : VBoxContainer
         if(_loading||_exiting)return;_loading=true;Controls();_status.Text="Loading arena rankings...";
         try
         {
-            if(_connection==null){_connection=GameAccount.Connection();await _connection.Connect();}
+            if(_connection==null){_connection=GameAccount.Connection();await _connection.Connect(realtime:false);}
             if(_exiting){if(_connection!=null)await _connection.Close();return;}
             var result=await _connection.Client.ListLeaderboardRecordsAsync(_connection.Session,NakamaConnection.MmrLeaderboardId,new[]{_connection.Session.UserId},limit:50,cursor:cursor);
             if(_exiting)return;

@@ -17,7 +17,7 @@ Godot 4.7.2 **.NET** project. Runtime scripts are C#; scenes, shaders, tiles and
 - CardShop.cs: round/phase state, card pool, six-slot occupancy, swapping and selling.
 - ShopCard.cs, FieldDrop.cs, HandZone.cs, ShopZone.cs: GUI clicks and native drag/drop.
 - SafeArea.cs: display safe-area mapping and padding.
-- DamageSimulator.cs: effect browser and lazy SpriteFrames cache.
+- CombatSimulatorLab.cs: attack previews and saved animation/effect settings.
 - CardDrag.cs: typed GUI payload plus immutable card/deployment data.
 
 UI card controls and atlas textures are reused. Details update on health signals, not each frame.
@@ -29,7 +29,8 @@ Gameplay collections use C# lists/arrays/dictionaries; only the GUI payload cros
 ## Validation
 Integration tests cover native loose purchase/deployment, selling, six-slot swaps/capacity,
 no hand placeholders, battle phase locks, live and dead inspection, round persistence,
-veteran return restrictions, all 192 effect frame sets, cache reuse and teardown during combat.
+veteran return restrictions and teardown during combat.
+The combat simulator runner checks the shared effect catalog, saved visuals and real battle playback.
 Performance changes reduce known redundant work; no comparative FPS or mobile benchmark has been claimed.
 Local Debug diagnostic: 10,000 grid validations took 1.27 ms and allocated 40 managed bytes (the Stopwatch instance).
 This measures only grid validation on this Windows PC, not overall game FPS or mobile performance.
@@ -50,9 +51,11 @@ For two debug windows: `./tools/start-debug-clients.ps1`. Pass `-GodotPath` if t
 
 Both players prepare for 60 seconds. Both pressing BATTLE starts immediately; the timer starts battle automatically otherwise. Each client shows its own heroes on the left and opponents on the right. Opponent formations are withheld by the backend during preparation and revealed when battle starts. Each owner has a private shop and hand. Damage, targets, HP, deaths and winner come from the backend's complete battle plan; clients only replay it. Hand cards and unit details remain visible during combat. Both players press NEXT to prepare the next round.
 
+In matchmaking leagues, the server advances surviving players to the next round together. The result screen shows a disabled `NEXT ROUND SOON` status during that transition; it does not send a manual next-round request. Private two-player rooms retain their `NEXT ROUND` confirmation.
+
 Connection defaults to 127.0.0.1:7350. For another PC/phone, set OnlineBattle.Host in main.tscn or the RIFTBOUND_HOST environment variable to the backend PC's address. Server settings and protocol are documented in the backend README.
 
-Online scripts: NakamaConnection handles fresh authentication, socket transport and clock synchronization; OnlineBattle handles room UI, snapshot acknowledgement and replay scheduling; OnlineProtocol defines source-generated JSON contracts. BattleDemo.NetworkEnabled selects authoritative online playback; offline integration and the effects laboratory retain local simulation.
+Online scripts: NakamaConnection handles fresh authentication, socket transport and clock synchronization; OnlineBattle handles room UI, snapshot acknowledgement and replay scheduling; OnlineProtocol defines source-generated JSON contracts. BattleDemo.NetworkEnabled selects authoritative online playback; offline integration retains local simulation.
 
 The lobby's REPLAYS menu stores the ten newest matches on this device, grouped by game with every captured round. History includes local play date, outcome, placement, final player HP and server-reported MMR delta with before/after ratings. Pending MMR stays marked until a final server update arrives; leaving early is recorded as LEFT MATCH. New matches replace the oldest, and playback loads recorded combat plans without connecting to the server. Each persisted account instance has its own `user://replays-N.json` archive, written atomically. New recordings also save each acknowledged preparation change: shop, coins, hand, formation and ready state. The bottom timeline selects recorded preparation steps and battles directly. A single Play/Pause control resumes playback from that point through subsequent rounds; pausing freezes both presentation and replay time. The arrow handle hides or reveals the drawer, and Escape returns to replay history. Long preparation gaps are capped at five seconds during playback; step labels retain their recorded timestamps. Older battle-only recordings omit preparation points.
 
@@ -67,3 +70,14 @@ Opponent deployment slots rotate 180 degrees around the battlefield center: owne
 Character combat now uses HP as attack power, separate armor, multi-hit impacts, status effects and per-character abilities. Blue armor and red HP/attack numbers appear beside each unit, and inspection shows live state and skill conditions. See [combat rules and validation](docs/character-combat.md).
 
 Guest login downloads character definitions from the backend's JSON catalog through `character_catalog`. `CharacterData` supplies group names, prices, enabled flags, copy limits, images, scene resources, descriptions and four star-stat rows. The packaged `data/characters.json` provides the offline baseline. Orc, Demon and Blood Monster are independently selectable character groups, with ten cards each. A deck selects three character groups and ten Neutral slots. New asset paths must be included in a client release before the server enables that character. Unknown ability mechanics require a combat implementation; editing descriptive text alone does not grant an effect.
+
+## Combat simulator
+
+Open **COMBAT SIMULATOR** from the lobby to choose attacker/target, replace an attack animation, select any catalog effect, and adjust its anchor, position and scale. Preview with **PLAY ATTACK**, then **SAVE** to apply in actual battles on this device. **EXPORT JSON** produces reusable settings for `data/combat_visuals.json` in a client release. See [saved visuals](docs/character-combat.md#combat-simulator-and-saved-visuals).
+
+After building, run Godot with `--headless --path . res://tests/combat_simulator.tscn` to verify saved settings and real multi-hit battle playback. Run without `--headless` to also capture `tests/combat-simulator.png`.
+
+
+Network loss returns gameplay to the lobby, which retries the existing session and rejoins the same match once a server snapshot arrives. A missing/ended match stays in the lobby. Reconnection never authenticates a new token automatically. Nakama runs with `session.single_session` and `session.single_socket`: a newer login replaces the older one; the displaced client requires explicit login and cannot reclaim the account through background retries. Parallel local game launches reserve separate persisted account slots: `account-device.txt`, `account-device-2.txt`, etc. Each process holds an exclusive slot lease until exit. Reopening uses the first available saved account. The latest-login-only policy still applies when clients explicitly use the same account.
+
+Player collection, cloud decks, the persistent wallet, catalog cache and admin publication are documented in [docs/player-storage.md](docs/player-storage.md).

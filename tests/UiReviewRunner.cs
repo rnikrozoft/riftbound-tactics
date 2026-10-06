@@ -41,8 +41,7 @@ public partial class UiReviewRunner : Node
             var coinsBeforeNextRound=shop.Coins;_=shop.PrepareTurn(5);
             if(shop.ShopLocked || shop.Offers.Count!=shop.OfferLimit || shop.Coins!=coinsBeforeNextRound+CardShop.RoundIncome(5))throw new Exception("Empty locked shop did not unlock and refill next round");
             shop.FinishBattle("A",1);battle.ShowServerResult("A");await Capture("result");field.QueueFree();await Frames();
-            var lab=GD.Load<PackedScene>("res://scenes/damage_simulator.tscn").Instantiate<Node>();AddChild(lab);await Capture("effects");lab.QueueFree();await Frames();
-            GD.Print("UI REVIEW PASS: menu navigation, deck filter, shop purchase, centered modal, Escape dismissal, particle countdown, hand, result, effects");GetTree().Quit();
+            GD.Print("UI REVIEW PASS: menu navigation, deck filter, shop purchase, centered modal, Escape dismissal, particle countdown, hand, result");GetTree().Quit();
         }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
     }
 }

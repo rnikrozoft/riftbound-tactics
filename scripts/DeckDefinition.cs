@@ -98,8 +98,15 @@ public static class DeckStore
             Save();
         }
     }
+    public static void ResetAccount(){_loaded=false;Decks=new();SelectedId="";EditId="";Error="";}
+    public static void ApplyRemote(string userId,List<DeckDefinition> decks,string selected)
+    {
+        Decks=decks;SelectedId=selected;_loaded=true;Error="";
+        // Account data is authoritative on Nakama. No shared deck file is written here.
+    }
     public static bool Save()
     {
+        if(GameAccount.Session!=null){Error="Save this deck to your account using online save.";return false;}
         try
         {
             using(var file=Godot.FileAccess.Open("user://decks.json.tmp",Godot.FileAccess.ModeFlags.Write))

@@ -1,6 +1,6 @@
 using Godot;
 
-// Shared visual language for menus, combat HUD and the effects laboratory.
+// Shared visual language for menus, combat HUD and the combat simulator.
 public static class GameUi
 {
     public static readonly Color Ink=new("101820"), Panel=new("18232f"), Border=new("3b4c5c"),

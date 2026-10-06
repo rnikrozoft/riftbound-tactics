@@ -8,6 +8,7 @@ public partial class DeckBuilder : Control
     public int ActiveGroup {get;private set;}
     public int CostFilter {get;private set;}
     public int VisibleCardCount {get;private set;}
+    private bool _saving;
     private int _selectedKind=-1,_heroIndex;
     private HBoxContainer _tabs=null!,_filters=null!;
     private GridContainer _catalog=null!;
@@ -46,9 +47,9 @@ public partial class DeckBuilder : Control
     }
     public void SetHero(int index,int group)
     {
-        if(index<0||index>=3||!CardCatalog.HeroGroups.Contains(group)||Draft.Heroes.Where((h,i)=>i!=index).Contains(group))return;
+        if(index<0||index>=3||!CardCatalog.HeroGroups.Contains(group)||Draft.Heroes.Where((h,i)=>i!=index).Contains(group)||Enumerable.Range(2,5).Any(cost=>CardCatalog.Options(group,cost).Count(PlayerInventory.CanUse)<2))return;
         int previous=Draft.Heroes[index];Draft.Cards.RemoveAll(c=>CardCatalog.Group(c.Kind)==previous);Draft.Heroes[index]=group;
-        for(int cost=2;cost<=6;cost++)foreach(int kind in CardCatalog.Options(group,cost).Take(2))Draft.Cards.Add(new(){Kind=kind,Copies=CharacterData.Get(kind).MaxCopies});
+        for(int cost=2;cost<=6;cost++)foreach(int kind in CardCatalog.Options(group,cost).Where(PlayerInventory.CanUse).Take(2))Draft.Cards.Add(new(){Kind=kind,Copies=CharacterData.Get(kind).MaxCopies});
         ActiveGroup=group;_heroChoices.Hide();SelectCard(CardCatalog.Options(group,2).First());Render();
     }
     public void SetGroup(int group)
@@ -84,7 +85,7 @@ public partial class DeckBuilder : Control
         foreach(int g in CardCatalog.HeroGroups)
         {
             int group=g;var choice=DeckMenuUi.Button(CardCatalog.Groups[g],()=>SetHero(_heroIndex,group),180,64);choice.SizeFlagsHorizontal=SizeFlags.ExpandFill;
-            choice.Disabled=Draft.Heroes.Contains(g);row.AddChild(choice);
+            choice.Disabled=Draft.Heroes.Contains(g)||Enumerable.Range(2,5).Any(cost=>CardCatalog.Options(g,cost).Count(PlayerInventory.CanUse)<2);row.AddChild(choice);
             var image=new TextureRect {Texture=CardCatalog.Portrait(CardCatalog.Options(g,2).First()),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,Position=new(6,8),Size=new(50,48),MouseFilter=MouseFilterEnum.Ignore,TextureFilter=TextureFilterEnum.Nearest};choice.AddChild(image);
             var label=choice.GetNode<Label>("Text");label.OffsetLeft=58;GameUi.Label(label,13);label.Text=CardCatalog.Groups[g];label.AutowrapMode=TextServer.AutowrapMode.WordSmart;
         }
@@ -107,7 +108,7 @@ public partial class DeckBuilder : Control
             var title=DeckMenuUi.Text($"{CardCatalog.Groups[ActiveGroup]} / Cost {CardCatalog.Cost(kind)}",12);content.AddChild(title);
             var art=DeckMenuUi.Art(kind,84,104);art.SizeFlagsHorizontal=SizeFlags.ExpandFill;content.AddChild(art);
             var name=DeckMenuUi.Text(CardCatalog.Name(kind),16);name.AutowrapMode=TextServer.AutowrapMode.WordSmart;name.HorizontalAlignment=HorizontalAlignment.Center;content.AddChild(name);
-            var selected=Draft.Cards.Find(c=>c.Kind==kind);var state=DeckMenuUi.Text(selected==null?"Click to choose":$"IN DECK  x{selected.Copies}",12);state.HorizontalAlignment=HorizontalAlignment.Center;content.AddChild(state);
+            var selected=Draft.Cards.Find(c=>c.Kind==kind);var state=DeckMenuUi.Text(!PlayerInventory.CanUse(kind)?"LOCKED":selected==null?"Click to choose":$"IN DECK  x{selected.Copies}",12);state.HorizontalAlignment=HorizontalAlignment.Center;content.AddChild(state);
             card.TooltipText="Click to inspect. Drag onto a same-cost deck card to replace it.";
         }
         if(VisibleCardCount==0)_catalog.AddChild(DeckMenuUi.Text("No matching cards.",15));
@@ -122,6 +123,7 @@ public partial class DeckBuilder : Control
         var stats=CharacterData.Stats(kind,1);var character=CharacterData.Get(kind);
         _details.AddChild(DeckMenuUi.Text($"Cost {CardCatalog.Cost(kind)}   /   1-star stats\nHP / ATK {stats.Hp}   ARMOR {stats.Armor}",14));
         var description=DeckMenuUi.Text(CharacterData.CombatDescription(kind,1),14);description.AutowrapMode=TextServer.AutowrapMode.WordSmart;_details.AddChild(description);
+        if(!PlayerInventory.CanUse(kind)){_details.AddChild(DeckMenuUi.Text("Unlock this character in the lobby shop.",14));return;}
         var entry=Draft.Cards.Find(c=>c.Kind==kind);
         if(entry!=null)
         {
@@ -148,13 +150,13 @@ public partial class DeckBuilder : Control
         entry.Copies+=delta;Render();return true;
     }
     public void RemoveCard(int kind){Draft.Cards.RemoveAll(c=>c.Kind==kind);Render();}
-    public bool CanAdd(int kind)=>kind>=0&&kind<CardCatalog.Count&&CharacterData.Get(kind).Enabled&&Draft.Heroes.Append(4).Contains(CardCatalog.Group(kind))&&!Draft.Cards.Any(c=>c.Kind==kind)&&Draft.Cards.Count(c=>CardCatalog.Group(c.Kind)==CardCatalog.Group(kind)&&CardCatalog.Cost(c.Kind)==CardCatalog.Cost(kind))<2;
+    public bool CanAdd(int kind)=>kind>=0&&kind<CardCatalog.Count&&CharacterData.Get(kind).Enabled&&PlayerInventory.CanUse(kind)&&Draft.Heroes.Append(4).Contains(CardCatalog.Group(kind))&&!Draft.Cards.Any(c=>c.Kind==kind)&&Draft.Cards.Count(c=>CardCatalog.Group(c.Kind)==CardCatalog.Group(kind)&&CardCatalog.Cost(c.Kind)==CardCatalog.Cost(kind))<2;
     public bool AddCard(int kind)
     {
         if(!CanAdd(kind))return false;
         Draft.Cards.Add(new(){Kind=kind,Copies=1});Render();return true;
     }
-    public bool CanReplace(int target,int kind)=>kind>=0&&kind<CardCatalog.Count&&Draft.Cards.Any(c=>c.Kind==target)&&!Draft.Cards.Any(c=>c.Kind==kind)&&CardCatalog.Group(target)==CardCatalog.Group(kind)&&CardCatalog.Cost(target)==CardCatalog.Cost(kind);
+    public bool CanReplace(int target,int kind)=>kind>=0&&kind<CardCatalog.Count&&PlayerInventory.CanUse(kind)&&Draft.Cards.Any(c=>c.Kind==target)&&!Draft.Cards.Any(c=>c.Kind==kind)&&CardCatalog.Group(target)==CardCatalog.Group(kind)&&CardCatalog.Cost(target)==CardCatalog.Cost(kind);
     public bool ReplaceCard(int target,int kind)
     {
         if(!CanReplace(target,kind))return false;
@@ -190,17 +192,25 @@ public partial class DeckBuilder : Control
     }
     private void RefreshStatus()
     {
-        if(_status==null)return;string error=Draft.Validate();_save.Disabled=error!="";
+        if(_status==null)return;string error=Draft.Validate();if(error==""&&Draft.Cards.Any(c=>!PlayerInventory.CanUse(c.Kind)))error="Unlock the characters in this deck before saving.";_save.Disabled=_saving||error!="";
         _total.Text=$"{Draft.Cards.Count}/40 kinds  /  {Draft.Cards.Sum(c=>c.Copies)} copies";
         _status.Text=error==""?"Ready to save. Choose a card to inspect, or drag it onto a same-cost slot.":error;
         if(error!=""&&Draft.Cards.Count<40)
             foreach(int g in Draft.Heroes.Append(4))for(int c=2;c<=6;c++){int count=Draft.Cards.Count(e=>CardCatalog.Group(e.Kind)==g&&CardCatalog.Cost(e.Kind)==c);if(count<2){_status.Text=$"{CardCatalog.Groups[g]} needs {2-count} more cost-{c} card(s).";return;}}
     }
-    public void Save()
+    public async void Save()
     {
-        if(Draft.Validate()!="")return;int index=DeckStore.Decks.FindIndex(d=>d.Id==Draft.Id);var deck=Draft.Clone();
-        if(index>=0)DeckStore.Decks[index]=deck;else DeckStore.Decks.Add(deck);DeckStore.SelectedId=deck.Id;
-        if(!DeckStore.Save()){_status.Text=DeckStore.Error;return;}GetTree().ChangeSceneToFile("res://scenes/lobby.tscn");
+        if(Draft.Validate()!=""||_saving||_save.Disabled)return;
+        var decks=DeckStore.Decks.Select(d=>d.Clone()).ToList();int index=decks.FindIndex(d=>d.Id==Draft.Id);var deck=Draft.Clone();
+        if(index>=0)decks[index]=deck;else decks.Add(deck);
+        _saving=true;_save.Disabled=true;_status.Text="Saving to your account...";
+        try {
+            if(GameAccount.Session!=null)await PlayerInventory.SaveDecks(decks,deck.Id);
+            else {DeckStore.ApplyRemote("",decks,deck.Id);if(!DeckStore.Save())throw new Exception(DeckStore.Error);}
+            if(IsInsideTree())GetTree().ChangeSceneToFile("res://scenes/lobby.tscn");
+        } catch(Exception e){if(IsInsideTree()){_status.Text="Could not save: "+e.Message;_save.Disabled=false;}}
+        finally{_saving=false;}
+
     }
 }
 public partial class DeckCatalogCard : TextureButton

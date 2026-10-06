@@ -1,9 +1,15 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-[JsonSerializable(typeof(DamageSimulator.EffectEntry[]))]
+[JsonSerializable(typeof(PlayerBootstrapResponse))]
+[JsonSerializable(typeof(PlayerBootstrapRequest))]
+[JsonSerializable(typeof(PlayerDeckSaveRequest))]
+[JsonSerializable(typeof(CharacterPurchaseRequest))]
+[JsonSerializable(typeof(CatalogCache))]
+[JsonSerializable(typeof(GameConfiguration))]
+[JsonSerializable(typeof(CombatVisualDocument))]
+[JsonSerializable(typeof(EffectEntry[]))]
 [JsonSerializable(typeof(string[]))]
-[JsonSerializable(typeof(HashSet<string>))]
 [JsonSerializable(typeof(DeckDefinition))]
 [JsonSerializable(typeof(List<DeckDefinition>))]
 [JsonSerializable(typeof(CharacterCatalogData))]

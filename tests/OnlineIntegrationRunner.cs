@@ -32,6 +32,7 @@ public partial class OnlineIntegrationRunner : Node
         net.SendAction(type,token,slot);
         await Wait(() => !shop.NetworkPending,type + " was not acknowledged");
     }
+    // Combat animations can move actors immediately; compare authoritative deployment cells.
     private void CompareBoard()
     {
         Check(_shopA.NetworkUnits.Count == _shopB.NetworkUnits.Count,"Board counts differ");
@@ -39,8 +40,8 @@ public partial class OnlineIntegrationRunner : Node
             var other = _shopB.NetworkUnits[pair.Key];
             var ownerShop = pair.Key.StartsWith("A:") ? _shopA : _shopB;
             var enemyShop = ownerShop == _shopA ? _shopB : _shopA;
-            Check(ownerShop.NetworkUnits[pair.Key].GlobalPosition.IsEqualApprox(ownerShop.Tiles.ToGlobal(ownerShop.Tiles.MapToLocal(CardShop.DeploymentCells[pair.Value.GridSlot]))),"Own hero must be on left");
-            Check(enemyShop.NetworkUnits[pair.Key].GlobalPosition.IsEqualApprox(enemyShop.Tiles.ToGlobal(enemyShop.Tiles.MapToLocal(new Vector2I(102,36) - CardShop.DeploymentCells[pair.Value.GridSlot]))),"Opponent must be on right");
+            Check(ownerShop.NetworkUnits[pair.Key].GetMeta("grid_cell").AsVector2I()==CardShop.DeploymentCells[pair.Value.GridSlot],"Own deployment cell must be on left");
+            Check(enemyShop.NetworkUnits[pair.Key].GetMeta("grid_cell").AsVector2I()==new Vector2I(102,36)-CardShop.DeploymentCells[pair.Value.GridSlot],"Opponent deployment cell must be on right");
             Check(pair.Value.IsAlly != other.IsAlly,"Team orientation differs");
         }
     }

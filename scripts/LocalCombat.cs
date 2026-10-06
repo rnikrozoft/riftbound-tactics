@@ -6,6 +6,21 @@ using System.Linq;
 // Online battles never call this simulator or trust a client-computed result.
 public sealed class LocalCombat
 {
+    // Keep offline/replay timing aligned with the server's presentation budget.
+    private static long PresentationMs(OnlineCombatEvent combat,CombatRules? rules)
+    {
+        int frames=combat.Mode=="stun"?4:rules?.Actions.FirstOrDefault(a=>a.Animation==combat.Animation)?.Frames??8;
+        if(combat.Mode!="stun"&&rules!=null){
+            if(rules.First?.Animation==combat.Animation)frames=Math.Max(frames,rules.First.Frames);
+            if(rules.Finisher==combat.Animation&&rules.FinisherFrames>0)frames=rules.FinisherFrames;
+        }
+        foreach(var hit in combat.Hits)frames=Math.Max(frames,hit.Frame+1);
+        long duration=(Math.Max(1,frames)*1000+11)/12+180;
+        if(combat.Mode is "melee" or "execute")duration+=560;
+        duration+=combat.Hits.Count(h=>h.Damage>0)*75;
+        if(combat.Dead&&combat.Target!=combat.Attacker)duration+=820;
+        return duration;
+    }
     private sealed class Fighter
     {
         public OnlineCombatUnit Unit=null!;
@@ -102,7 +117,7 @@ public sealed class LocalCombat
         foreach(var u in initial){var stats=CharacterData.Stats(u.Kind,u.Stars);u.MaxHp=stats.Hp;u.InitialHp=stats.Hp;u.Armor=stats.Armor;_units.Add(new Fighter {Unit=u,Rules=CharacterData.Get(u.Kind).Combat,Hp=u.MaxHp,Armor=u.Armor,Side=u.Team=="A"?0:1});}
         _plan.Units=_units.Select(u=>CopyUnit(u.Unit)).ToArray();var events=new List<OnlineCombatEvent>();long at=0;int side=0;
         for(_step=0;_step<512&&Alive(0).Count>0&&Alive(1).Count>0;_step++){
-            var a=Pick(Alive(side).Where(u=>u.CanAct<=_step).ToList());if(a!=null){var e=Action(a,Pick(Alive(1-side))!,at);e.Index=events.Count;events.Add(e);int frames=a.Rules?.Actions[(a.Turn-1)%a.Rules.Actions.Length].Frames??8;frames=Math.Max(frames,a.Rules?.FinisherFrames??0);at+=Math.Max(3700,frames*1000/12+2200);}side=1-side;
+            var a=Pick(Alive(side).Where(u=>u.CanAct<=_step).ToList());if(a!=null){var e=Action(a,Pick(Alive(1-side))!,at);e.Index=events.Count;events.Add(e);at+=PresentationMs(e,a.Rules);}side=1-side;
         }
         _plan.Events=events.ToArray();_plan.EndMs=at;_plan.Winner=Alive(0).Count>0&&Alive(1).Count==0?"A":Alive(1).Count>0&&Alive(0).Count==0?"B":"DRAW";return _plan;
     }

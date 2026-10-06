@@ -10,6 +10,7 @@ public static class CharacterCombatAnimations
         var frames=(SpriteFrames)original.Duplicate();string slug=c.ScenePath.GetFile().GetBaseName();string folder=$"res://assets/characters/{slug}";
         for(int i=1;i<=3;i++){
             string name=$"attack{i:00}";string path=$"{folder}/{slug}_{name}.png";
+            if(slug=="swordsman"&&i==3)path=folder+"/swordsman_attack3.png";
             if(ResourceLoader.Exists(path)){
                 var texture=GD.Load<Texture2D>(path);if(frames.HasAnimation(name))frames.RemoveAnimation(name);frames.AddAnimation(name);frames.SetAnimationSpeed(name,12);frames.SetAnimationLoopMode(name,SpriteFrames.LoopMode.None);
                 for(int y=0;y<texture.GetHeight();y+=100)for(int x=0;x<texture.GetWidth();x+=100)frames.AddFrame(name,new AtlasTexture {Atlas=texture,Region=new Rect2(x,y,100,100)});

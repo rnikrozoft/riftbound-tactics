@@ -180,6 +180,7 @@ public static class CharacterData
         }
         return data;
     }
+    public static void Apply(CharacterCatalogData data)=>_catalog=Parse(JsonSerializer.Serialize(data,GameJsonContext.Default.CharacterCatalogData));
     public static async Task Refresh(NakamaConnection connection)
     {
         // Catalog grows with asset packs; use HTTP rather than a realtime socket frame.

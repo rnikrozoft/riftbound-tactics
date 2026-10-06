@@ -40,8 +40,15 @@ public partial class UpgradeHintRunner : Node
             var next=shop.GetNode<TextureButton>("BattleActions/BattleButton");
             if(Mathf.Abs(next.GetGlobalRect().GetCenter().X-result.GetGlobalRect().GetCenter().X)>1 || next.GetGlobalRect().Position.Y<result.GetGlobalRect().End.Y)throw new Exception("Next Round must sit centered below result");
             await Capture("next-round-centered");
+            if(next.Disabled||next.GetNode<Label>("Text").Text!="NEXT ROUND")throw new Exception("Private rooms must retain manual next-round confirmation");
+            state.Roster=new[]{new OnlineStanding {UserId="self",Hp=30},new OnlineStanding {UserId="enemy",Hp=30}};
+            shop.ApplyNetworkState(state,"self");await Frames();
+            if(!next.Disabled||next.IsVisibleInTree())throw new Exception("League results must wait for automatic advancement, not expose a clickable next action");
+            shop.ConfirmTurn();if(shop.NetworkPending)throw new Exception("League result confirmation must not enqueue a network action");
+            state.Round=2;
             state.Phase="preparation";shop.ApplyNetworkState(state,"self");await Frames();
             if(next.GetGlobalRect().GetCenter().X<=result.GetGlobalRect().GetCenter().X)throw new Exception("Battle button must return to right side");
+            if(!next.IsVisibleInTree()||next.Disabled||next.GetNode<Label>("Text").Text!="BATTLE"||!shop.Drafting)throw new Exception("Automatic league advancement must restore preparation controls");
             GD.Print("UPGRADE HINT PASS: matching shop/hand/field, enemy exclusion, max stars, cleared offers, centered Next Round, preparation layout");GetTree().Quit();
         } catch(Exception e) {GD.PushError(e.ToString());GetTree().Quit(1);}
     }

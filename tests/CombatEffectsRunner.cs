@@ -98,12 +98,19 @@ public partial class CombatEffectsRunner : Node
             var effectCatalog=JsonSerializer.Deserialize(Godot.FileAccess.GetFileAsString("res://data/effect_catalog.json"),GameJsonContext.Default.EffectEntryArray)!;
             foreach(var c in CharacterData.All.GroupBy(c=>c.ScenePath).Select(g=>g.First())){
                 for(int attack=1;attack<=3;attack++){
-                    string effectName=CharacterImpactEffects.Resolve(c.Kind,$"attack{attack:00}");
+                    string effectName=CharacterImpactEffects.DefaultEffect(c.Kind,$"attack{attack:00}");
                     var entry=effectCatalog.Single(e=>e.Name==effectName);
                     Check(ResourceLoader.Exists(entry.Texture)&&entry.Frames.Length>0,"Missing impact asset: "+c.Name+" "+effectName);
                 }
                 var unit=GD.Load<PackedScene>(c.ScenePath).Instantiate<BattleUnit>();unit.CardKind=c.Kind;unit.ConfigureStars(1);AddChild(unit);
                 foreach(var action in c.Combat!.Actions){Check(unit.Sprite.SpriteFrames.HasAnimation(action.Animation),"Missing alternate attack: "+c.Name);Check(action.HitFrames.Length==action.Hits,"Hit frames: "+c.Name);}
+                foreach(var action in c.Combat.Actions){
+                    Check(action.HitFrames.All(f=>f>=0&&f<unit.Sprite.SpriteFrames.GetFrameCount(action.Animation)),"Impact must fall inside the displayed attack: "+c.Name+" "+action.Animation);
+                }
+                if(c.ScenePath.EndsWith("/swordsman.tscn")){
+                    var texture=(AtlasTexture)unit.Sprite.SpriteFrames.GetFrameTexture("attack03",0);
+                    Check(texture.Atlas.ResourcePath.EndsWith("swordsman_attack3.png"),"Swordsman third attack must use its genuine sheet");
+                }
                 var idleScale=unit.Sprite.Scale;
                 foreach(bool facingLeft in new[]{false,true}){
                     unit.Sprite.FlipH=facingLeft;await Frames(1);

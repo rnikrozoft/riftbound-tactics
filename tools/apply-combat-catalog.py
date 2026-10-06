@@ -2,6 +2,7 @@
 import argparse, json, math, subprocess, zipfile, xml.etree.ElementTree as E
 from pathlib import Path
 from PIL import Image
+from combat_animation_variety import apply_animation_variety
 root=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--backend',required=True,type=Path)
@@ -68,8 +69,37 @@ profile('swordsman',[atk(),atk('attack02',hits=2,power=120),atk('attack03',hits=
 profile('warlock',[atk(),atk('attack02',mode='summon',hits=0,power=0)])
 profile('werewolf',kill_no_counter=True,finisher='attack02')
 profile('wizard',[atk('attack01',mode='revive',hits=0,power=0)])
+# Status skills start immediately so short battles can show them.
+for slug in ['black_knight_b', 'demon_d', 'lava_slime']:
+    actions=profiles[slug]['actions']
+    profiles[slug]['actions']=[actions[-1], *actions[:-1]]
+# Lava Slime alternates stun and basic attacks rather than waiting three turns.
+profiles['lava_slime']['actions']=profiles['lava_slime']['actions'][:2]
+for slug in ['demon_c', 'demoness_a', 'lancer']:
+    profiles[slug]['actions'].reverse()
+# Black Knight A applies fire or stun on each action, including adjacent targets.
+a=profiles['black_knight_a']['actions']
+a[0]['status']='fire'
+a[1]['splash_status']='fire'
+a[2]['splash_status']='stun'
+profiles['black_knight_a']['actions']=[a[1], a[2], a[0]]
+# Poison no longer depends on scoring a kill with a surviving neighbor.
+profiles['eyeball_monster']['actions'][0]['status']='poison'
+# These kill passives remain, with regular attacks also applying their status.
+profiles['flame_golem']['actions'][1]['status']='stun'
+profiles['flame_golem']['actions'].reverse()
+profiles['knight_vanguard']['actions'][0]['status']='fire'
+profiles['knight_vanguard']['actions'][1]['status']='fire'
+for slug, rules in profiles.items():
+    apply_animation_variety(slug, rules, root)
 def timing(slug,a):
     path=root/'assets/characters'/slug/(slug+'_'+a['animation']+'.png')
+    if slug=='swordsman' and a['animation']=='attack03':
+        path=root/'assets/characters/swordsman/swordsman_attack3.png'
+    if slug=='knight':
+        a['frames']=9 if a['animation']=='attack03' else 6
+        a['hit_frames']=[max(1,round((i+1)*a['frames']/(a['hits']+1))) for i in range(a['hits'])]
+        return
     if not path.exists():
         # Original Knight's alternate attacks are in the atlas; basic attack is already in its scene.
         fallback=root/'assets/characters'/slug/(slug+'_attack01.png')

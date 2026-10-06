@@ -82,6 +82,9 @@ public static class CharacterVisual
         // Weapons, wings and spell trails may extend beyond the body. Never resize
         // the character when changing poses: the source sheets share a pixel scale.
         float scale = Mathf.Min(FieldHeight/Mathf.Max(1,idleSize.Y),FieldWidth/Mathf.Max(1,idleSize.X));
+        // Black Knight A's raised polearm extends above a much smaller torso.
+        // Keep its pose scale stable while giving the body the same visual weight.
+        if(frame is AtlasTexture atlas && atlas.Atlas.ResourcePath.Contains("/black_knight_a/"))scale*=1.35f;
         sprite.Scale = new Vector2(scale, scale);
         sprite.Offset = new Vector2(frame.GetWidth() / 2f - bounds.Position.X - bounds.Size.X / 2f,
             frame.GetHeight() / 2f - bounds.End.Y);

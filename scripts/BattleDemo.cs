@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+public enum BattlePresentationMode { TurnBased, Brawl }
+
 public partial class BattleDemo : Node
 {
     [Signal] public delegate void TurnStartedEventHandler(string team, BattleUnit attacker, BattleUnit target);
@@ -10,6 +12,8 @@ public partial class BattleDemo : Node
     [Signal] public delegate void TurnFinishedEventHandler(string team, BattleUnit attacker);
     [Signal] public delegate void BattleFinishedEventHandler(string winner);
     [Export] public float StartDelay { get; set; } = .8f;
+    [Export] public BattlePresentationMode PresentationMode {get;set;}=BattlePresentationMode.TurnBased;
+    [Export] public float BrawlWalkSpeed {get;set;}=75;
     [Export] public bool NetworkEnabled { get; set; }
     [Export] public bool AutoStart { get; set; } = true;
     [Export] public bool CardShopEnabled { get; set; }
@@ -38,6 +42,12 @@ public partial class BattleDemo : Node
     public long ServerVisualTimeMs { get; set; }
     private bool _exiting;
     private FinishingFocus _focus = null!;
+    private BrawlCombatPlayback _brawl=null!;
+    public bool BrawlActive=>_brawl!=null&&_brawl.Active;
+    public void BeginCombatPresentation(OnlinePlan plan){EndCombatPresentation(true);if(PresentationMode==BattlePresentationMode.Brawl){_focus.Reset();_brawl.WalkSpeed=BrawlWalkSpeed;_brawl.Start(_shop,this,plan);}}
+    public void EndCombatPresentation(bool restoreFormation=false){if(GodotObject.IsInstanceValid(_brawl))_brawl.Stop(restoreFormation);}
+    internal void NotifyBrawlImpact(BattleUnit source,BattleUnit target){_shakeLeft=ShakeDuration;EmitSignal(SignalName.Impact,source,target);}
+    internal void NotifyBrawlProgress(OnlineCombatHit hit,float progress)=>CombatHitProgress?.Invoke(hit,Math.Clamp(progress,0,1));
     private static readonly NodePath PositionPath = new("position");
     public int TurnCount { get; private set; }
     public bool SpeedEnabled {get;set;}
@@ -52,6 +62,7 @@ public partial class BattleDemo : Node
         _resultText = _result.GetNode<Label>("Text");
         _shop = GetParent().GetNode<CardShop>("UI/SafeArea/Content/CardShop");
         _focus = new FinishingFocus { Name = "FinishingFocus" }; AddChild(_focus);
+        _brawl=new BrawlCombatPlayback {Name="BrawlCombatPlayback"};AddChild(_brawl);
         CollectTeams();
         if (AutoStart && !NetworkEnabled) Callable.From(StartBattle).CallDeferred();
     }
@@ -139,9 +150,9 @@ public partial class BattleDemo : Node
         foreach(var unit in _teamA){unit.ServerId=$"A:offline:{++token}";_shop.NetworkUnits[unit.ServerId]=unit;units.Add(new OnlineCombatUnit {Id=unit.ServerId,Team="A",Token=token,Kind=unit.CardKind,Stars=unit.Stars,Slot=unit.GridSlot>=0?unit.GridSlot:(token-1)%6});}
         token=0;foreach(var unit in _teamB){unit.ServerId=$"B:offline:{++token}";_shop.NetworkUnits[unit.ServerId]=unit;units.Add(new OnlineCombatUnit {Id=unit.ServerId,Team="B",Token=token,Kind=unit.CardKind,Stars=unit.Stars,Slot=unit.GridSlot>=0?unit.GridSlot:(token-1)%6});}
         var plan=new LocalCombat((int)_rng.Randi()).Simulate(units);_shop.SetReplayPlan(plan);
-        SpeedEnabled=true;
-        try {foreach(var combat in plan.Events){CheckAlive();var attacker=_shop.NetworkUnits[combat.Attacker];var target=_shop.NetworkUnits.TryGetValue(combat.Target,out var existing)?existing:attacker;await PlayServerEvent(attacker,target,combat);await Delay(TurnDelay);}}
-        finally {SpeedEnabled=false;}
+        BeginCombatPresentation(plan);SpeedEnabled=true;
+        try {foreach(var combat in plan.Events){CheckAlive();var attacker=_shop.NetworkUnits[combat.Attacker];var target=_shop.NetworkUnits.TryGetValue(combat.Target,out var existing)?existing:attacker;await PlayServerEvent(attacker,target,combat);if(PresentationMode==BattlePresentationMode.TurnBased)await Delay(TurnDelay);}}
+        finally {EndCombatPresentation();SpeedEnabled=false;}
         string winner=plan.Winner;CollectTeams();_resultText.Text=winner=="DRAW"?"DRAW":$"PLAYER {winner} WINS";_result.Show();
         if(CardShopEnabled){int stars=0;foreach(var survivor in winner=="A"?_teamA:_teamB)if(!survivor.IsSummoned)stars+=survivor.Stars;_shop.FinishBattle(winner,stars);if(_shop.GameOver)ShowMatchResult(winner);}
         EmitSignal(SignalName.BattleFinished,winner);
@@ -249,7 +260,7 @@ public partial class BattleDemo : Node
         var home=attacker.Position;var targetHome=target.Position;
         var replayPlan=_shop.ReplayPlan;
         _serverEventDeadline=deadlineMs;
-        try { if(serverEvent.Hits.Length>0)await PlayEffects(attacker,target,serverEvent);else await TakeTurn(attacker,target,serverEvent); }
+        try { if(BrawlActive)await _brawl.PlayEvent(attacker,target,serverEvent,deadlineMs);else if(serverEvent.Hits.Length>0)await PlayEffects(attacker,target,serverEvent);else await TakeTurn(attacker,target,serverEvent); }
         catch(OperationCanceledException) when (!_exiting && deadlineMs>0 && ServerVisualTimeMs>=deadlineMs)
         {
             RestoreSprites();_shakeLeft=0;
@@ -264,7 +275,9 @@ public partial class BattleDemo : Node
         var sprite=attacker.Sprite;var home=attacker.Position;bool facing=sprite.FlipH;
         bool dash=combat.Mode is "melee" or "execute";
         var replayPlan=_shop.ReplayPlan;
-        StringName animation=new(combat.Animation.Length>0?combat.Animation:"attack01");
+        string originalAnimation=combat.Animation.Length>0?combat.Animation:"attack01";
+        StringName animation=new(CombatVisualSettings.AnimationFor(attacker.CardKind,originalAnimation,sprite.SpriteFrames));
+        int originalCount=sprite.SpriteFrames.HasAnimation(originalAnimation)?sprite.SpriteFrames.GetFrameCount(originalAnimation):sprite.SpriteFrames.GetFrameCount(BattleAnimations.Attack);
         if(!sprite.SpriteFrames.HasAnimation(animation))animation=BattleAnimations.Attack;
         try {
             if(combat.Dead&&target!=attacker){var focus=_focus.Begin(attacker);await ToSignal(focus,Tween.SignalName.Finished);CheckAlive();while(_focus.ChargePlaying)await Frame();var zoom=_focus.ZoomOut();await ToSignal(zoom,Tween.SignalName.Finished);CheckAlive();}
@@ -276,7 +289,8 @@ public partial class BattleDemo : Node
             int previousFrame=0;
             foreach(var hit in combat.Hits){
                 if(!ReferenceEquals(replayPlan,_shop.ReplayPlan))throw new OperationCanceledException();
-                int frame=Mathf.Clamp(hit.Frame,0,sprite.SpriteFrames.GetFrameCount(animation)-1);
+                int displayCount=sprite.SpriteFrames.GetFrameCount(animation);
+                int frame=animation.ToString()==originalAnimation?Mathf.Clamp(hit.Frame,0,displayCount-1):CombatVisualSettings.RemapFrame(hit.Frame,originalCount,displayCount);
                 while(sprite.Animation==animation&&sprite.IsPlaying()&&sprite.Frame<frame){
                     float progress=(sprite.Frame+sprite.FrameProgress-previousFrame)/Mathf.Max(1,frame-previousFrame);
                     CombatHitProgress?.Invoke(hit,progress);await Frame();
@@ -327,6 +341,7 @@ public partial class BattleDemo : Node
     public override void _ExitTree()
     {
         _exiting = true;
+        EndCombatPresentation();
         RestoreSprites();
         if (GodotObject.IsInstanceValid(_focus)) _focus.Reset();
         if (GodotObject.IsInstanceValid(_field)) _field.ArenaOffset = Vector2.Zero;

@@ -23,31 +23,66 @@ public sealed class NakamaConnection
     public event Action<OnlineState>? StateReceived;
     public event Action<OnlineError>? ErrorReceived;
     public event Action? Disconnected;
-    public NakamaConnection(string host = "127.0.0.1", int port = 7350, string scheme = "http", string key = DebugServerKey, string? deviceId = null)
+    public NakamaConnection(string host = "127.0.0.1", int port = 7350, string scheme = "http", string key = DebugServerKey, string? deviceId = null, ISession? session = null)
     {
+        Session=session!;
         DeviceId=deviceId??("rift-debug-"+Guid.NewGuid().ToString("N"));
         Client = new Client(scheme,host,port,key) { Timeout = 8 };
     }
-    public async Task Connect()
+    public async Task Connect(bool realtime = true)
     {
         // Lobby supplies a persisted device ID; independent debug/test clients stay isolated.
-        Session = await Client.AuthenticateDeviceAsync(DeviceId,create:true);
+        if(Session==null)Session = await Client.AuthenticateDeviceAsync(DeviceId,create:true);
+        else await Client.GetAccountAsync(Session); // SDK refreshes tokens before expiry; invalidated sessions must fail.
+        if(DeviceId.StartsWith("rift-player-",StringComparison.Ordinal))GameAccount.Session=Session;
+        if(realtime)await ConnectSocket();
+    }
+    private async Task ConnectSocket()
+    {
+        if(_closed)throw new ObjectDisposedException(nameof(NakamaConnection));
         Socket = Nakama.Socket.From(Client);
         Socket.ReceivedMatchState += OnMatchState;
-        Socket.Closed += () => Disconnected?.Invoke();
-        await Socket.ConnectAsync(Session,connectTimeout:8);
+        var socket=Socket;
+        Socket.Closed += () => {if(ReferenceEquals(socket,Socket)&&!_closed)Disconnected?.Invoke();};
+        try {
+        await socket.ConnectAsync(Session,connectTimeout:8);
+        if(_closed)throw new ObjectDisposedException(nameof(NakamaConnection));
         long bestRtt = long.MaxValue;
         for (int i = 0; i < 3; i++)
         {
             long start = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var response = await Socket.RpcAsync("server_clock","{}");
+            var response = await socket.RpcAsync("server_clock","{}");
             long end = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            if(_closed)throw new ObjectDisposedException(nameof(NakamaConnection));
             var clock = JsonSerializer.Deserialize(response.Payload,GameJsonContext.Default.ServerClock)!;
             if (end - start < bestRtt) { bestRtt = end - start; ClockOffsetMs = clock.ServerMs - (start + end) / 2; }
         }
+        } catch {
+            socket.ReceivedMatchState-=OnMatchState;
+            if(ReferenceEquals(socket,Socket))Socket=null!;
+            try {await socket.CloseAsync();}catch{}
+            throw;
+        }
     }
+    private long _actionSequence;
+    public long NextActionSequence()=>Interlocked.Increment(ref _actionSequence);
+    private void ObserveSequence(long value)
+    {
+        long current;
+        do { current=Interlocked.Read(ref _actionSequence);if(value<=current)return; }
+        while(Interlocked.CompareExchange(ref _actionSequence,value,current)!=current);
+    }
+    // Never authenticate again here: an older client must not steal the newest login.
+    public async Task Reconnect()
+    {
+        await Client.GetAccountAsync(Session);
+        if(Socket!=null){Socket.ReceivedMatchState-=OnMatchState;var old=Socket;Socket=null!;try{await old.CloseAsync();}catch{}}
+        await ConnectSocket();
+    }
+    public Task Rejoin(DeckDefinition? deck=null)=>Socket.JoinMatchAsync(MatchId,metadata:deck==null?null:new Dictionary<string,string>{["deck"]=JsonSerializer.Serialize(deck,GameJsonContext.Default.DeckDefinition)});
     private void OnMatchState(IMatchState state)
     {
+        if(state.MatchId!=MatchId)return;
         try
         {
             if (state.OpCode == 2)
@@ -55,6 +90,7 @@ public sealed class NakamaConnection
                 var snapshot = JsonSerializer.Deserialize(state.State,GameJsonContext.Default.OnlineState);
                 if (snapshot != null)
                 {
+                    ObserveSequence(snapshot.AckSequence);
                     if (snapshot.Roster.Length>0 && (snapshot.Phase=="eliminated" || snapshot.Phase=="game_over"))
                         foreach(var player in snapshot.Roster)
                             if(player.UserId==Session.UserId && player.Hp==0) {MatchId="";break;}
@@ -143,8 +179,8 @@ public sealed class NakamaConnection
     {
         if(_closed)return;
         _searchCancellation.Cancel();
-        if (Socket == null) return;
         _closed=true;
+        if (Socket == null) {MatchId="";return;}
         await RemoveTicket();
         if (_searchActive) try { await Socket.RpcAsync("queue_cancel","{}"); } catch { }
         string match=MatchId;MatchId="";
