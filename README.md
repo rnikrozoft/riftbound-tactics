@@ -53,7 +53,7 @@ Both players prepare for 60 seconds. Both pressing BATTLE starts immediately; th
 
 In matchmaking leagues, the server advances surviving players to the next round together. The result screen shows a disabled `NEXT ROUND SOON` status during that transition; it does not send a manual next-round request. Private two-player rooms retain their `NEXT ROUND` confirmation.
 
-Connection defaults to 127.0.0.1:7350. For another PC/phone, set OnlineBattle.Host in main.tscn or the RIFTBOUND_HOST environment variable to the backend PC's address. Server settings and protocol are documented in the backend README.
+Guest Login includes a SERVER IP field. Enter an IP or hostname without a protocol or port; the choice is saved for future logins and used by account, collection, matchmaking and reconnect requests. Connection defaults to 127.0.0.1:7350. For another PC/phone, set OnlineBattle.Host in main.tscn or the RIFTBOUND_HOST environment variable to the backend PC's address. Server settings and protocol are documented in the backend README.
 
 Online scripts: NakamaConnection handles fresh authentication, socket transport and clock synchronization; OnlineBattle handles room UI, snapshot acknowledgement and replay scheduling; OnlineProtocol defines source-generated JSON contracts. BattleDemo.NetworkEnabled selects authoritative online playback; offline integration retains local simulation.
 
@@ -81,3 +81,5 @@ After building, run Godot with `--headless --path . res://tests/combat_simulator
 Network loss returns gameplay to the lobby, which retries the existing session and rejoins the same match once a server snapshot arrives. A missing/ended match stays in the lobby. Reconnection never authenticates a new token automatically. Nakama runs with `session.single_session` and `session.single_socket`: a newer login replaces the older one; the displaced client requires explicit login and cannot reclaim the account through background retries. Parallel local game launches reserve separate persisted account slots: `account-device.txt`, `account-device-2.txt`, etc. Each process holds an exclusive slot lease until exit. Reopening uses the first available saved account. The latest-login-only policy still applies when clients explicitly use the same account.
 
 Player collection, cloud decks, the persistent wallet, catalog cache and admin publication are documented in [docs/player-storage.md](docs/player-storage.md).
+
+Preparation units start looping idle as soon as they appear. A short, nonblocking fade marks preparation and battle changes. Surrender and speed controls remain hidden while searching. The lobby DELETE DECK action removes the selected deck from player storage, including the last deck, without removing owned characters.

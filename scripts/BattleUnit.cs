@@ -86,6 +86,7 @@ public partial class BattleUnit : CharacterBody2D
         for(int i=0;i<4;i++) { _stars[i] = new Sprite2D {Name="Star"+(i+1),Texture = TravelBookUi.Texture("IconStar01a"),Scale = new(.65f,.65f),Visible = i < Stars,ZIndex=30}; AddChild(_stars[i]); }
         UpdateStatusPosition();
         UpdateNumbers();
+        Sprite.Play(BattleAnimations.Idle);
     }
     private Label StatLabel(string name,Color color)
     {

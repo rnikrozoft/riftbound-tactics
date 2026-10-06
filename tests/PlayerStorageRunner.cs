@@ -33,6 +33,12 @@ public partial class PlayerStorageRunner : Node
                 await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-storage-shop.png");
                 lobby.Navigate("Collection");await Frames();await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-storage-collection.png");
             }
+            var initialDeck=DeckStore.Selected!.Clone();
+            lobby.DeleteDeck(initialDeck.Id);
+            ulong deleteUntil=Time.GetTicksMsec()+8000;while(DeckStore.Decks.Count>0&&Time.GetTicksMsec()<deleteUntil)await Frames(1);
+            Check(DeckStore.Decks.Count==0&&DeckStore.Selected==null,"Delete button flow did not remove the last deck");
+            await PlayerInventory.Load(a);Check(DeckStore.Decks.Count==0&&PlayerInventory.State.Profile.OwnedCharacters.Length==40,"Deleted deck returned or owned collection changed on reload");
+            await PlayerInventory.SaveDecks(new(){initialDeck},initialDeck.Id);
             lobby.QueueFree();await Frames();
             var deck=DeckStore.Selected!.Clone();deck.Name="Cloud expedition";
             await PlayerInventory.SaveDecks(new(){deck},deck.Id);
@@ -48,9 +54,20 @@ public partial class PlayerStorageRunner : Node
             var server=JsonSerializer.Deserialize(catalog.Payload,GameJsonContext.Default.CharacterCatalogData)!;
             Check(server.Characters[0].Stats[0].Hp==CharacterData.All[0].Stats[0].Hp,"client stats do not match backend");
             var launchLobby=GD.Load<PackedScene>("res://scenes/lobby.tscn").Instantiate<Lobby>();GetTree().Root.AddChild(launchLobby);GetTree().CurrentScene=launchLobby;await Frames();launchLobby.Launch(true);
+            await Wait(()=>GetTree().CurrentScene?.GetNodeOrNull<OnlineBattle>("OnlineBattle")!=null,"Searching scene did not load",10000);await Frames();
+            var searching=GetTree().CurrentScene;
+            Check(!searching.FindChild("BackButton",true,false).Get("visible").AsBool()&&!searching.FindChild("BattleSpeedButton",true,false).Get("visible").AsBool(),"Surrender/speed appeared while searching");
             await Wait(()=>GetTree().CurrentScene?.GetNodeOrNull<OnlineBattle>("OnlineBattle")?.State?.Phase=="preparation","Cloud deck did not enter gameplay",35000);
             var online=GetTree().CurrentScene.GetNode<OnlineBattle>("OnlineBattle");
             Check(online.UserId==a.Session.UserId&&DeckStore.Selected!.Name=="Cloud expedition","arena launched a different account or deck");
+            await Frames();
+            Check(GetTree().CurrentScene.FindChild("BackButton",true,false).Get("visible").AsBool()&&GetTree().CurrentScene.FindChild("BattleSpeedButton",true,false).Get("visible").AsBool(),"Surrender/speed missing after entering gameplay");
+            var gameplayShop=GetTree().CurrentScene.GetNode<CardShop>("UI/SafeArea/Content/CardShop");
+            online.SendAction("buy",gameplayShop.Offers[0].Token);
+            await Wait(()=>gameplayShop.Hand.Count>0,"Could not buy a preparation unit",5000);
+            online.SendAction("deploy",gameplayShop.Hand[0].Token,0);
+            await Wait(()=>gameplayShop.Deployed.Count>0,"Could not deploy a preparation unit",5000);
+            Check(gameplayShop.NetworkUnits.Values.All(u=>u.Sprite.IsPlaying()&&u.Sprite.Animation==BattleAnimations.Idle),"Idle did not start in actual preparation");
             await online.Connection!.Close();
             GD.Print($"PLAYER STORAGE UI PASS ({_checks} checks): backend catalog/cache, per-user collection/decks, cloud save, wallet and lobby shop");
             await a.Close();await b.Close();GetTree().Quit();

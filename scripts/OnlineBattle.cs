@@ -87,7 +87,7 @@ public partial class OnlineBattle : Node
         panel.AddThemeConstantOverride("separation",9);
         var content=GetParent().GetNode<Control>("UI/SafeArea/Content");
         var back=Button("SURRENDER",ShowSurrender,100);back.Name="BackButton";back.Position=new(16,16);content.AddChild(back);
-        _back=back;
+        _back=back;_back.Hide();
         _matchLobby=Button("BACK TO LOBBY",ReturnToLobby,180);_matchLobby.Name="MatchLobbyButton";
         content.AddChild(_matchLobby);_matchLobby.AnchorLeft=_matchLobby.AnchorRight=_matchLobby.AnchorTop=_matchLobby.AnchorBottom=.5f;
         _matchLobby.OffsetLeft=-90;_matchLobby.OffsetRight=90;_matchLobby.OffsetTop=68;_matchLobby.OffsetBottom=112;
@@ -276,6 +276,7 @@ public partial class OnlineBattle : Node
             MatchReplayStore.RecordPreparation(state,UserId);
             MatchReplayStore.Observe(state,UserId);
             if(state.Roster.Any(p=>p.UserId==UserId && p.Hp<=0) || state.Players.Any(p=>p!=null && p.UserId==UserId && p.Hp<=0)){ShowDefeat();return;}
+            if(state.Phase is "finished" or "game_over" && state.Players.Any(p=>p!=null&&p.UserId==UserId&&p.Hp>0))_blood.Clear();
             if (!changed) continue;
             _message = ""; _roomControls.Hide();
             if(state.Phase is "preparation" or "waiting")_battle.EndCombatPresentation(true);
@@ -305,7 +306,8 @@ public partial class OnlineBattle : Node
             {
                 MatchReplayStore.Record(state,UserId);
                 _planRound = state.Round;
-                PlayReplay(state.Battle,++_replayGeneration);
+                int playerHpAtBattleStart=state.Players.FirstOrDefault(p=>p?.UserId==UserId)?.Hp??int.MaxValue;
+                PlayReplay(state.Battle,++_replayGeneration,playerHpAtBattleStart);
             }
         }
         if (_transportLost) { _transportLost=false;RecoverToLobby();return; }
@@ -335,6 +337,7 @@ public partial class OnlineBattle : Node
                 if (player != null && !player.Connected) status += $" / {player.Team} DISCONNECTED";
         }
         bool playing=State!=null && State.Round>0 && State.Phase!="waiting";
+        _battle.MatchEntered=playing;_back.Visible=playing&&_defeatModal==null;
         _roundTitle.Text=playing?$"Round {State!.Round}":"Searching";
         _roundTitle.Visible=!playing || State!.Phase=="preparation";
         _rosterPanel.Visible=playing && State!.Roster.Length>0 || (!playing && !_matchmaking);
@@ -434,13 +437,14 @@ public partial class OnlineBattle : Node
         }
         if(_exiting||generation!=_replayGeneration)throw new OperationCanceledException();
     }
-    private async void PlayReplay(OnlinePlan plan, int generation)
+    private async void PlayReplay(OnlinePlan plan, int generation, int playerHpAtBattleStart)
     {
         try
         {
+            await GetParent<BattleDisplay>().WaitForPhaseTransition();
+            if(_exiting||generation!=_replayGeneration)throw new OperationCanceledException();
             _shop.SetReplayPlan(plan);_battle.BeginCombatPresentation(plan);
-            int playerHp=State?.Players.FirstOrDefault(p=>p?.UserId==UserId)?.Hp??int.MaxValue;
-            _blood.Prepare(plan,LocalTeam,playerHp<=plan.PlayerDamage);
+            _blood.PrepareForMatch(plan,LocalTeam,playerHpAtBattleStart);
             _presentationTimeMs=Math.Max(plan.StartMs,Connection!.ServerNowMs);_presentationPlaying=true;_battle.SpeedEnabled=true;
             foreach (var combat in plan.Events)
             {

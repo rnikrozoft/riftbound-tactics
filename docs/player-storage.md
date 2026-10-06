@@ -52,3 +52,5 @@ Backend tests cover ownership enforcement versus temporary all-access, atomic/id
 References: [Nakama access controls](https://heroiclabs.com/docs/nakama/concepts/storage/permissions/) and [Go MultiUpdate](https://heroiclabs.com/docs/nakama/server-framework/go-runtime/function-reference/#multiupdate).
 
 Validation completed on 2026-10-06: .NET build (zero warnings/errors), backend race tests, real Storage/Wallet integration (24 checks), Godot collection/cache/cloud-save/arena-launch flow (13 checks), matchmaking (56 checks), and same-session recovery/latest-login enforcement. Collection and Shop were also inspected in a rendered Godot window.
+
+The lobby can delete any saved deck, including the final deck. An empty deck list has an empty selected deck ID; returning to the account does not recreate the starter deck. Deletion uses the existing version-checked deck save RPC and preserves collection ownership and wallet balances. A player with no decks must create a deck before entering matchmaking.

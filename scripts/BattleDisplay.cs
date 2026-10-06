@@ -1,4 +1,6 @@
 using Godot;
+using System;
+using System.Threading.Tasks;
 
 public partial class BattleDisplay : Node2D
 {
@@ -12,6 +14,33 @@ public partial class BattleDisplay : Node2D
         set { Position += value - _arenaOffset; _arenaOffset = value; }
     }
 
+    private CanvasLayer? _phaseLayer;
+    private ColorRect? _phaseShade;
+    private Label? _phaseText;
+    private Tween? _phaseTween;
+    public bool PhaseTransitionActive=>_phaseShade!=null&&GodotObject.IsInstanceValid(_phaseShade)&&_phaseShade.Visible;
+    public async Task WaitForPhaseTransition()
+    {
+        while(GodotObject.IsInstanceValid(this)&&IsInsideTree()&&PhaseTransitionActive)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        if(!GodotObject.IsInstanceValid(this)||!IsInsideTree())throw new OperationCanceledException();
+    }
+    public void ShowPhaseTransition(string phase,int round)
+    {
+        if(_phaseLayer==null){
+            _phaseLayer=new CanvasLayer {Name="PhaseTransition",Layer=25};AddChild(_phaseLayer);
+            _phaseShade=new ColorRect {Color=new Color(.025f,.04f,.06f,.8f),MouseFilter=Control.MouseFilterEnum.Ignore};_phaseLayer.AddChild(_phaseShade);_phaseShade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            _phaseText=new Label {HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center,MouseFilter=Control.MouseFilterEnum.Ignore};GameUi.Label(_phaseText,32);_phaseShade.AddChild(_phaseText);_phaseText.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        }
+        _phaseTween?.Kill();_phaseText!.Text=phase=="battle"?"BATTLE":$"ROUND {round}  /  PREPARATION";
+        _phaseShade!.Show();_phaseShade.Modulate=new Color(1,1,1,0);
+        _phaseTween=CreateTween().SetIgnoreTimeScale(true).SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        _phaseTween.TweenProperty(_phaseShade,"modulate:a",1f,.12);
+        _phaseTween.TweenInterval(1);
+        _phaseTween.TweenProperty(_phaseShade,"modulate:a",0f,.32);
+        _phaseTween.Finished+=()=>_phaseShade?.Hide();
+    }
+    public override void _ExitTree(){_phaseTween?.Kill();}
     public override void _Ready()
     {
         var tiles=GetNode<TileMapLayer>("TileMapLayer");

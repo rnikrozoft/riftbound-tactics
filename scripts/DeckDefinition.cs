@@ -81,10 +81,10 @@ public static class DeckStore
             try { using var file=Godot.FileAccess.Open("user://decks.json",Godot.FileAccess.ModeFlags.Read); Decks=JsonSerializer.Deserialize(file.GetAsText(),GameJsonContext.Default.ListDeckDefinition) ?? new(); }
             catch(Exception e) { Error="Saved decks could not be read: "+e.Message; }
         }
-        if(Decks.Count==0) Decks.Add(DeckDefinition.Starter());
+        if(Decks.Count==0&&!Godot.FileAccess.FileExists("user://decks.json")) Decks.Add(DeckDefinition.Starter());
         bool migrated=false;
         foreach(var deck in Decks)migrated=deck.RepairLegacyNeutralCards()||migrated;
-        SelectedId=Decks[0].Id;
+        SelectedId=Decks.FirstOrDefault()?.Id??"";
         if(Godot.FileAccess.FileExists("user://selected_deck.txt"))
         {
             using var selection=Godot.FileAccess.Open("user://selected_deck.txt",Godot.FileAccess.ModeFlags.Read);

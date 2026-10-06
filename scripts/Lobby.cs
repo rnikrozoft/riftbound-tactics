@@ -19,7 +19,7 @@ public partial class Lobby : Control
     private VBoxContainer _preview=null!;
     private Label _status=null!;
     private LineEdit _code=null!;
-    private TextureButton _create=null!,_join=null!,_edit=null!;
+    private TextureButton _create=null!,_join=null!,_edit=null!,_delete=null!;
     public override void _Ready()
     {
         DeckStore.Load();BattleLaunch.Pending=false;BattleLaunch.Deck=null;
@@ -69,6 +69,7 @@ public partial class Lobby : Control
         var side=DeckMenuUi.Panel(body,336);side.AddChild(DeckMenuUi.Text("BATTLE LOADOUT",16));
         _preview=new VBoxContainer();side.AddChild(_preview);
         _edit=DeckMenuUi.Button("EDIT THIS DECK",()=>Edit(DeckStore.SelectedId),304);side.AddChild(_edit);
+        _delete=DeckMenuUi.Button("DELETE DECK",ConfirmDeleteDeck,304);_delete.Name="DeleteDeckButton";side.AddChild(_delete);
         var spacer=new Control {SizeFlagsVertical=SizeFlags.ExpandFill};side.AddChild(spacer);
         _roomPanel=new VBoxContainer();side.AddChild(_roomPanel);
         _create=DeckMenuUi.Button("FIND MATCH",()=>Launch(true),304,48);_roomPanel.AddChild(_create);GameUi.Primary(_create);
@@ -131,6 +132,30 @@ public partial class Lobby : Control
         catch(System.Exception e){if(!_closed)_status.Text="Could not select deck: "+e.Message;}
         finally{_savingDeck=false;if(!_closed)RefreshControls();}
     }
+    private void ConfirmDeleteDeck()
+    {
+        var selected=DeckStore.Selected;if(selected==null||_savingDeck)return;
+        string id=selected.Id;
+        var layer=new CanvasLayer {Layer=30};AddChild(layer);var modal=new GameModal();layer.AddChild(modal);
+        modal.Body.AddChild(DeckMenuUi.Text("DELETE DECK",24));
+        var message=DeckMenuUi.Text($"Delete {selected.Name}?\nYour characters will remain in your collection.",16);message.AutowrapMode=TextServer.AutowrapMode.WordSmart;modal.Body.AddChild(message);
+        var row=new HBoxContainer();modal.Body.AddChild(row);
+        row.AddChild(DeckMenuUi.Button("CANCEL",()=>layer.QueueFree(),156));modal.Cancel=()=>layer.QueueFree();
+        row.AddChild(DeckMenuUi.Button("DELETE",()=>{layer.QueueFree();DeleteDeck(id);},156));
+    }
+    public async void DeleteDeck(string id)
+    {
+        if(_savingDeck||!DeckStore.Decks.Any(d=>d.Id==id))return;
+        _savingDeck=true;RefreshControls();
+        var decks=DeckStore.Decks.Where(d=>d.Id!=id).Select(d=>d.Clone()).ToList();
+        string selected=DeckStore.SelectedId==id?(decks.FirstOrDefault()?.Id??""):DeckStore.SelectedId;
+        try {
+            if(GameAccount.Session!=null)await PlayerInventory.SaveDecks(decks,selected);
+            else {var previous=DeckStore.Decks.ToList();string previousId=DeckStore.SelectedId;DeckStore.Decks.Clear();DeckStore.Decks.AddRange(decks);DeckStore.SelectedId=selected;if(!DeckStore.Save()){DeckStore.Decks.Clear();DeckStore.Decks.AddRange(previous);DeckStore.SelectedId=previousId;throw new Exception(DeckStore.Error);}}
+            if(!_closed){_status.Text="Deck deleted.";Render();}
+        }catch(Exception e){if(!_closed){_status.Text="Could not delete deck: "+e.Message;Render();}}
+        finally {_savingDeck=false;if(!_closed)RefreshControls();}
+    }
     private static HBoxContainer Heroes(DeckDefinition deck,int width,int height)
     {
         var row=new HBoxContainer();row.AddThemeConstantOverride("separation",6);
@@ -167,7 +192,7 @@ public partial class Lobby : Control
     private void RefreshControls()
     {
         var deck=DeckStore.Selected;bool valid=deck!=null&&deck.Validate()==""&&deck.Cards.All(c=>PlayerInventory.CanUse(c.Kind));
-        _create.Disabled=!valid||_savingDeck||BattleRecovery.Pending||GameAccount.RequiresLogin;_join.Disabled=!valid||_code.Text.Length!=6||!_code.Text.All(char.IsDigit);_edit.Disabled=deck==null;
+        _create.Disabled=!valid||_savingDeck||BattleRecovery.Pending||GameAccount.RequiresLogin;_join.Disabled=!valid||_code.Text.Length!=6||!_code.Text.All(char.IsDigit);_edit.Disabled=deck==null||_savingDeck;_delete.Disabled=deck==null||_savingDeck;
     }
     private void Edit(string id){DeckStore.EditId=id;GetTree().ChangeSceneToFile("res://scenes/deck_builder.tscn");}
     public async void Launch(bool create)

@@ -23,6 +23,7 @@ public static class CharacterCombatAnimations
                 for(int f=0;f<frames.GetFrameCount(source);f++)frames.AddFrame(name,frames.GetFrameTexture(source,f));
             }
         }
+        if(frames.HasAnimation(BattleAnimations.Idle))frames.SetAnimationLoopMode(BattleAnimations.Idle,SpriteFrames.LoopMode.Linear);
         Cache[c.ScenePath]=frames;return frames;
     }
 }

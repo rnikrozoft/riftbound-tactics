@@ -51,6 +51,7 @@ public partial class BattleDemo : Node
     private static readonly NodePath PositionPath = new("position");
     public int TurnCount { get; private set; }
     public bool SpeedEnabled {get;set;}
+    public bool MatchEntered {get;set;}
     public event Action<OnlineCombatHit,float>? CombatHitProgress;
 
     public override void _Ready()
@@ -146,6 +147,7 @@ public partial class BattleDemo : Node
     }
     private async Task RunEffectsCombat()
     {
+        await _field.WaitForPhaseTransition();CheckAlive();
         CollectTeams();var units=new List<OnlineCombatUnit>();_shop.NetworkUnits.Clear();int token=0;
         foreach(var unit in _teamA){unit.ServerId=$"A:offline:{++token}";_shop.NetworkUnits[unit.ServerId]=unit;units.Add(new OnlineCombatUnit {Id=unit.ServerId,Team="A",Token=token,Kind=unit.CardKind,Stars=unit.Stars,Slot=unit.GridSlot>=0?unit.GridSlot:(token-1)%6});}
         token=0;foreach(var unit in _teamB){unit.ServerId=$"B:offline:{++token}";_shop.NetworkUnits[unit.ServerId]=unit;units.Add(new OnlineCombatUnit {Id=unit.ServerId,Team="B",Token=token,Kind=unit.CardKind,Stars=unit.Stars,Slot=unit.GridSlot>=0?unit.GridSlot:(token-1)%6});}
@@ -254,6 +256,7 @@ public partial class BattleDemo : Node
     }
     public async Task PlayServerEvent(BattleUnit attacker, BattleUnit target, OnlineCombatEvent serverEvent, long deadlineMs = 0)
     {
+        await _field.WaitForPhaseTransition();CheckAlive();
         CollectTeams();
         TurnCount++;
         EmitSignal(SignalName.TurnStarted,attacker.IsAlly ? "A" : "B",attacker,target);
@@ -264,8 +267,8 @@ public partial class BattleDemo : Node
         catch(OperationCanceledException) when (!_exiting && deadlineMs>0 && ServerVisualTimeMs>=deadlineMs)
         {
             RestoreSprites();_shakeLeft=0;
-            if(GodotObject.IsInstanceValid(attacker)&&!attacker.IsDead){attacker.Position=home;attacker.Sprite.Stop();}
-            if(GodotObject.IsInstanceValid(target)&&!target.IsDead){target.Position=targetHome;target.Sprite.Stop();}
+            if(GodotObject.IsInstanceValid(attacker)&&!attacker.IsDead){attacker.Position=home;attacker.Sprite.Play(BattleAnimations.Idle);}
+            if(GodotObject.IsInstanceValid(target)&&!target.IsDead){target.Position=targetHome;target.Sprite.Play(BattleAnimations.Idle);}
         }
         finally { _serverEventDeadline=0;if(ReferenceEquals(replayPlan,_shop.ReplayPlan))_shop.ApplyCombatEvent(serverEvent); }
         EmitSignal(SignalName.TurnFinished,attacker.IsAlly ? "A" : "B",attacker);

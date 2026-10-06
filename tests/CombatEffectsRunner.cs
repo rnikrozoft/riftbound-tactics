@@ -35,6 +35,11 @@ public partial class CombatEffectsRunner : Node
             var heal=new OnlineCombatHit {Frame=3,Changes=new[]{new OnlineCombatChange {Id="A:blood",Hp=90}}};
             var last=new OnlineCombatHit {Frame=5,Changes=new[]{new OnlineCombatChange {Id="A:blood",Hp=0}}};
             var bloodPlan=new OnlinePlan {Winner="B",Units=new[]{new OnlineCombatUnit {Id="A:blood",Team="A",MaxHp=100,InitialHp=100}},Events=new[]{new OnlineCombatEvent {Hits=new[]{hit1,heal,last}}}};
+            bloodPlan.PlayerDamage=4;
+            blood.PrepareForMatch(bloodPlan,"A",8);blood.Preview(hit1,.5f);blood.Apply(last);
+            Check(!blood.Armed&&blood.Opacity==0&&!blood.Eliminated,"Losing a round with player HP remaining must never show blood");
+            blood.PrepareForMatch(bloodPlan,"B",4);Check(!blood.Armed&&blood.Opacity==0,"Winning the round must never show blood");
+            blood.PrepareForMatch(bloodPlan,"A",4);Check(blood.Armed,"Fatal player damage must arm the match-defeat effect");
             blood.Prepare(bloodPlan,"A",true);blood.Preview(hit1,.5f);
             float firstOpacity=.08f+.92f*20/110f;
             Check(blood.Opacity>0&&blood.Opacity<firstOpacity,"Blood must fade during attack before impact");

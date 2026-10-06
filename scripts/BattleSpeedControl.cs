@@ -14,7 +14,7 @@ public partial class BattleSpeedControl : Node
         _button.TooltipText="ความเร็วการต่อสู้ 1× / 2× / 4×";_button.ProcessMode=ProcessModeEnum.Always;
         GetParent().GetNode<Control>("UI/SafeArea/Content").AddChild(_button);
         _button.AnchorTop=_button.AnchorBottom=1;_button.OffsetLeft=16;_button.OffsetRight=96;_button.OffsetTop=-186;_button.OffsetBottom=-154;
-        Apply();
+        _button.Visible=!_battle.NetworkEnabled||_battle.MatchEntered;Apply();
     }
     public void CycleSpeed()
     {
@@ -22,6 +22,6 @@ public partial class BattleSpeedControl : Node
         _button.GetNode<Label>("Text").Text=$"{SelectedSpeed}×";Apply();
     }
     private void Apply(){if(_active==this)Engine.TimeScale=_battle.SpeedEnabled?SelectedSpeed:1;}
-    public override void _Process(double delta)=>Apply();
+    public override void _Process(double delta){_button.Visible=!_battle.NetworkEnabled||_battle.MatchEntered;Apply();}
     public override void _ExitTree(){if(_active==this){_active=null;Engine.TimeScale=1;}}
 }

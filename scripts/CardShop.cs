@@ -210,6 +210,7 @@ public partial class CardShop : Control
     public Task PrepareTurn(int number)
     {
         if (GameOver) return Task.CompletedTask;
+        (Field as BattleDisplay)?.ShowPhaseTransition("preparation",number);
         _preparationDeadline = Time.GetTicksMsec() + 60000;
         CloseDetails();
         Finished = false; ReadyForBattle = false; TurnNumber = number; Drafting = true;
@@ -347,6 +348,7 @@ public partial class CardShop : Control
         }
         if (!Drafting) return;
         if (_deploymentMode && Deployed.Count == 0 && Time.GetTicksMsec() < _preparationDeadline) { _notice.Text = "DEPLOY A UNIT FIRST"; return; }
+        (Field as BattleDisplay)?.ShowPhaseTransition("battle",TurnNumber);
         Drafting = false;
         foreach (var entry in Deployed.Values) entry.Unit.HasBattled = true;
         CloseDetails(); Refresh(); ZoneA.Hide(); ZoneB.Show();
@@ -669,6 +671,7 @@ public partial class CardShop : Control
         bool newRound = state.Round != _networkRound;
         if(state.Phase is "preparation" or "waiting")_replayPlan=null;
         bool enteringBattle = state.Phase == "battle" && _networkPhase != "battle";
+        if(enteringBattle||(state.Phase=="preparation"&&(newRound||_networkPhase!="preparation")))(Field as BattleDisplay)?.ShowPhaseTransition(state.Phase,state.Round);
         LocalTeam = self.Team; Coins = self.Coins; ShopLocked = self.ShopLocked; ShopLevel = self.ShopLevel; UpgradeCost = self.UpgradeCost;
         int opponentCards = 0;
         foreach (var player in state.Players) if (player != null && player.UserId != userId) opponentCards = System.Math.Clamp(player.HandCount,0,HandLimit);

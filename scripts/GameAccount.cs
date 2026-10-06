@@ -40,10 +40,27 @@ public static class GameAccount
             file.StoreString(id);return _deviceId=id;
         }
     }
+    private static string? _serverHost;
+    public static string ServerHost
+    {
+        get {
+            if(_serverHost!=null)return _serverHost;
+            string configured=OS.GetEnvironment("RIFTBOUND_HOST").Trim();
+            if(configured==""&&Godot.FileAccess.FileExists("user://server-host.txt"))configured=Godot.FileAccess.GetFileAsString("user://server-host.txt").Trim();
+            return _serverHost=configured==""?"127.0.0.1":configured;
+        }
+    }
+    public static bool SetServerHost(string host)
+    {
+        host=host.Trim();
+        if(Uri.CheckHostName(host)==UriHostNameType.Unknown)return false;
+        using var file=Godot.FileAccess.Open("user://server-host.txt",Godot.FileAccess.ModeFlags.Write);
+        if(file==null)return false;
+        file.StoreString(host);_serverHost=host;Session=null;return true;
+    }
     public static NakamaConnection Connection()
     {
         if(RequiresLogin)throw new InvalidOperationException("Login again to continue.");
-        string host=OS.GetEnvironment("RIFTBOUND_HOST");if(string.IsNullOrWhiteSpace(host))host="127.0.0.1";
-        return new NakamaConnection(host,deviceId:DeviceId,session:Session);
+        return new NakamaConnection(ServerHost,deviceId:DeviceId,session:Session);
     }
 }

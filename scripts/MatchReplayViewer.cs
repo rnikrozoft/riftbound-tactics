@@ -133,6 +133,7 @@ public partial class MatchReplayViewer : Node
     private async Task PlayBattle(OnlineState saved,int token)
     {
         ResetArena();SetBattle(saved);var battle=_battle;var shop=_shop;var plan=saved.Battle!;
+        await battle.GetParent<BattleDisplay>().WaitForPhaseTransition();Check(token);
         battle.BeginCombatPresentation(shop.ReplayPlan!);
         _label.Text=$"ROUND {saved.Round} / BATTLE";long start=PlaybackClockMs;
         foreach(var combat in plan.Events){

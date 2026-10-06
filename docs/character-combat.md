@@ -106,3 +106,5 @@ To revert, set the BattleDemo inspector's **Presentation Mode** to **TurnBased**
 presentation remains intact. Run `res://tests/brawl_combat.tscn` after building to
 verify concurrent movement, unchanged HP during background poses, ordered multi-hit
 snapshots, pause, deadline reconciliation, cancellation and switching back.
+
+Demon B uses ranged `attack01` and melee `attack02`. Demon D `attack02` applies three impacts at zero-based frames 5, 8 and 14. Elite Orc `attack02` applies two impacts at frames 2 and 6. These split the existing total attack damage; they do not multiply it. A target that dies early receives no further impacts.

@@ -37,7 +37,7 @@ profile('black_knight_b',[atk(),atk('attack02'),atk('attack03',status='stun')])
 profile('black_knight_c',[atk(pierce=50),atk(pierce=50),atk('attack02',pierce=50,splash='back',splash_power=40)],execute=25)
 profile('blood_monster',[atk(),atk('attack02',lifesteal=3)])
 profile('blood_monster_b',[atk(mode='ranged'),atk('attack02',mode='ranged',lifesteal=3)])
-profile('demon_b',[atk(),atk('attack02',mode='ranged')])
+profile('demon_b',[atk(mode='ranged'),atk('attack02')])
 profile('demon_c',[atk('attack02',mode='ranged'),atk(mode='ranged',status='fire')])
 profile('demon_d',[atk('attack03'),atk('attack02'),atk(status='stun')],kill_status='fire',kill_splash='sides',finisher='attack03')
 profile('demon_e',[atk(),atk('attack02',hits=2,power=120)],finisher='attack03')
@@ -110,6 +110,8 @@ def timing(slug,a):
     else:a['frames']=9
     count=a['hits'];a['hit_frames']=[max(1,round((i+1)*a['frames']/(count+1))) for i in range(count)]
     a['hit_frames']=[min(a['frames']-1,f) for f in a['hit_frames']]
+    if slug=='demon_d' and a['animation']=='attack02':a['hits']=3;a['hit_frames']=[5,8,14]
+    if slug=='elite_orc' and a['animation']=='attack02':a['hits']=2;a['hit_frames']=[2,6]
 catalog=json.loads((root/'data/characters.json').read_text(encoding='utf-8'))
 updated=0
 for c in catalog['characters']:

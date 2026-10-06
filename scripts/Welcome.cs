@@ -7,7 +7,7 @@ public partial class Welcome : Control
     private bool _busy,_exiting;
     private TextureButton _guest=null!,_continue=null!;
     private Label _status=null!,_error=null!;
-    private LineEdit _name=null!;
+    private LineEdit _name=null!,_server=null!;
     private GameModal _modal=null!;
     public override void _Ready()
     {
@@ -17,6 +17,9 @@ public partial class Welcome : Control
         var title=DeckMenuUi.Text("RIFTBOUND\nTACTICS",48);title.HorizontalAlignment=HorizontalAlignment.Center;title.AddThemeColorOverride("font_color",GameUi.Gold);body.AddChild(title);
         var subtitle=DeckMenuUi.Text("BUILD YOUR ARMY. RULE THE ARENA.",15);subtitle.HorizontalAlignment=HorizontalAlignment.Center;body.AddChild(subtitle);
         body.AddChild(new ArenaPreview {CustomMinimumSize=new(420,200)});
+        body.AddChild(DeckMenuUi.Text("SERVER IP",14));
+        _server=DeckMenuUi.Input(GameAccount.ServerHost,"127.0.0.1",420);_server.Name="ServerIpInput";body.AddChild(_server);
+        _server.TextSubmitted+=_=>LoginGuest();
         _guest=DeckMenuUi.Button("LOGIN WITH GUEST",LoginGuest,420,48);GameUi.Primary(_guest);body.AddChild(_guest);
         _status=DeckMenuUi.Text("",14);_status.HorizontalAlignment=HorizontalAlignment.Center;body.AddChild(_status);
         var layer=new CanvasLayer {Layer=30};AddChild(layer);_modal=new GameModal();layer.AddChild(_modal);
@@ -28,7 +31,9 @@ public partial class Welcome : Control
     }
     public async void LoginGuest()
     {
-        if(_busy||_exiting)return;_busy=true;_guest.Disabled=true;_status.Text="Connecting...";
+        if(_busy||_exiting)return;
+        if(!GameAccount.SetServerHost(_server.Text)){_status.Text="Enter a valid server IP or hostname (without http:// or port).";return;}
+        _busy=true;_server.Editable=false;_guest.Disabled=true;_status.Text="Connecting...";
         try {
             PlayerInventory.Reset();GameAccount.RequiresLogin=false;GameAccount.Session=null;BattleRecovery.Notice="";_connection=GameAccount.Connection();await _connection.Connect();
             if(_exiting){await _connection.Close();return;}
@@ -37,7 +42,7 @@ public partial class Welcome : Control
             if(_exiting)return;
             _name.Text=account.User.DisplayName??"";_status.Text="";_modal.Show();_name.GrabFocus();
         }catch(Exception e){if(!_exiting){_status.Text="Unable to login: "+e.Message;GD.Print(e.Message);}if(_connection!=null)await _connection.Close();_connection=null;}
-        finally{_busy=false;if(!_exiting)_guest.Disabled=false;}
+        finally{_busy=false;if(!_exiting){_guest.Disabled=false;_server.Editable=true;}}
     }
     public async void ConfirmName()
     {

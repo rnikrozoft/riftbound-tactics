@@ -30,6 +30,11 @@ public partial class BloodScreenEffect : CanvasLayer
     private void SetOpacity(float alpha){Image.Modulate=new Color(1,1,1,Mathf.Clamp(alpha,0,1));}
     public void Clear(){_intro?.Kill();_intro=null;_progress.Clear();_threshold.Clear();_thresholdStarts.Clear();_liveHp.Clear();Eliminated=false;SetOpacity(0);}
     private void StartFade(){_intro?.Kill();_intro=Image.CreateTween();_intro.TweenProperty(Image,"modulate:a",.08f,.4);}
+    public void PrepareForMatch(OnlinePlan plan,string team,int playerHpAtBattleStart)
+    {
+        // Use the HP from the battle's opening snapshot, never a later settled HP.
+        Prepare(plan,team,playerHpAtBattleStart>0&&plan.PlayerDamage>=playerHpAtBattleStart);
+    }
     public void Prepare(OnlinePlan plan,string team,bool eliminated)
     {
         Clear();if(!eliminated||plan.Winner==team||plan.Winner=="DRAW")return;
