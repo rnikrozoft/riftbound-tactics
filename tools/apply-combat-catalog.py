@@ -2,7 +2,7 @@
 import argparse, json, math, subprocess, zipfile, xml.etree.ElementTree as E
 from pathlib import Path
 from PIL import Image
-from combat_animation_variety import apply_animation_variety
+from combat_animation_variety import apply_animation_variety, apply_reviewed_hit_counts
 root=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--backend',required=True,type=Path)
@@ -124,6 +124,7 @@ for c in catalog['characters']:
     if rules.get('finisher'):
         fin=atk(rules['finisher'],hits=rules.get('finisher_hits',1));timing(slug,fin)
         rules['finisher_frames']=fin['frames'];rules['finisher_hit_frames']=fin['hit_frames']
+    apply_reviewed_hit_counts(slug,rules)
     c['combat']=rules;c['ability_key']='character_combat'
     c['role']=d['B']
     for s,m in zip(c['stats'],[1,1.7,2.4,3.1]):

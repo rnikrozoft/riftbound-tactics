@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 public partial class CombatSimulatorLab : Control
 {
+    public static string ReturnScene {get;set;}="res://scenes/welcome.tscn";
     public CharacterDefinition[] Characters {get;private set;}=Array.Empty<CharacterDefinition>();
     public EffectEntry[] Effects {get;private set;}=Array.Empty<EffectEntry>();
     public BattleUnit Attacker {get;private set;}=null!;
@@ -14,13 +15,14 @@ public partial class CombatSimulatorLab : Control
     public bool Busy {get;private set;}
     public bool Dirty {get;private set;}
     private readonly Dictionary<string,CombatVisualChoice> _drafts=new();
-    private OptionButton _a=null!,_b=null!,_source=null!,_animation=null!,_effect=null!,_anchor=null!;
+    private OptionButton _a=null!,_b=null!,_source=null!,_animation=null!,_effect=null!,_anchor=null!,_pose=null!;
     private SpinBox _x=null!,_y=null!,_size=null!,_zoom=null!;
     private Label _status=null!,_details=null!;
     private Control _stage=null!;
     private Node2D _arena=null!;
     private AnimatedSprite2D? _previewEffect;
-    private TextureButton _save=null!;
+    private double _repeatDelay;
+    public string PreviewPose {get;private set;}="";
     private int _generation;
     private bool _updating,_exiting;
     private string _effectQuery="";
@@ -30,31 +32,53 @@ public partial class CombatSimulatorLab : Control
     private string SourceAnimation=>_sourceAnimations[_source.Selected];
     public override void _Ready()
     {
-        Characters=CharacterData.All.Where(c=>c.Enabled).GroupBy(c=>c.ScenePath).Select(g=>g.First()).OrderBy(c=>CharacterData.Groups[c.Group]).ToArray();
+        Characters=CharacterData.All.Where(c=>c.Enabled).GroupBy(c=>c.ScenePath).Select(g=>g.First()).OrderBy(c=>c.Name).ToArray();
         Effects=System.Text.Json.JsonSerializer.Deserialize(FileAccess.GetFileAsString("res://data/effect_catalog.json"),GameJsonContext.Default.EffectEntryArray)??Array.Empty<EffectEntry>();
         BuildUi();SelectCharacters(0,Math.Min(1,Characters.Length-1));
     }
     private OptionButton Picker(VBoxContainer box,string label)
     {
-        box.AddChild(DeckMenuUi.Text(label,14));var picker=new OptionButton {FitToLongestItem=false,TextOverrunBehavior=TextServer.OverrunBehavior.TrimEllipsis,CustomMinimumSize=new(300,32),SizeFlagsHorizontal=SizeFlags.ExpandFill};box.AddChild(picker);return picker;
+        box.AddChild(DeckMenuUi.Text(label,14));var picker=new OptionButton {FitToLongestItem=false,TextOverrunBehavior=TextServer.OverrunBehavior.TrimEllipsis,CustomMinimumSize=new(300,32),SizeFlagsHorizontal=SizeFlags.ExpandFill};box.AddChild(picker);
+        
+        void SelectWithKeyboard(int index)
+        {
+            if(_updating||index<0||index>=picker.ItemCount||index==picker.Selected)return;
+            picker.Select(index);picker.EmitSignal(OptionButton.SignalName.ItemSelected,(long)index);
+        }
+        picker.ItemFocused+=i=>SelectWithKeyboard((int)i);
+        picker.GuiInput+=input=>{
+            if(input is not InputEventKey {Pressed:true} key||picker.GetPopup().Visible)return;
+            int direction=key.Keycode switch {Key.Down or Key.Right=>1,Key.Up or Key.Left=>-1,_=>0};
+            if(direction==0)return;
+            SelectWithKeyboard(Mathf.Clamp(picker.Selected+direction,0,picker.ItemCount-1));picker.AcceptEvent();
+        };
+        return picker;
     }
     private SpinBox Number(VBoxContainer box,string label,double min,double max,double step,double value)
     {
         var row=new HBoxContainer();box.AddChild(row);var title=DeckMenuUi.Text(label,13);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;row.AddChild(title);
-        var number=new SpinBox {MinValue=min,MaxValue=max,Step=step,Value=value,CustomMinimumSize=new(120,32)};row.AddChild(number);return number;
+        var number=new SpinBox {MinValue=min,MaxValue=max,Step=step,Value=value,CustomMinimumSize=new(120,32)};row.AddChild(number);
+        var edit=number.GetLineEdit();
+        edit.GuiInput+=input=>{
+            if(input is not InputEventKey {Pressed:true} key||key.Keycode is not (Key.Up or Key.Down))return;
+            number.Value+=number.Step*(key.Keycode==Key.Up?1:-1);edit.AcceptEvent();
+        };
+        return number;
     }
     private void BuildUi()
     {
         var page=DeckMenuUi.Page(this);var header=new HBoxContainer();page.AddChild(header);
-        header.AddChild(DeckMenuUi.Button("< LOBBY",()=>GetTree().ChangeSceneToFile("res://scenes/lobby.tscn"),110));
-        var title=DeckMenuUi.Text("COMBAT SIMULATOR",24);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(title);
-        header.AddChild(DeckMenuUi.Button("EXPORT JSON",Export,140));
+        header.AddChild(DeckMenuUi.Button(ReturnScene=="res://scenes/lobby.tscn"?"< LOBBY":"< BACK",()=>GetTree().ChangeSceneToFile(ReturnScene),110));
+        var title=DeckMenuUi.Text("Combat Simulator",28);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(title);
+        header.AddChild(DeckMenuUi.Button("Export settings",Export,140));
         var body=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};body.AddThemeConstantOverride("separation",14);page.AddChild(body);
-        var settings=DeckMenuUi.Panel(body,340);var scroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};settings.AddChild(scroll);
-        var controls=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};controls.AddThemeConstantOverride("separation",4);scroll.AddChild(controls);
+        var settings=DeckMenuUi.Panel(body,320);var scroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};settings.AddChild(scroll);
+        var controls=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};controls.AddThemeConstantOverride("separation",10);scroll.AddChild(controls);
         _a=Picker(controls,"ตัวละคร A / ผู้โจมตี");_b=Picker(controls,"ตัวละคร B / เป้าหมายทดลอง");
-        foreach(var c in Characters){string name=CharacterData.Groups[c.Group];_a.AddItem(name);_b.AddItem(name);}
+        foreach(var c in Characters){string name=c.Name;_a.AddItem(name);_b.AddItem(name);}
         _a.ItemSelected+=i=>{if(!_updating)SelectCharacters((int)i,_b.Selected);};_b.ItemSelected+=i=>{if(!_updating)SelectCharacters(_a.Selected,(int)i);};
+        _pose=Picker(controls,"ดูแอนิเมชันทีละท่า / Animation preview");_pose.Name="PosePreviewPicker";
+        _pose.ItemSelected+=i=>SelectPreviewPose(i==0?"":_pose.GetItemText((int)i));
         _source=Picker(controls,"ท่าในเกมที่ต้องการปรับ");
         _source.ItemSelected+=i=>{if(!_updating)LoadChoice();};
         _animation=Picker(controls,"แอนิเมชันที่แสดง / ท่าที่ไม่ซ้ำ");
@@ -62,33 +86,26 @@ public partial class CombatSimulatorLab : Control
         controls.AddChild(DeckMenuUi.Text("PARTICLE / EFFECT",14));
         var search=DeckMenuUi.Input("","ค้นหาเอฟเฟกต์ / fire, heal, impact...",300);controls.AddChild(search);search.TextChanged+=query=>{_effectQuery=query;RebuildEffects();};
         _effect=Picker(controls,"เอฟเฟกต์บน B");_effect.Name="TargetEffectPicker";
-        _effect.TooltipText="ใช้ลูกศรขึ้น/ลงเพื่อเลือกและเล่นเอฟเฟกต์บน B ทันที";
+        
         _effect.ItemSelected+=i=>SelectEffect((int)i);
-        _effect.ItemFocused+=i=>{if(!_updating&&i!=_effect.Selected)SelectEffect((int)i);};
-        _effect.GuiInput+=input=>{
-            if(input is InputEventKey key&&key.Pressed&&!_effect.GetPopup().Visible&&(key.Keycode is Key.Up or Key.Down)){
-                SelectEffect(Mathf.Clamp(_effect.Selected+(key.Keycode==Key.Down?1:-1),0,_visibleEffects.Count-1));_effect.AcceptEvent();
-            }
-        };
         _anchor=Picker(controls,"จุดยึดเอฟเฟกต์");foreach(string name in new[]{"อัตโนมัติ","กลางตัว B","เท้า B"})_anchor.AddItem(name);_anchor.ItemSelected+=i=>Changed();
         _x=Number(controls,"ตำแหน่ง X (ขวา +)",-200,200,1,0);_y=Number(controls,"ตำแหน่ง Y (ลง +)",-200,200,1,0);_size=Number(controls,"ขนาดเอฟเฟกต์ (เท่า)",.1,5,.05,1);
+        _x.Name="EffectOffsetX";_y.Name="EffectOffsetY";_size.Name="EffectScale";
         foreach(var n in new[]{_x,_y,_size})n.ValueChanged+=v=>Changed();
-        controls.AddChild(DeckMenuUi.Text("ตำแหน่งเป็นหน่วยสนามจริง\nค่าที่เซฟใช้กับ A ทุกระดับดาวและทุกเป้าหมาย",12));
         var center=DeckMenuUi.Panel(body);center.GetParent<Control>().SizeFlagsHorizontal=SizeFlags.ExpandFill;
         _details=DeckMenuUi.Text("",15);_details.AutowrapMode=TextServer.AutowrapMode.WordSmart;center.AddChild(_details);
         _stage=new Control {SizeFlagsVertical=SizeFlags.ExpandFill,ClipContents=true,CustomMinimumSize=new(360,240),MouseFilter=MouseFilterEnum.Ignore};center.AddChild(_stage);
-        var background=new ColorRect {Color=new Color("172030"),MouseFilter=MouseFilterEnum.Ignore};_stage.AddChild(background);background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        var background=new ColorRect {Color=MenuUi.Background,MouseFilter=MouseFilterEnum.Ignore};_stage.AddChild(background);background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         _arena=new Node2D {Name="PreviewArena"};_stage.AddChild(_arena);_stage.Resized+=LayoutStage;
         _zoom=Number(center,"ซูมภาพทดลอง",1,6,.25,4);_zoom.ValueChanged+=v=>LayoutStage();
         var buttons=new HBoxContainer();center.AddChild(buttons);
-        var play=DeckMenuUi.Button("PLAY ATTACK",()=>{_ = PlayAttack();},180,44);play.Name="PlayAttackButton";buttons.AddChild(play);
-        _save=DeckMenuUi.Button("SAVE / ใช้ในเกม",()=>SaveChoice(),190,44);_save.Name="SaveCombatVisualButton";GameUi.Primary(_save);buttons.AddChild(_save);
+        var play=DeckMenuUi.Button("Play attack",()=>{_ = PlayAttack();},180,44);play.Name="PlayAttackButton";buttons.AddChild(play);
+
         buttons.AddChild(DeckMenuUi.Button("RESET",ResetChoice,100,44));
         _status=DeckMenuUi.Text("",13);_status.AutowrapMode=TextServer.AutowrapMode.WordSmart;center.AddChild(_status);
-        center.AddChild(DeckMenuUi.Text("ทดลองภาพโจมตีด้วยท่าที่เลือก • SAVE มีผลทันทีในเกมบนเครื่องนี้\nEXPORT JSON ใช้ส่งต่อค่าที่ปรับให้โปรเจกต์เกม",12));
         RebuildEffects();
     }
-    private string DraftKey()=>CombatVisualSettings.Slug(Attacker.CardKind)+":"+SourceAnimation;
+    private string DraftKey()=>CombatVisualSettings.Slug(Attacker.CardKind)+":"+SourceAnimation+":"+CombatVisualSettings.Slug(Target.CardKind);
     public void SelectCharacters(int a,int b)
     {
         if(a<0||a>=Characters.Length||b<0||b>=Characters.Length)return;
@@ -102,9 +119,14 @@ public partial class CombatSimulatorLab : Control
     private void RebuildAnimations()
     {
         string previous=_sourceAnimations.Length>0&&_source.Selected>=0?SourceAnimation:"attack01";
-        DisplayAnimations=UniqueCharacterAnimations.Names(Attacker.Sprite.SpriteFrames,new[]{"attack01","attack02","attack03"});
+        PreviewPose="";_pose.Clear();_pose.AddItem("Combat / โจมตีเป้าหมาย");
+        foreach(string pose in new[]{"idle","walk","attack01","attack02","attack03","hit","die"})
+            if(Attacker.Sprite.SpriteFrames.HasAnimation(pose))_pose.AddItem(pose);
+        _pose.Select(0);
+        DisplayAnimations=UniqueCharacterAnimations.Names(Attacker.Sprite.SpriteFrames,new[]{"attack01","attack02","attack03","summon"});
         var rules=CharacterData.Get(Attacker.CardKind).Combat;
         _sourceAnimations=(rules?.Actions.Select(a=>a.Animation)??new[]{"attack01"})
+            .Concat(Attacker.Sprite.SpriteFrames.HasAnimation("summon")?new[]{"summon"}:Array.Empty<string>())
             .Concat(rules?.First!=null?new[]{rules.First.Animation}:Array.Empty<string>())
             .Concat(rules?.Finisher.Length>0?new[]{rules.Finisher}:Array.Empty<string>())
             .Concat(rules?.Execute>0?new[]{"attack03"}:Array.Empty<string>()).Distinct().OrderBy(n=>n).ToArray();
@@ -126,12 +148,13 @@ public partial class CombatSimulatorLab : Control
     {
         int index=Array.IndexOf(_sourceAnimations,animation);if(index<0)return;_source.Select(index);LoadChoice();
     }
-    private void LoadChoice()
+    private void LoadChoice(bool autoSave=true)
     {
         string original=SourceAnimation;
-        Choice=_drafts.TryGetValue(DraftKey(),out var draft)?draft.Copy():CombatVisualSettings.Find(Attacker.CardKind,original)??new() {
+        Choice=_drafts.TryGetValue(DraftKey(),out var draft)?draft.Copy():CombatVisualSettings.Find(Attacker.CardKind,original,Target.CardKind)??new() {
             Character=CombatVisualSettings.Slug(Attacker.CardKind),SourceAnimation=original,Animation=original,Effect=CharacterImpactEffects.DefaultEffect(Attacker.CardKind,original)};
-        SyncControls();RefreshPreview();UpdateStatus();
+        Choice.TargetCharacter=CombatVisualSettings.Slug(Target.CardKind);
+        CancelAttackPreview();SyncControls();RefreshPreview();if(autoSave)SaveChoice();else UpdateStatus();
     }
     private void SyncControls()
     {
@@ -165,8 +188,9 @@ public partial class CombatSimulatorLab : Control
         if(_updating||Attacker==null)return;
         Choice.Animation=DisplayAnimations[_animation.Selected];Choice.Effect=_visibleEffects[_effect.Selected];Choice.Anchor=new[]{"auto","body","feet"}[_anchor.Selected];
         Choice.OffsetX=(float)_x.Value;Choice.OffsetY=(float)_y.Value;Choice.Scale=(float)_size.Value;
-        _drafts[DraftKey()]=Choice.Copy();UpdateStatus();
-        if(playAttack)_ = PlayAttack();else RefreshPreview();
+        _drafts[DraftKey()]=Choice.Copy();SaveChoice();
+        CancelAttackPreview();RefreshPreview();
+        _ = PlayAttack();
     }
     public void SetChoice(CombatVisualChoice choice)
     {
@@ -174,29 +198,39 @@ public partial class CombatSimulatorLab : Control
         CancelAttackPreview();
         int sourceIndex=Array.IndexOf(_sourceAnimations,choice.SourceAnimation);
         if(sourceIndex<0)throw new ArgumentException("This character does not use the source attack");
-        _source.Select(sourceIndex);Choice=choice.Copy();_drafts[DraftKey()]=Choice.Copy();SyncControls();RefreshPreview();UpdateStatus();
+        _source.Select(sourceIndex);Choice=choice.Copy();Choice.TargetCharacter=CombatVisualSettings.Slug(Target.CardKind);_drafts[DraftKey()]=Choice.Copy();CancelAttackPreview();SyncControls();RefreshPreview();SaveChoice();
     }
     private void UpdateStatus()
     {
-        var saved=CombatVisualSettings.Find(Attacker.CardKind,Choice.SourceAnimation);
+        var saved=CombatVisualSettings.Find(Attacker.CardKind,Choice.SourceAnimation,Target.CardKind);
         var baseline=saved??new CombatVisualChoice {Character=Choice.Character,SourceAnimation=Choice.SourceAnimation,Animation=Choice.SourceAnimation,Effect=CharacterImpactEffects.DefaultEffect(Attacker.CardKind,Choice.SourceAnimation)};
+        baseline.TargetCharacter=CombatVisualSettings.Slug(Target.CardKind);
         baseline.Animation=UniqueCharacterAnimations.Canonical(Attacker.Sprite.SpriteFrames,baseline.Animation,DisplayAnimations);
         Dirty=System.Text.Json.JsonSerializer.Serialize(baseline,GameJsonContext.Default.CombatVisualChoice)!=System.Text.Json.JsonSerializer.Serialize(Choice,GameJsonContext.Default.CombatVisualChoice);
-        _status.Text=Dirty?"ยังไม่ได้เซฟ • กด PLAY เพื่อทดลอง แล้ว SAVE เพื่อใช้ในเกม":saved!=null?"โหลดค่าที่เซฟไว้แล้ว • เกมใช้ค่านี้อยู่":"ค่าเริ่มต้น • ปรับแล้วกด SAVE เพื่อใช้ในเกม";
+        _status.Text=Dirty?"บันทึกอัตโนมัติไม่สำเร็จ":saved!=null?"บันทึกอัตโนมัติแล้ว • เกมใช้ค่านี้อยู่":"ค่าเริ่มต้น";
         var rules=CharacterData.Get(Attacker.CardKind).Combat;
         bool used=rules?.Actions.Any(a=>a.Animation==Choice.SourceAnimation)==true||rules?.First?.Animation==Choice.SourceAnimation||rules?.Finisher==Choice.SourceAnimation;
-        _details.Text=$"A: {CharacterData.Groups[Characters[_a.Selected].Group]}  →  B: {CharacterData.Groups[Characters[_b.Selected].Group]}\n{Choice.SourceAnimation}  →  {Choice.Animation}"+(used?"":"\nท่าต้นทางนี้ยังไม่อยู่ในรอบโจมตีของตัวละคร เลือกท่าต้นทางที่ใช้อยู่เพื่อเห็นในเกม");
+        _details.Text=$"A: {Characters[_a.Selected].Name}  →  B: {Characters[_b.Selected].Name}\n{Choice.SourceAnimation}  →  {Choice.Animation}"+(used?"":"\nท่าต้นทางนี้ยังไม่อยู่ในรอบโจมตีของตัวละคร เลือกท่าต้นทางที่ใช้อยู่เพื่อเห็นในเกม");
     }
     private void StopEffect(){if(GodotObject.IsInstanceValid(_previewEffect)){_previewEffect!.GetParent()?.RemoveChild(_previewEffect);_previewEffect.QueueFree();}_previewEffect=null;}
     private void RefreshPreview()
     {
         if(Busy||Attacker==null)return;StopEffect();Attacker.Sprite.Play(BattleAnimations.Idle);Target.Sprite.Play(BattleAnimations.Idle);
-        _previewEffect=CharacterImpactEffects.PlayChoice(Attacker,Target,Choice);
-        if(_previewEffect!=null){_previewEffect.Pause();_previewEffect.Frame=Math.Max(0,_previewEffect.SpriteFrames.GetFrameCount(BattleAnimations.Effect)/3);}
+        _repeatDelay=0;
+    }
+    public void SelectPreviewPose(string animation)
+    {
+        if(animation!=""&&!Attacker.Sprite.SpriteFrames.HasAnimation(animation))return;
+        _generation++;Busy=false;StopEffect();PreviewPose=animation;_repeatDelay=0;
+        Attacker.Position=new(-48,0);Target.Position=new(48,0);
+        Target.Sprite.Play(BattleAnimations.Idle);
+        Attacker.Sprite.Play(animation==""?BattleAnimations.Idle:new StringName(animation));
+        Attacker.Sprite.SetFrameAndProgress(0,0);
+        for(int i=0;i<_pose.ItemCount;i++)if((i==0?"":_pose.GetItemText(i))==animation)_pose.Select(i);
     }
     public async Task PlayAttack()
     {
-        if(Busy||_exiting)return;Busy=true;int generation=++_generation;var choice=Choice.Copy();var actor=Attacker;var victim=Target;StopEffect();actor.ResetHealth();victim.ResetHealth();
+        if(Busy||_exiting)return;PreviewPose="";_pose.Select(0);Busy=true;int generation=++_generation;var choice=Choice.Copy();var actor=Attacker;var victim=Target;StopEffect();actor.ResetHealth();victim.ResetHealth();
         try {
             var rule=CharacterData.Get(actor.CardKind).Combat?.Actions.FirstOrDefault(a=>a.Animation==choice.SourceAnimation);
             var home=actor.Position;
@@ -207,10 +241,11 @@ public partial class CombatSimulatorLab : Control
             actor.Sprite.Play(choice.Animation);actor.Sprite.SetFrameAndProgress(0,0);
             int count=actor.Sprite.SpriteFrames.GetFrameCount(choice.Animation);
             int[] impacts=rule?.HitFrames.Length>0?rule.HitFrames.Select(f=>CombatVisualSettings.RemapFrame(f,rule.Frames,count)).ToArray():new[]{Math.Max(1,count/2)};
+            CharacterProjectiles.Begin(actor,victim,choice.SourceAnimation,choice.Animation,impacts[0]);
             foreach(int frame in impacts){
                 while(actor.Sprite.IsPlaying()&&actor.Sprite.Frame<frame){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);if(_exiting||generation!=_generation)return;}
                 if(_exiting||generation!=_generation)return;
-                victim.Sprite.Play(BattleAnimations.Hit);victim.Sprite.SetFrameAndProgress(0,0);CharacterImpactEffects.PlayChoice(actor,victim,choice);
+                victim.Sprite.Play(BattleAnimations.Hit);victim.Sprite.SetFrameAndProgress(0,0);CharacterProjectiles.Impact(actor,victim,choice.SourceAnimation,rule?.Mode??"damage");CharacterImpactEffects.PlayChoice(actor,victim,choice);
             }
             while(actor.Sprite.IsPlaying()){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);if(_exiting||generation!=_generation)return;}
             if(rule?.Mode=="melee"){
@@ -219,7 +254,19 @@ public partial class CombatSimulatorLab : Control
             }
             await ToSignal(GetTree().CreateTimer(.7),SceneTreeTimer.SignalName.Timeout);
             if(_exiting||generation!=_generation)return;actor.Sprite.Play(BattleAnimations.Idle);victim.Sprite.Play(BattleAnimations.Idle);
-        }finally {if(!_exiting&&generation==_generation){Busy=false;RefreshPreview();UpdateStatus();}}
+        }finally {if(!_exiting&&generation==_generation){Busy=false;RefreshPreview();_repeatDelay=.2;}}
+    }
+    public override void _Process(double delta)
+    {
+        if(_exiting||_updating||Busy||Attacker==null||!IsVisibleInTree())return;
+        _repeatDelay-=delta;
+        if(PreviewPose!=""){
+            if(Attacker.Sprite.Animation!=PreviewPose){Attacker.Sprite.Play(PreviewPose);Attacker.Sprite.SetFrameAndProgress(0,0);}
+            if(Attacker.Sprite.IsPlaying()){_repeatDelay=.6;return;}
+            if(_repeatDelay<=0){Attacker.Sprite.Play(PreviewPose);Attacker.Sprite.SetFrameAndProgress(0,0);}
+            return;
+        }
+        if(_repeatDelay<=0)_ = PlayAttack();
     }
     private async Task<bool> MovePreview(BattleUnit unit,Vector2 destination,int generation)
     {
@@ -233,12 +280,12 @@ public partial class CombatSimulatorLab : Control
     }
     public bool SaveChoice()
     {
-        if(CombatVisualSettings.Save(Choice,out string error)){_drafts.Remove(DraftKey());UpdateStatus();_status.Text="เซฟแล้ว • ใช้ในเกมจริงทันที และยังอยู่หลังเปิดเกมใหม่";return true;}
+        if(CombatVisualSettings.Save(Choice,out string error)){_drafts.Remove(DraftKey());UpdateStatus();_status.Text="บันทึกอัตโนมัติแล้ว • ใช้ในเกมทันที และยังอยู่หลังเปิดเกมใหม่";return true;}
         _status.Text="เซฟไม่สำเร็จ: "+error;return false;
     }
     private void ResetChoice()
     {
-        if(CombatVisualSettings.Reset(Attacker.CardKind,Choice.SourceAnimation,out string error)){_drafts.Remove(DraftKey());LoadChoice();_status.Text="กลับไปใช้ค่าเริ่มต้นแล้ว";}
+        if(CombatVisualSettings.Reset(Attacker.CardKind,Choice.SourceAnimation,out string error,Target.CardKind)){_drafts.Remove(DraftKey());LoadChoice(false);_status.Text="กลับไปใช้ค่าเริ่มต้นแล้ว";}
         else _status.Text="รีเซ็ตไม่สำเร็จ: "+error;
     }
     private void Export()

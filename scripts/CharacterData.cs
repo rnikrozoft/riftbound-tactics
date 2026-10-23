@@ -58,6 +58,9 @@ public sealed class CombatRules
 }
 public sealed class CharacterDefinition
 {
+    [JsonPropertyName("support_value")] public int SupportValue {get;set;}
+    [JsonPropertyName("support_effect")] public string SupportEffect {get;set;}="";
+    [JsonPropertyName("enemy_animation_path")] public string EnemyAnimationPath {get;set;}="";
     [JsonPropertyName("kind")] public int Kind {get;set;}
     [JsonPropertyName("character_id")] public string Id {get;set;}="";
     [JsonPropertyName("name")] public string Name {get;set;}="";
@@ -89,6 +92,7 @@ public sealed class CharacterDefinition
 }
 public sealed class CharacterCatalogData
 {
+    [JsonPropertyName("roster_version")] public int RosterVersion {get;set;}
     [JsonPropertyName("schema_version")] public int SchemaVersion {get;set;}
     [JsonPropertyName("group_names")] public string[] GroupNames {get;set;}={"Knight","Ranger","Mage","Guardian","Neutral"};
     [JsonPropertyName("characters")] public CharacterDefinition[] Characters {get;set;}=Array.Empty<CharacterDefinition>();
@@ -96,14 +100,21 @@ public sealed class CharacterCatalogData
 public static class CharacterData
 {
     private static CharacterCatalogData _catalog=Parse(Godot.FileAccess.GetFileAsString("res://data/characters.json"));
+    public static int SupportKind=>Array.FindIndex(All,c=>c.Id=="healing_totem"&&c.Enabled);
+    public static bool IsSupport(int kind)=>kind>=0&&kind<All.Length&&(Get(kind).Id=="healing_totem"||Get(kind).SupportEffect.Length>0);
+    public static System.Collections.Generic.IEnumerable<int> SupportKinds=>All.Where(c=>c.Enabled&&IsSupport(c.Kind)).Select(c=>c.Kind);
+    public static bool IsTrap(int kind)=>IsSupport(kind)&&Get(kind).Role=="trap";
+    public static string SupportEffectFor(int kind)=>Get(kind).Id=="healing_totem"?"heal":Get(kind).SupportEffect;
     public static CharacterDefinition[] All=>_catalog.Characters;
     public static string[] Groups=>_catalog.GroupNames;
     public static CharacterDefinition Get(int kind)=>All[kind];
+    // The stored tier remains 1..4; visible stars follow the binary copy count.
+    public static int DisplayStars(int tier)=>1 << (Mathf.Clamp(tier,1,4)-1);
     public static CharacterStats Stats(int kind,int stars)=>Get(kind).Stats[Mathf.Clamp(stars,1,4)-1];
     public static int EffectValue(int value,int stars)=>(int)Math.Round(value*new[]{1d,1.5d,2d,2.5d}[Mathf.Clamp(stars,1,4)-1],MidpointRounding.AwayFromZero);
     private static string Area(string shape)=>shape switch {"back"=>"ด้านหลังเป้าหมายในแนวเดียวกัน","sides"=>"ข้างเป้าหมายในแถวเดียวกัน","around"=>"รอบเป้าหมาย 1 ช่อง","column"=>"อีกแถวในแนวเดียวกับเป้าหมาย",_=>"ใกล้เป้าหมาย"};
     private static string StatusEffect(string status,int stars)=>status switch {
-        "fire"=>$"ติดไฟ: รับดาเมจเพิ่ม {EffectValue(3,stars)} ในการโจมตีถัดไป",
+        "fire"=>"ติดไฟ: เสียพลังชีวิต 2 แต้มทุกเทิร์นของทั้งสองฝ่าย โดยไม่คิดเกราะ",
         "stun"=>"สตั้น: ข้ามคิวถัดไป",
         "poison"=>$"ติดพิษ: เสียเลือด {EffectValue(2,stars)} หลังถึงคิวตนเอง 2 ครั้ง โดยไม่คิดเกราะ",_=>""
     };
@@ -113,13 +124,13 @@ public static class CharacterData
         if(a.Mode=="curse")return "ทำให้ศัตรูอ่อนแรง: การโจมตีถัดไปมีดาเมจเหลือ 50%";
         if(a.Mode=="summon")return $"อัญเชิญ Skeleton เลือด {EffectValue(5,stars)} เกราะ 0 สูงสุด 2 ตัวต่อการต่อสู้ ต้องมีช่องว่าง; หากอัญเชิญไม่ได้จะโจมตีประชิด";
         if(a.Mode=="revive")return "คืนชีพเพื่อนที่มีเลือดเต็มมากที่สุด ด้วยเลือด 40% เกราะ 0 (1 ครั้งต่อการต่อสู้) ต้องมีช่องว่าง; ไม่รวมตัวอัญเชิญและตัวที่เคยคืนชีพ หากคืนชีพไม่ได้จะโจมตีประชิด";
-        var parts=new System.Collections.Generic.List<string>{a.Mode=="ranged"?"โจมตีระยะไกล ไม่ถูกสวนกลับ":"โจมตีประชิด"};
+        var parts=new System.Collections.Generic.List<string>();
         if(a.Hits>1)parts.Add($"โจมตี {a.Hits} ครั้ง ดาเมจรวม {a.Power}% ของพลังโจมตี");
         else if(a.Power!=100)parts.Add($"ดาเมจ {a.Power}% ของพลังโจมตี");
         if(a.Pierce>0)parts.Add($"ดาเมจ {a.Pierce}% ไม่คิดเกราะ");
         if(a.Splash.Length>0){
             string area=$"ศัตรู{Area(a.Splash)}รับดาเมจ {a.SplashPower}% ของพลังโจมตี";
-            if(a.MinStars>stars)area=$"{a.MinStars} ดาวขึ้นไป: "+area;
+            if(a.MinStars>stars)area=$"{DisplayStars(a.MinStars)} ดาวขึ้นไป: "+area;
             if(a.SplashStatus.Length>0)area+=" และ"+StatusEffect(a.SplashStatus,stars);
             parts.Add(area);
         }
@@ -131,20 +142,22 @@ public static class CharacterData
         if(a.AntiHeal)parts.Add("ห้ามเป้าหมายรับการฟื้นฟูเลือดจนจบคิวถัดไป");
         return string.Join(" • ",parts);
     }
+    public static AttackRule[] AttackChoices(CombatRules rules)=>rules.Actions.DistinctBy(a=>a.Animation).ToArray();
     public static string AttackDescription(int kind,int stars)
     {
         var c=Get(kind);var r=c.Combat;if(r==null)return c.AbilityDescription;
-        var actions=r.Actions.Select(a=>DescribeAttack(a,stars)).ToArray();
+        var choices=AttackChoices(r);
+        var actions=choices.Select(a=>DescribeAttack(a,stars)).ToArray();
         var lines=new System.Collections.Generic.List<string>();
-        if(actions.Distinct().Count()==1)lines.Add(actions[0]);
-        else {
-            lines.Add("ลำดับการโจมตี (วนซ้ำ)");
-            for(int i=0;i<actions.Length;i++){
-                int last=i;while(last+1<actions.Length&&actions[last+1]==actions[i])last++;
-                lines.Add($"{(last==i?$"{i+1}":$"{i+1}–{last+1}")}. {actions[i]}");i=last;
+        if(actions.Distinct().Count()==1) {
+            if(actions[0].Length>0)lines.Add(actions[0]);
+        } else {
+            for(int i=0;i<actions.Length;i++) {
+                if(actions[i].Length==0)continue;
+                lines.Add($"โอกาส {100d/actions.Length:0.##}%: {actions[i]}");
             }
         }
-        if(r.First!=null)lines.Add("ครั้งแรก: "+DescribeAttack(r.First,stars));
+        if(r.First!=null && DescribeAttack(r.First,stars).Length>0)lines.Add("ครั้งแรก: "+DescribeAttack(r.First,stars));
         if(r.FinisherHits>1)lines.Add($"ท่าปิดฉาก: โจมตี {r.FinisherHits} ครั้ง ดาเมจรวม 120% ของพลังโจมตี");
         return string.Join("\n",lines);
     }
@@ -174,9 +187,15 @@ public static class CharacterData
         var data=JsonSerializer.Deserialize(json,GameJsonContext.Default.CharacterCatalogData)??throw new Exception("Character catalog is empty.");
         if(data.SchemaVersion!=1 || data.Characters.Length<1 || data.GroupNames.Length<5 || data.GroupNames[4]!="Neutral")throw new Exception("Unsupported character catalog.");
         for(int i=0;i<data.Characters.Length;i++){
-            var c=data.Characters[i];if(c.Kind!=i || c.Stats.Length!=4 || c.Group<0 || c.Group>=data.GroupNames.Length)throw new Exception("Character catalog IDs, groups or stats are invalid.");
+            var c=data.Characters[i];c.MaxCopies=Math.Min(4,c.MaxCopies);if(c.Kind!=i || c.Stats.Length!=4 || c.Group<0 || c.Group>=data.GroupNames.Length)throw new Exception("Character catalog IDs, groups or stats are invalid.");
             foreach(string path in new[]{c.ScenePath,c.EnemyScenePath,c.CardArtPath,c.PortraitPath}.Distinct())
                 if(!path.StartsWith("res://") || !ResourceLoader.Exists(path))throw new Exception($"Missing character asset: {path}. Update the game assets first.");
+        }
+        if(data.RosterVersion>=2){
+            var active=data.Characters.Where(c=>c.Enabled&&c.Group!=4).ToArray();
+            bool expanded=data.RosterVersion>=3;
+            if(active.Length<40 || active.Select(c=>c.ScenePath).Distinct().Count()!=active.Length || active.GroupBy(c=>c.Group).Count()!=4 || active.GroupBy(c=>c.Group).Any(g=>g.Count()<10 || Enumerable.Range(2,5).Any(cost=>expanded ? g.Count(c=>c.Cost==cost)<2 : g.Count(c=>c.Cost==cost)!=2)))
+                throw new InvalidOperationException("Roster requires four groups with at least two unique characters at each cost.");
         }
         return data;
     }

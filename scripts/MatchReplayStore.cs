@@ -15,6 +15,8 @@ public static class MatchReplayStore
     public static string Error {get;private set;}="";
     internal static string? TestPath {get;set;}
     private static ReplayGame? _current;
+    private static string _deckId="";
+    public static void BindDeck(DeckDefinition? deck){if(_current==null)_deckId=deck?.Id??"";}
     private static string Path {
         get {if(TestPath!=null)return TestPath;_ = GameAccount.DeviceId;return ProjectSettings.GlobalizePath($"user://replays-{GameAccount.InstanceSlot}.json");}
     }
@@ -43,7 +45,7 @@ public static class MatchReplayStore
             File.WriteAllText(temp,JsonSerializer.Serialize(history,GameJsonContext.Default.ListReplayGame));File.Move(temp,path,true);Error="";
         }catch(Exception e){Error="Cannot save replay: "+e.Message;GD.PushError(Error);}
     }
-    public static void Clear(){Rounds.Clear();Preparations.Clear();UserId="";_current=null;FromHistory=false;}
+    public static void Clear(){Rounds.Clear();Preparations.Clear();UserId="";_current=null;_deckId="";FromHistory=false;}
     public static void Select(ReplayGame game)
     {
         Rounds.Clear();Rounds.AddRange(game.Rounds.Select(Clone));UserId=game.UserId;_current=game;FromHistory=true;
@@ -63,7 +65,7 @@ public static class MatchReplayStore
     {
         UserId=userId;
         var standing=state.Roster.FirstOrDefault(p=>p.UserId==userId);
-        _current??=new ReplayGame {Id=Guid.NewGuid().ToString("N"),UserId=userId,PlayerName=GameAccount.DisplayName,Code=state.Code,PlayedAt=state.ServerMs>0?state.ServerMs:DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),MmrBefore=standing?.Rating??0,Rated=standing!=null&&!standing.Bot};
+        _current??=new ReplayGame {Id=Guid.NewGuid().ToString("N"),UserId=userId,DeckId=_deckId,PlayerName=GameAccount.DisplayName,Code=state.Code,PlayedAt=state.ServerMs>0?state.ServerMs:DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),MmrBefore=standing?.Rating??0,Rated=standing!=null&&!standing.Bot};
         _current.FinalHp=standing?.Hp??state.Players.FirstOrDefault(p=>p?.UserId==userId)?.Hp??0;
     }
     public static void RecordPreparation(OnlineState state,string userId)
@@ -86,7 +88,7 @@ public static class MatchReplayStore
         if(!finished)return;
         _current.Result=state.Winner=="DRAW"?"DRAW":state.Roster.Length>0?(state.WinnerId==userId||standing?.Place==1?"WIN":"LOSS"):(state.Winner==player?.Team?"WIN":"LOSS");
         _current.Place=standing?.Place??0;_current.FinalHp=standing?.Hp??player?.Hp??0;
-        _current.Rated=standing!=null&&!standing.Bot;_current.MmrPending=state.MmrPending;_current.MmrDelta=state.MmrDelta;Save();
+        _current.Rated=standing!=null&&!standing.Bot;_current.MmrPending=state.MmrPending;_current.MmrDelta=state.MmrDelta;Save();DeckMatchHistory.Record(_current);
     }
     public static void Leave()
     {

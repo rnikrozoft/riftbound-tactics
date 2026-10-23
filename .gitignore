@@ -22,3 +22,6 @@ tests/deck-*.png.import
 tests/combat-*.png
 tests/combat-*.png.import
 tests/combat_fixture.json
+
+# Distributable game builds
+builds/

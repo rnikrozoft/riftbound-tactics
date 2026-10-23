@@ -1,6 +1,6 @@
 # Character combat
 
-The shipped JSON catalogs now include `combat` rules for all 41 character assets (460 stable card kinds). Online results are calculated only by the Go backend. The client replays per-impact HP, armor, status and slot snapshots; it does not infer damage from animation playback. `LocalCombat` emits the same protocol for offline play.
+The shipped JSON catalogs now include `combat` rules for 40 active character assets in four groups (500 stable kinds, including 460 retired compatibility entries). Online results are calculated only by the Go backend. The client replays per-impact HP, armor, status and slot snapshots; it does not infer damage from animation playback. `LocalCombat` emits the same protocol for offline play.
 
 ## Stats and deck compatibility
 
@@ -64,20 +64,19 @@ replays A's selected attack and displays the chosen effect on B at impact, inclu
 highlighted items in the open dropdown without pressing Enter. Rapid browsing
 cancels the previous preview and starts the latest selection. The stage shows the effect's position as values change;
 **PLAY ATTACK** previews the attack and its impacts. Stage zoom does not affect
-saved size. B is a preview target: a saved entry applies to every opponent and
-all price/star tiers of A's character. The source-attack picker lists only attacks used by the character's combat rules,
+saved size. Saved entries are specific to A + source attack + B, across all price/star tiers of both characters. The source-attack picker lists only attacks used by the character's combat rules,
 including first attacks, finishers and executions. Different skill slots remain
 independent even when they share a visual animation.
 
 **SAVE** writes `user://combat_visuals.json` atomically and applies immediately
 in offline/online battles and replays on this device. The file survives restarts.
-Each character/original-attack pair keeps an independent entry. **RESET** removes
-its local override and restores the packaged default. **EXPORT JSON** exports all
+Each attacker/original-attack/target combination keeps an independent entry. **RESET** removes
+only that target-specific local override. Legacy entries without a target remain shared fallbacks. Target-specific entries take priority over shared entries. **EXPORT JSON** exports all
 saved entries; unsaved edits are excluded. To ship these settings for everyone,
 use the exported file as `data/combat_visuals.json` in a client build. Packaged
 defaults load first, then local overrides. The server does not need visual data.
 
-The versioned JSON records `character`, `source_animation`, `animation`, `effect`,
+The versioned JSON records `character`, `target_character`, `source_animation`, `animation`, `effect`,
 `offset_x`, `offset_y`, `scale` and `anchor`. Positions are battlefield units
 (positive X right, positive Y down), and scale multiplies the effect's normal
 battle size. Blank `effect` disables that attack's effect. Invalid entries are
@@ -108,3 +107,47 @@ verify concurrent movement, unchanged HP during background poses, ordered multi-
 snapshots, pause, deadline reconciliation, cancellation and switching back.
 
 Demon B uses ranged `attack01` and melee `attack02`. Demon D `attack02` applies three impacts at zero-based frames 5, 8 and 14. Elite Orc `attack02` applies two impacts at frames 2 and 6. These split the existing total attack damage; they do not multiply it. A target that dies early receives no further impacts.
+
+### Tiny RPG Character Asset Pack 01 v2.0 additions
+
+The imported pack overlaps twenty existing characters. Bat (kind 500, Demon Covenant)
+and Necromancer (kind 501, Blood Legion) complete the pack without duplicating those
+characters. Both use the original 100px split sheets directly. Bat uses Flying for
+idle and walk; Necromancer uses its attack sheet with supplied magic effects.
+They replace a card of the same group and cost in the 30-slot Deck Builder.
+Roster version 3 allows extra choices per cost while retaining two deck slots per
+cost, stable existing kinds, and the four current hero groups. Publish the updated
+backend catalog together with the client assets for online availability.
+
+### Pack projectiles
+
+`CharacterProjectiles` uses the original pack PNGs. Archer attack01 uses Arrow01,
+Archer attack02 uses Arrow02, and Skeleton Archer / Demon B attack01 use Arrow03. Orc Rider
+throws a weapon, so its attacks do not spawn arrows. Arrows fly in either direction
+and arrive on the existing authoritative hit frame.
+
+Magic sheets map by character and animation: Priest attack01 / attack02 (heal),
+Wizard attack01 / attack02, Necromancer attack02 / summon. Wizard attack02 travels
+as a fireball; the other magic sheets play at the affected unit. Necromancer's
+separate Summon pose and ground effect can be previewed in the combat simulator;
+this does not add a new gameplay summon rule. Its attack02 uses the plain actor
+sheet so the separate magic effect is not baked into the caster twice.
+
+Projectiles run in brawl playback, sequential replay and the offline simulator.
+They follow animation frames and inherit arena pause/speed. Combat rules, hit
+frames and damage remain unchanged. Validate with `tests/character_projectiles.tscn`.
+
+Lancer uses a fixed 1.8x normalization correction because the upright lance extends
+far above its body in idle. The mounted body now matches the visible humanoid
+height; changing attack poses keeps the same scale. Combat Simulator selectors
+and A/B captions show individual character names, sorted alphabetically.
+
+Demon E and Black Knight C use a fixed 1.5x field normalization correction.
+Their wide weapon / tall-horn silhouettes previously reduced the mounted body
+below the size of Lancer and humanoids. The correction remains constant across
+idle, walk, attacks and damage poses; body-height comparison is covered by
+`ProfileDisplayRunner`.
+
+## Formation initiative
+
+At the start of each battle round, sum the Attack stat of deployed units (including star scaling). The greater total acts first; equal totals use the seeded random generator. Sides then alternate one action at a time. Each side cycles through formation positions 1–6, skipping dead, empty, or not-yet-eligible slots. The illustrated order maps to A slots 5,4,3,2,1,0 and B slots 5,4,3,2,1,0 (the opponent formation is already mirrored by the renderer). Target selection and counterattacks retain their existing rules.

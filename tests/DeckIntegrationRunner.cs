@@ -34,7 +34,7 @@ public partial class DeckIntegrationRunner : Node
         try
         {
             DeckStore.Load();var starter=DeckDefinition.Starter();
-            Check(starter.Validate()==""&&starter.Cards.Count==40&&starter.Cards.Sum(c=>c.Copies)==160,"40 kinds / 160 copies");
+            Check(starter.Validate()==""&&starter.Cards.Count==30&&starter.Cards.Sum(c=>c.Copies)==120,"30 kinds / 120 copies");
             var invalid=starter.Clone();invalid.Cards[0].Copies=5;Check(invalid.Validate()!="","invalid copies rejected");
             invalid=starter.Clone();invalid.Cards[0].Kind=invalid.Cards[1].Kind;Check(invalid.Validate()!="","duplicate slot rejected");
             // Verify persistence while restoring the user's files and in-memory collection afterward.
@@ -60,26 +60,19 @@ public partial class DeckIntegrationRunner : Node
             }
             DeckStore.EditId="";
             var editor=GD.Load<PackedScene>("res://scenes/deck_builder.tscn").Instantiate<DeckBuilder>();AddChild(editor);await Frames();
-            editor.SetHero(0,3);Check(editor.Draft.Validate()==""&&editor.Draft.Heroes.SequenceEqual(new[]{3,1,2}),"hero replacement fills ten correct slots");
-            var neutral=editor.Draft.Cards.First(c=>CardCatalog.Group(c.Kind)==4);int original=neutral.Kind;
-            editor.SetGroup(4);
-            int replacement=CardCatalog.Options(4,CardCatalog.Cost(original)).First(k=>!editor.Draft.Cards.Any(c=>c.Kind==k));
-            Check(editor.ReplaceCard(original,replacement)&&editor.Draft.Validate()=="","explicit same-cost replacement");
-            Check(!editor.ReplaceCard(replacement,30),"cross-hero replacement rejected");
+            editor.SetHero(0,48);Check(editor.Draft.Validate()==""&&editor.Draft.Heroes.SequenceEqual(new[]{48,46,47}),"hero replacement fills ten correct slots");
+            editor.SetGroup(48);
+            int replacement=editor.Draft.Cards.First(c=>CardCatalog.Group(c.Kind)==48&&CardCatalog.Cost(c.Kind)==2).Kind;
+            editor.RemoveCard(replacement);Check(editor.Draft.Validate()!="","incomplete deck blocked");
+            Check(editor.AddCard(replacement)&&editor.Draft.Validate()=="","fill missing slot with one copy");
+            Check(!editor.ReplaceCard(replacement,30),"retired character replacement rejected");
             Check(editor.ChangeCopies(replacement,1)&&editor.Draft.Cards.First(c=>c.Kind==replacement).Copies==2,"increase copies");
             Check(editor.ChangeCopies(replacement,-1)&&!editor.ChangeCopies(replacement,-1),"one copy minimum without cycling");
-            editor.Filter(4);Check(editor.VisibleCardCount==CardCatalog.Options(4,4).Count(),"cost filter limits neutral catalog");
-            editor.Filter(0,"Warden");Check(editor.VisibleCardCount==5,"search matches card names");
-            editor.Filter(0);editor.RemoveCard(replacement);Check(editor.Draft.Validate()!="","incomplete deck blocked");
-            Check(editor.AddCard(replacement)&&editor.Draft.Validate()=="","fill missing slot with one copy");
-            editor.SelectCard(replacement);
+            editor.Filter(4);Check(editor.VisibleCardCount==CardCatalog.Options(48,4).Count(),"cost filter limits catalog");
+            editor.Filter(0,"Black Knight");Check(editor.VisibleCardCount==3,"search matches card names");
             editor.Filter(2);await Frames();
-            int dragged=CardCatalog.Options(4,2).First(k=>!editor.Draft.Cards.Any(c=>c.Kind==k));
-            int targetKind=editor.Draft.Cards.First(c=>CardCatalog.Group(c.Kind)==4&&CardCatalog.Cost(c.Kind)==2).Kind;
+            int dragged=replacement;
             var source=Descendants<DeckCatalogCard>(editor).First(c=>c.Kind==dragged);
-            var target=Descendants<DeckCardDrop>(editor).First(c=>c.Kind==targetKind);
-            await Drag(source.GetGlobalRect().GetCenter(),target.GetGlobalRect().GetCenter());
-            Check(editor.Draft.Cards.Any(c=>c.Kind==dragged)&&!editor.Draft.Cards.Any(c=>c.Kind==targetKind)&&editor.Draft.Validate()=="","native drop replaces correct slot");
             editor.RemoveCard(dragged);await Frames();
             source=Descendants<DeckCatalogCard>(editor).First(c=>c.Kind==dragged);
             var empty=Descendants<DeckEmptyDrop>(editor).First(c=>c.Cost==2);
@@ -92,8 +85,8 @@ public partial class DeckIntegrationRunner : Node
             string selectedBefore=DeckStore.SelectedId;
             foreach(string menu in new[]{"Decks","Shop","Leaderboard","Achievements"}){lobby.Navigate(menu);await Frames();Check(lobby.ActiveMenu==menu&&DeckStore.SelectedId==selectedBefore,"menu navigation preserves selected deck");}
             await Capture("deck-main-menu");lobby.Navigate("Play");Check(lobby.ActiveMenu=="Play","return to play");lobby.QueueFree();await Frames();
-            var deck=new DeckDefinition {Name="Monster expedition",Heroes=new[]{5,6,7}};
-            foreach(int group in deck.Heroes.Append(4))for(int cost=2;cost<=6;cost++)
+            var deck=new DeckDefinition {Name="Monster expedition",Heroes=new[]{45,46,47}};
+            foreach(int group in deck.Heroes)for(int cost=2;cost<=6;cost++)
                 foreach(int kind in CardCatalog.Options(group,cost).Take(2))deck.Cards.Add(new(){Kind=kind});
             foreach(var c in deck.Cards)c.Copies=1;
             Check(deck.Validate()=="","custom forty-card single-copy deck valid");

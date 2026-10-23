@@ -89,7 +89,8 @@ public static class CharacterImpactEffects
     public static AnimatedSprite2D? Play(BattleUnit source,BattleUnit target,string animation,string kind,int damage)
     {
         string lookupAnimation=kind=="counter"?"attack01":animation;
-        var choice=CombatVisualSettings.Find(source.CardKind,lookupAnimation);
+        CharacterProjectiles.Impact(source,target,lookupAnimation,kind);
+        var choice=CombatVisualSettings.Find(source.CardKind,lookupAnimation,target.CardKind);
         bool eligible=(damage>0&&kind is "damage" or "splash" or "counter" or "execute")||kind is "heal" or "revive" or "curse" or "summon";
         if(choice!=null&&eligible)return PlayChoice(source,target,choice,kind);
         string? name=kind switch {

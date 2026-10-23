@@ -24,7 +24,7 @@ public partial class BloodScreenEffect : CanvasLayer
     public override void _Ready()
     {
         Layer=30;
-        Image=new TextureRect {Name="DefeatEffect",Texture=GD.Load<Texture2D>("res://assets/effects/Bloody Screen Effects/Effect_4.png"),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.Scale,MouseFilter=Control.MouseFilterEnum.Ignore};
+        Image=new TextureRect {Name="DefeatEffect",Texture=GD.Load<Texture2D>("res://assets/effects/screen/bloody/Effect_4.png"),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.Scale,MouseFilter=Control.MouseFilterEnum.Ignore};
         AddChild(Image);Image.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);SetOpacity(0);
     }
     private void SetOpacity(float alpha){Image.Modulate=new Color(1,1,1,Mathf.Clamp(alpha,0,1));}

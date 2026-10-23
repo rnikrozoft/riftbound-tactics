@@ -156,7 +156,7 @@ public partial class BattleDemo : Node
         try {foreach(var combat in plan.Events){CheckAlive();var attacker=_shop.NetworkUnits[combat.Attacker];var target=_shop.NetworkUnits.TryGetValue(combat.Target,out var existing)?existing:attacker;await PlayServerEvent(attacker,target,combat);if(PresentationMode==BattlePresentationMode.TurnBased)await Delay(TurnDelay);}}
         finally {EndCombatPresentation();SpeedEnabled=false;}
         string winner=plan.Winner;CollectTeams();_resultText.Text=winner=="DRAW"?"DRAW":$"PLAYER {winner} WINS";_result.Show();
-        if(CardShopEnabled){int stars=0;foreach(var survivor in winner=="A"?_teamA:_teamB)if(!survivor.IsSummoned)stars+=survivor.Stars;_shop.FinishBattle(winner,stars);if(_shop.GameOver)ShowMatchResult(winner);}
+        if(CardShopEnabled){int stars=0;foreach(var survivor in winner=="A"?_teamA:_teamB)if(!survivor.IsSummoned&&!CharacterData.IsSupport(survivor.CardKind))stars+=survivor.Stars;_shop.FinishBattle(winner,stars);if(_shop.GameOver)ShowMatchResult(winner);}
         EmitSignal(SignalName.BattleFinished,winner);
     }
     private async Task RunLegacyCombat()
@@ -221,6 +221,7 @@ public partial class BattleDemo : Node
         dash.TweenProperty(attacker, PositionPath, attackPosition, DashDuration);
         await ToSignal(dash, Tween.SignalName.Finished); CheckAlive();
         sprite.Play(BattleAnimations.Attack); sprite.SetFrameAndProgress(0, 0);
+        CharacterProjectiles.Begin(attacker,target,"attack01",BattleAnimations.Attack.ToString(),2);
         while (sprite.Frame < 2 && sprite.IsPlaying())
         { await ToSignal(sprite, AnimatedSprite2D.SignalName.FrameChanged); CheckAlive(); }
         targetSprite.FlipH = attackPosition.X < targetHome.X;
@@ -279,7 +280,7 @@ public partial class BattleDemo : Node
         bool dash=combat.Mode is "melee" or "execute";
         var replayPlan=_shop.ReplayPlan;
         string originalAnimation=combat.Animation.Length>0?combat.Animation:"attack01";
-        StringName animation=new(CombatVisualSettings.AnimationFor(attacker.CardKind,originalAnimation,sprite.SpriteFrames));
+        StringName animation=new(CombatVisualSettings.AnimationFor(attacker.CardKind,originalAnimation,sprite.SpriteFrames,target.CardKind));
         int originalCount=sprite.SpriteFrames.HasAnimation(originalAnimation)?sprite.SpriteFrames.GetFrameCount(originalAnimation):sprite.SpriteFrames.GetFrameCount(BattleAnimations.Attack);
         if(!sprite.SpriteFrames.HasAnimation(animation))animation=BattleAnimations.Attack;
         try {
@@ -289,6 +290,7 @@ public partial class BattleDemo : Node
             if(combat.Mode=="stun"){
                 var shake=CreateTween();shake.TweenProperty(attacker,PositionPath,home+new Vector2(2,0),.06);shake.TweenProperty(attacker,PositionPath,home-new Vector2(2,0),.06);shake.TweenProperty(attacker,PositionPath,home,.06);
             }
+            if(combat.Hits.Length>0)CharacterProjectiles.Begin(attacker,target,originalAnimation,animation.ToString(),CombatVisualSettings.RemapFrame(combat.Hits[0].Frame,originalCount,sprite.SpriteFrames.GetFrameCount(animation)));
             int previousFrame=0;
             foreach(var hit in combat.Hits){
                 if(!ReferenceEquals(replayPlan,_shop.ReplayPlan))throw new OperationCanceledException();
@@ -320,7 +322,7 @@ public partial class BattleDemo : Node
     }
     public void ShowServerResult(string winner)
     {
-        _resultText.Text = winner=="DRAW" ? "ROUND DRAW" : winner==_shop.LocalTeam ? "ROUND WON" : "ROUND LOST";
+        _resultText.Text = winner=="DRAW" ? "DRAW" : winner==_shop.LocalTeam ? "WIN" : "LOSS";
         _result.Show(); EmitSignal(SignalName.BattleFinished,winner);
     }
     public void ShowResultMessage(string message){_resultText.Text=message;_result.Show();}

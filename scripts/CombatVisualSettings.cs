@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 public sealed class CombatVisualChoice
 {
     [JsonPropertyName("character")] public string Character {get;set;}="";
+    [JsonPropertyName("target_character")] public string TargetCharacter {get;set;}="";
     [JsonPropertyName("source_animation")] public string SourceAnimation {get;set;}="attack01";
     [JsonPropertyName("animation")] public string Animation {get;set;}="attack01";
     [JsonPropertyName("effect")] public string Effect {get;set;}="";
@@ -32,12 +33,13 @@ public static class CombatVisualSettings
     private static CombatVisualDocument? _defaults,_saved;
     private static HashSet<string>? _effects;
     public static string Slug(int kind)=>CharacterData.Get(kind).ScenePath.GetFile().GetBaseName();
-    private static string Key(CombatVisualChoice choice)=>choice.Character+":"+choice.SourceAnimation;
+    private static string Key(CombatVisualChoice choice)=>choice.Character+":"+choice.SourceAnimation+":"+choice.TargetCharacter;
     public static void Reload(){_defaults=null;_saved=null;}
     public static bool Valid(CombatVisualChoice c)
     {
         _effects??=(JsonSerializer.Deserialize(Godot.FileAccess.GetFileAsString("res://data/effect_catalog.json"),GameJsonContext.Default.EffectEntryArray)??Array.Empty<EffectEntry>()).Select(e=>e.Name).ToHashSet();
         return CharacterData.All.Any(d=>Slug(d.Kind)==c.Character)&&
+            (c.TargetCharacter==""||CharacterData.All.Any(d=>Slug(d.Kind)==c.TargetCharacter))&&
             new[]{"attack01","attack02","attack03"}.Contains(c.SourceAnimation)&&
             new[]{"attack01","attack02","attack03"}.Contains(c.Animation)&&
             (c.Effect==""||_effects.Contains(c.Effect))&&
@@ -55,11 +57,14 @@ public static class CombatVisualSettings
         }catch(Exception e) when(e is JsonException or IOException or ArgumentException){GD.PushWarning("Unable to load combat visuals: "+e.Message);return new();}
     }
     private static void Ensure(){_defaults??=Read(DefaultPath);_saved??=Read(StoragePath);}
-    public static CombatVisualChoice? Find(int kind,string animation)
+    public static CombatVisualChoice? Find(int kind,string animation,int? targetKind=null)
     {
-        Ensure();string character=Slug(kind);
-        return (_saved!.Entries.LastOrDefault(c=>c.Character==character&&c.SourceAnimation==animation)??
-            _defaults!.Entries.LastOrDefault(c=>c.Character==character&&c.SourceAnimation==animation))?.Copy();
+        Ensure();string character=Slug(kind),target=targetKind.HasValue?Slug(targetKind.Value):"";
+        bool Matches(CombatVisualChoice c,string t)=>c.Character==character&&c.SourceAnimation==animation&&c.TargetCharacter==t;
+        return ((target.Length>0? _saved!.Entries.LastOrDefault(c=>Matches(c,target))??
+            _defaults!.Entries.LastOrDefault(c=>Matches(c,target)):null)??
+            _saved!.Entries.LastOrDefault(c=>Matches(c,""))??
+            _defaults!.Entries.LastOrDefault(c=>Matches(c,"")))?.Copy();
     }
     public static CombatVisualDocument Combined()
     {
@@ -74,9 +79,9 @@ public static class CombatVisualSettings
             AtomicWrite(ProjectSettings.GlobalizePath(StoragePath),Serialize(next));_saved=next;return true;
         }catch(Exception e) when(e is IOException or UnauthorizedAccessException){error=e.Message;return false;}
     }
-    public static bool Reset(int kind,string animation,out string error)
+    public static bool Reset(int kind,string animation,out string error,int? targetKind=null)
     {
-        Ensure();error="";var next=new CombatVisualDocument {Entries=_saved!.Entries.Where(c=>c.Character!=Slug(kind)||c.SourceAnimation!=animation).Select(c=>c.Copy()).ToList()};
+        Ensure();error="";var next=new CombatVisualDocument {Entries=_saved!.Entries.Where(c=>c.Character!=Slug(kind)||c.SourceAnimation!=animation||c.TargetCharacter!=(targetKind.HasValue?Slug(targetKind.Value):"")).Select(c=>c.Copy()).ToList()};
         try {AtomicWrite(ProjectSettings.GlobalizePath(StoragePath),Serialize(next));_saved=next;return true;}
         catch(Exception e) when(e is IOException or UnauthorizedAccessException){error=e.Message;return false;}
     }
@@ -86,9 +91,9 @@ public static class CombatVisualSettings
         try {File.WriteAllText(temp,json);File.Move(temp,path,true);}
         finally {if(File.Exists(temp))File.Delete(temp);}
     }
-    public static string AnimationFor(int kind,string original,SpriteFrames frames)
+    public static string AnimationFor(int kind,string original,SpriteFrames frames,int? targetKind=null)
     {
-        var choice=Find(kind,original);
+        var choice=Find(kind,original,targetKind);
         return choice!=null&&frames.HasAnimation(choice.Animation)?choice.Animation:original;
     }
     public static int RemapFrame(int frame,int originalCount,int displayCount)=>

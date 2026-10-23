@@ -21,6 +21,7 @@ public sealed class OnlineUnit
 }
 public sealed class OnlinePlayer
 {
+    [JsonPropertyName("card_back_id")] public string CardBackId { get; set; } = CardBackCatalog.DefaultId;
     [JsonPropertyName("hp")] public int Hp { get; set; } = 30;
     [JsonPropertyName("last_damage")] public int LastDamage { get; set; }
     [JsonPropertyName("user_id")] public string UserId { get; set; } = "";

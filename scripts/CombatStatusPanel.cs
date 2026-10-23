@@ -18,7 +18,7 @@ public partial class CombatStatusPanel : PanelContainer
         _rows=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};_rows.AddThemeConstantOverride("separation",6);scroll.AddChild(_rows);
         Resized+=LayoutPanel;Refresh();
     }
-    public override void _Process(double delta){Refresh();LayoutPanel();}
+    public override void _Process(double delta){Refresh();LayoutPanel();if(_rows.GetNodeOrNull<HBoxContainer>("fire") is {} fire && fire.GetChild(0) is TextureRect icon)icon.Texture=CombatStatuses.Texture(CombatStatuses.All[0]);}
     private void Refresh()
     {
         int mask=0;var units=_field.GetChildren().OfType<BattleUnit>().Where(u=>!u.IsQueuedForDeletion()).ToArray();
@@ -29,7 +29,7 @@ public partial class CombatStatusPanel : PanelContainer
             var row=new HBoxContainer {Name=status.Key,CustomMinimumSize=new(0,54)};row.AddThemeConstantOverride("separation",8);_rows.AddChild(row);
             row.AddChild(new TextureRect {Texture=CombatStatuses.Texture(status),CustomMinimumSize=new(32,32),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,MouseFilter=MouseFilterEnum.Ignore});
             var copy=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};copy.AddThemeConstantOverride("separation",2);row.AddChild(copy);
-            copy.AddChild(DeckMenuUi.Text(status.Title,12));var description=DeckMenuUi.Text(status.Description,11);description.AutowrapMode=TextServer.AutowrapMode.WordSmart;copy.AddChild(description);
+            copy.AddChild(DeckMenuUi.GameplayText(status.Title,12));var description=DeckMenuUi.GameplayText(status.Description,11);description.AutowrapMode=TextServer.AutowrapMode.WordSmart;copy.AddChild(description);
         }
         Visible=_count>0;LayoutPanel();
     }

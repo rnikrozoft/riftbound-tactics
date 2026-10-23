@@ -1,0 +1,159 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Flying.png" id="tex0"]
+[ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Flying.png" id="tex1"]
+[ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Attack01.png" id="tex2"]
+[ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Attack02.png" id="tex3"]
+[ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Hurt.png" id="tex4"]
+[ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Death.png" id="tex5"]
+[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="script"]
+
+[sub_resource type="AtlasTexture" id="f0_0"]
+atlas = ExtResource("tex0")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f0_1"]
+atlas = ExtResource("tex0")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f0_2"]
+atlas = ExtResource("tex0")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f0_3"]
+atlas = ExtResource("tex0")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f0_4"]
+atlas = ExtResource("tex0")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f0_5"]
+atlas = ExtResource("tex0")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f1_0"]
+atlas = ExtResource("tex1")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f1_1"]
+atlas = ExtResource("tex1")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f1_2"]
+atlas = ExtResource("tex1")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f1_3"]
+atlas = ExtResource("tex1")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f1_4"]
+atlas = ExtResource("tex1")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f1_5"]
+atlas = ExtResource("tex1")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f2_0"]
+atlas = ExtResource("tex2")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f2_1"]
+atlas = ExtResource("tex2")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f2_2"]
+atlas = ExtResource("tex2")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f2_3"]
+atlas = ExtResource("tex2")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f2_4"]
+atlas = ExtResource("tex2")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f2_5"]
+atlas = ExtResource("tex2")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f3_0"]
+atlas = ExtResource("tex3")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f3_1"]
+atlas = ExtResource("tex3")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f3_2"]
+atlas = ExtResource("tex3")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f3_3"]
+atlas = ExtResource("tex3")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f3_4"]
+atlas = ExtResource("tex3")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f3_5"]
+atlas = ExtResource("tex3")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f3_6"]
+atlas = ExtResource("tex3")
+region = Rect2(600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f4_0"]
+atlas = ExtResource("tex4")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f4_1"]
+atlas = ExtResource("tex4")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f4_2"]
+atlas = ExtResource("tex4")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f4_3"]
+atlas = ExtResource("tex4")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f5_0"]
+atlas = ExtResource("tex5")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f5_1"]
+atlas = ExtResource("tex5")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f5_2"]
+atlas = ExtResource("tex5")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="f5_3"]
+atlas = ExtResource("tex5")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="SpriteFrames" id="frames"]
+animations = [{"frames": [{"duration": 1.0, "texture": SubResource("f0_0")}, {"duration": 1.0, "texture": SubResource("f0_1")}, {"duration": 1.0, "texture": SubResource("f0_2")}, {"duration": 1.0, "texture": SubResource("f0_3")}, {"duration": 1.0, "texture": SubResource("f0_4")}, {"duration": 1.0, "texture": SubResource("f0_5")}], "loop": true, "name": &"idle", "speed": 10.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("f1_0")}, {"duration": 1.0, "texture": SubResource("f1_1")}, {"duration": 1.0, "texture": SubResource("f1_2")}, {"duration": 1.0, "texture": SubResource("f1_3")}, {"duration": 1.0, "texture": SubResource("f1_4")}, {"duration": 1.0, "texture": SubResource("f1_5")}], "loop": true, "name": &"walk", "speed": 10.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("f2_0")}, {"duration": 1.0, "texture": SubResource("f2_1")}, {"duration": 1.0, "texture": SubResource("f2_2")}, {"duration": 1.0, "texture": SubResource("f2_3")}, {"duration": 1.0, "texture": SubResource("f2_4")}, {"duration": 1.0, "texture": SubResource("f2_5")}], "loop": false, "name": &"attack01", "speed": 10.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("f2_0")}, {"duration": 1.0, "texture": SubResource("f2_1")}, {"duration": 1.0, "texture": SubResource("f2_2")}, {"duration": 1.0, "texture": SubResource("f2_3")}, {"duration": 1.0, "texture": SubResource("f2_4")}, {"duration": 1.0, "texture": SubResource("f2_5")}], "loop": false, "name": &"attack", "speed": 10.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("f3_0")}, {"duration": 1.0, "texture": SubResource("f3_1")}, {"duration": 1.0, "texture": SubResource("f3_2")}, {"duration": 1.0, "texture": SubResource("f3_3")}, {"duration": 1.0, "texture": SubResource("f3_4")}, {"duration": 1.0, "texture": SubResource("f3_5")}, {"duration": 1.0, "texture": SubResource("f3_6")}], "loop": false, "name": &"attack02", "speed": 10.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("f4_0")}, {"duration": 1.0, "texture": SubResource("f4_1")}, {"duration": 1.0, "texture": SubResource("f4_2")}, {"duration": 1.0, "texture": SubResource("f4_3")}], "loop": false, "name": &"hit", "speed": 10.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("f5_0")}, {"duration": 1.0, "texture": SubResource("f5_1")}, {"duration": 1.0, "texture": SubResource("f5_2")}, {"duration": 1.0, "texture": SubResource("f5_3")}], "loop": false, "name": &"die", "speed": 10.0}]
+
+[node name="Character" type="CharacterBody2D"]
+script = ExtResource("script")
+texture_filter = 1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("frames")
+animation = &"idle"
+autoplay = "idle"

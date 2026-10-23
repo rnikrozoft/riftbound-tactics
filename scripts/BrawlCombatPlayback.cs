@@ -28,11 +28,11 @@ public partial class BrawlCombatPlayback : Node
         foreach(var (unit,home) in _homes){
             if(!GodotObject.IsInstanceValid(unit)||unit.IsQueuedForDeletion()||!unit.IsInsideTree())continue;
             if(restoreFormation)unit.Position=home;
-            if(!unit.IsDead){unit.Sprite.SpeedScale=1;unit.Sprite.Play(BattleAnimations.Idle);unit.Sprite.FlipH=!unit.IsAlly;}
+            if(!unit.IsDead){unit.Sprite.SpeedScale=1;unit.Sprite.Play(BattleAnimations.Idle);unit.Sprite.FlipH=unit.FormationFlipH;}
         }
         _homes.Clear();_cycles.Clear();_plan=null;
     }
-    private static bool Valid(BattleUnit unit)=>GodotObject.IsInstanceValid(unit)&&!unit.IsQueuedForDeletion()&&!unit.IsDead;
+    private static bool Valid(BattleUnit unit)=>GodotObject.IsInstanceValid(unit)&&!unit.IsQueuedForDeletion()&&!unit.IsDead&&!CharacterData.IsSupport(unit.CardKind);
     private static bool Ranged(BattleUnit unit)=>CharacterData.Get(unit.CardKind).Combat?.Actions.FirstOrDefault(a=>a.Mode is "melee" or "ranged")?.Mode=="ranged";
     public override void _Process(double delta)
     {
@@ -61,7 +61,7 @@ public partial class BrawlCombatPlayback : Node
             var rules=CharacterData.Get(unit.CardKind).Combat;
             string[] animations=rules?.Actions.Select(a=>a.Animation).Distinct().ToArray()??new[]{"attack01"};
             int cycle=_cycles.GetValueOrDefault(unit);_cycles[unit]=cycle+1;
-            string animation=CombatVisualSettings.AnimationFor(unit.CardKind,animations[cycle%animations.Length],unit.Sprite.SpriteFrames);
+            string animation=CombatVisualSettings.AnimationFor(unit.CardKind,animations[cycle%animations.Length],unit.Sprite.SpriteFrames,enemy.CardKind);
             unit.Sprite.SpeedScale=1;unit.Sprite.Play(animation);unit.Sprite.SetFrameAndProgress(0,0);
         }
     }
@@ -77,7 +77,7 @@ public partial class BrawlCombatPlayback : Node
     {
         int generation=_generation;Check(generation,deadline);
         string original=combat.Animation.Length>0?combat.Animation:"attack01";
-        string animation=CombatVisualSettings.AnimationFor(actor.CardKind,original,actor.Sprite.SpriteFrames);
+        string animation=CombatVisualSettings.AnimationFor(actor.CardKind,original,actor.Sprite.SpriteFrames,victim.CardKind);
         if(!actor.Sprite.SpriteFrames.HasAnimation(animation))animation=BattleAnimations.Attack.ToString();
         int originalFrames=actor.Sprite.SpriteFrames.HasAnimation(original)?actor.Sprite.SpriteFrames.GetFrameCount(original):actor.Sprite.SpriteFrames.GetFrameCount(animation);
         bool melee=combat.Mode is "melee" or "execute";
@@ -89,6 +89,8 @@ public partial class BrawlCombatPlayback : Node
             }
             _posing.Add(actor);actor.Sprite.SpeedScale=1;actor.Sprite.FlipH=victim.Position.X<actor.Position.X;
             if(!actor.IsDead){actor.Sprite.Play(animation);actor.Sprite.SetFrameAndProgress(0,0);}
+            int projectileFrame=combat.Hits.Length>0?CombatVisualSettings.RemapFrame(combat.Hits[0].Frame,originalFrames,actor.Sprite.SpriteFrames.GetFrameCount(animation)):actor.Sprite.SpriteFrames.GetFrameCount(animation)/2;
+            CharacterProjectiles.Begin(actor,victim,original,animation,projectileFrame);
             if(combat.Hits.Length==0){
                 int frame=actor.Sprite.SpriteFrames.GetFrameCount(animation)/2;
                 while(!actor.IsDead&&actor.Sprite.Animation.ToString()==animation&&actor.Sprite.IsPlaying()&&actor.Sprite.Frame<frame)await Frame(generation,deadline);

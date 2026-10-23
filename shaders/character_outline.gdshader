@@ -1,12 +1,13 @@
 shader_type canvas_item;
 
 uniform vec4 outline_color : source_color = vec4(1.0);
+uniform float outline_width : hint_range(1.0, 24.0) = 1.0;
 uniform float alpha_threshold : hint_range(0.0, 1.0) = 0.5;
 
 void fragment() {
 	vec4 tint = COLOR;
 	vec4 sprite = texture(TEXTURE, UV);
-	vec2 pixel = TEXTURE_PIXEL_SIZE;
+	vec2 pixel = TEXTURE_PIXEL_SIZE * outline_width;
 	float neighbor_alpha = 0.0;
 	for (int y = -1; y <= 1; y++) {
 		for (int x = -1; x <= 1; x++) {

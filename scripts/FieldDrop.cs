@@ -1,19 +1,23 @@
 using Godot;
+using System.Linq;
 
 public partial class FieldDrop : Control
 {
     public CardShop Shop { get; set; } = null!;
+    private readonly Texture2D[] _slotFrames=System.Linq.Enumerable.Range(0,4).Select(i=>(Texture2D)PixelPackUi.Frame("07",new(i*32,176,32,32))).ToArray();
+    private double _animationTime;
     private Vector2 _pressPosition;
     private bool _dragStarted;
     private CardDrag? _drag;
-    private readonly Vector2[][] _polygons = new Vector2[CardShop.FieldLimit][];
-    private readonly Vector2[][] _borders = new Vector2[CardShop.FieldLimit][];
+    private readonly Vector2[][] _polygons = new Vector2[CardShop.FieldLimit+5][];
+    private readonly Vector2[][] _borders = new Vector2[CardShop.FieldLimit+5][];
     private static readonly Vector2[] Corners = { new(0,-12),new(24,0),new(0,12),new(-24,0) };
 
     public override void _Ready()
     {
+        TextureFilter=TextureFilterEnum.Nearest;
         SetProcess(false);
-        for (int i = 0; i < CardShop.FieldLimit; i++) { _polygons[i] = new Vector2[4]; _borders[i] = new Vector2[5]; }
+        for (int i = 0; i < Shop.SlotCenters.Length; i++) { _polygons[i] = new Vector2[4]; _borders[i] = new Vector2[5]; }
     }
     public override void _Notification(int what)
     {
@@ -25,7 +29,7 @@ public partial class FieldDrop : Control
         }
         else if (what == NotificationDragEnd) { _drag = null; SetProcess(false); QueueRedraw(); }
     }
-    public override void _Process(double delta) => QueueRedraw();
+    public override void _Process(double delta){_animationTime+=delta;QueueRedraw();}
     public Vector2 WorldPosition(Vector2 localPosition) =>
         GetViewport().GetCanvasTransform().AffineInverse() * (GetGlobalTransformWithCanvas() * localPosition);
     public override void _Draw()
@@ -33,7 +37,7 @@ public partial class FieldDrop : Control
         if (!Shop.Drafting || _drag == null) return;
         var transform = GetGlobalTransformWithCanvas().AffineInverse() * Shop.Tiles.GetGlobalTransformWithCanvas();
         int hovered = Shop.DeploymentSlot(WorldPosition(GetLocalMousePosition()));
-        for (int i = 0; i < CardShop.FieldLimit; i++)
+        for (int i = 0; i < Shop.SlotCenters.Length; i++)
         {
             var center = Shop.SlotCenters[i];
             bool valid = Shop.CanPlace(_drag,Shop.Tiles.ToGlobal(center));
@@ -42,7 +46,12 @@ public partial class FieldDrop : Control
             var color = new Color(1,1,1,valid ? .07f : .03f);
             if (hovered == i) color = valid ? new Color(1,1,1,.24f) : new Color(1,.2f,.2f,.18f);
             DrawColoredPolygon(_polygons[i],color);
-            DrawPolyline(_borders[i],new Color(1,1,1,valid ? .4f : .12f),1,false);
+            // Project both texture axes onto the same 2:1 diamond as the tile.
+            float emphasis=hovered==i?1.12f:1f;
+            var isometric=new Transform2D(new Vector2(1,.5f)*emphasis,new Vector2(-1,.5f)*emphasis,center);
+            DrawSetTransformMatrix(transform*isometric);
+            DrawTextureRect(_slotFrames[(int)(_animationTime*7)%4],new Rect2(-16,-16,32,32),false,new Color(1,1,1,valid?1:.25f));
+            DrawSetTransformMatrix(Transform2D.Identity);
         }
     }
     public override void _GuiInput(InputEvent input)
@@ -64,7 +73,7 @@ public partial class FieldDrop : Control
         var original = unit.Sprite;
         preview.AddChild(new Sprite2D {
             Texture = original.SpriteFrames.GetFrameTexture(original.Animation,original.Frame), Position = new(32,40),
-            Scale = original.GlobalScale, FlipH = original.FlipH, TextureFilter = TextureFilterEnum.Nearest
+            Scale = original.GlobalScale, FlipH = original.FlipH, Material = SkillCardVisual.IsSkill(unit.CardKind)?original.Material:null, TextureFilter = TextureFilterEnum.Nearest
         });
         SetDragPreview(preview);
         return new CardDrag { Shop = Shop, Unit = unit };

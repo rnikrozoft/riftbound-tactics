@@ -1,10 +1,18 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
+[JsonSerializable(typeof(StoredDeck))]
+[JsonSerializable(typeof(TranslationDocument))]
+[JsonSerializable(typeof(LocalizationRequest))]
+[JsonSerializable(typeof(LocalizationResponse))]
+[JsonSerializable(typeof(CachedLocalization))]
+[JsonSerializable(typeof(CardBackDefinition[]))]
+[JsonSerializable(typeof(CardBackPurchaseRequest))]
 [JsonSerializable(typeof(PlayerBootstrapResponse))]
 [JsonSerializable(typeof(PlayerBootstrapRequest))]
 [JsonSerializable(typeof(PlayerDeckSaveRequest))]
 [JsonSerializable(typeof(CharacterPurchaseRequest))]
+[JsonSerializable(typeof(CharacterGroupPurchaseRequest))]
 [JsonSerializable(typeof(CatalogCache))]
 [JsonSerializable(typeof(GameConfiguration))]
 [JsonSerializable(typeof(CombatVisualDocument))]
@@ -15,6 +23,7 @@ using System.Text.Json.Serialization;
 [JsonSerializable(typeof(CharacterCatalogData))]
 [JsonSerializable(typeof(OnlineState))]
 [JsonSerializable(typeof(List<ReplayGame>))]
+[JsonSerializable(typeof(List<DeckMatchRecord>))]
 [JsonSerializable(typeof(OnlineAction))]
 [JsonSerializable(typeof(RoomRequest))]
 [JsonSerializable(typeof(RoomResponse))]

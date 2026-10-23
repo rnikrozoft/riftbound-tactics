@@ -9,5 +9,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NakamaClient" Version="3.17.0" />
+    <!-- Nakama TinyJson discovers API and socket models through reflection on iOS NativeAOT. -->
+    <TrimmerRootDescriptor Include="scripts/NakamaAot.xml" Condition="'$(GodotTargetPlatform)' == 'ios'" />
+    <TrimmerRootAssembly Include="Nakama" Condition="'$(GodotTargetPlatform)' == 'ios'" />
   </ItemGroup>
 </Project>

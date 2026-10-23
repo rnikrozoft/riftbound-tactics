@@ -30,7 +30,7 @@ public partial class SafeArea : MarginContainer
             var safe = ((Rect2)DisplayServer.GetDisplaySafeArea()).Intersection(new Rect2(Vector2.Zero, displaySize));
             if (displaySize.X > 0 && displaySize.Y > 0 && safe.HasArea())
             {
-                var transform = GetViewport().GetScreenTransform() * GetGlobalTransformWithCanvas();
+                var transform = GetViewport().GetScreenTransform() * GetViewport().GlobalCanvasTransform.AffineInverse() * GetGlobalTransformWithCanvas();
                 var local = (transform.AffineInverse() * safe).Intersection(new Rect2(Vector2.Zero, Size));
                 insets = new(Mathf.Max(0, local.Position.X), Mathf.Max(0, local.Position.Y),
                     Mathf.Max(0, Size.X - local.End.X), Mathf.Max(0, Size.Y - local.End.Y));

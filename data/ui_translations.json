@@ -1,0 +1,2142 @@
+{
+  "messages": [
+    [
+      "Play",
+      "เล่น"
+    ],
+    [
+      "PLAY",
+      "เล่น"
+    ],
+    [
+      "Collection",
+      "คอลเลกชัน"
+    ],
+    [
+      "Shop",
+      "ร้านค้า"
+    ],
+    [
+      "Leaderboard",
+      "อันดับผู้เล่น"
+    ],
+    [
+      "Replays",
+      "รีเพลย์"
+    ],
+    [
+      "Achievements",
+      "ความสำเร็จ"
+    ],
+    [
+      "Combat Simulator",
+      "จำลองการต่อสู้"
+    ],
+    [
+      "Settings",
+      "ตั้งค่า"
+    ],
+    [
+      "Close",
+      "ปิด"
+    ],
+    [
+      "CLOSE",
+      "ปิด"
+    ],
+    [
+      "Cancel",
+      "ยกเลิก"
+    ],
+    [
+      "CANCEL",
+      "ยกเลิก"
+    ],
+    [
+      "Confirm",
+      "ยืนยัน"
+    ],
+    [
+      "Delete",
+      "ลบ"
+    ],
+    [
+      "Save",
+      "บันทึก"
+    ],
+    [
+      "General",
+      "ทั่วไป"
+    ],
+    [
+      "GENERAL",
+      "ทั่วไป"
+    ],
+    [
+      "AUDIO",
+      "เสียง"
+    ],
+    [
+      "ACCOUNT",
+      "บัญชี"
+    ],
+    [
+      "Language",
+      "ภาษา"
+    ],
+    [
+      "Sound effects",
+      "เสียงเอฟเฟกต์"
+    ],
+    [
+      "Music",
+      "เสียงดนตรี"
+    ],
+    [
+      "Connect Facebook · Coming soon",
+      "เชื่อมต่อ Facebook · เร็ว ๆ นี้"
+    ],
+    [
+      "Facebook connected",
+      "เชื่อมต่อ Facebook แล้ว"
+    ],
+    [
+      "Delete account · Coming soon",
+      "ลบบัญชี · เร็ว ๆ นี้"
+    ],
+    [
+      "Game version",
+      "เวอร์ชันเกม"
+    ],
+    [
+      "Development build",
+      "รุ่นพัฒนา"
+    ],
+    [
+      "Player",
+      "ผู้เล่น"
+    ],
+    [
+      "COINS",
+      "เหรียญ"
+    ],
+    [
+      "DIAMONDS",
+      "เพชร"
+    ],
+    [
+      "+ New deck",
+      "+ สร้างเด็ค"
+    ],
+    [
+      "SELECTED DECK",
+      "เด็คที่เลือก"
+    ],
+    [
+      "Edit deck",
+      "แก้ไขเด็ค"
+    ],
+    [
+      "Delete deck",
+      "ลบเด็ค"
+    ],
+    [
+      "Find match",
+      "ค้นหาคู่ต่อสู้"
+    ],
+    [
+      "Delete this deck?",
+      "ลบเด็คนี้หรือไม่?"
+    ],
+    [
+      "DELETE DECK",
+      "ลบเด็ค"
+    ],
+    [
+      "KEEP DECK",
+      "เก็บเด็คไว้"
+    ],
+    [
+      "No completed matches",
+      "ยังไม่มีแมตช์ที่เล่นจบ"
+    ],
+    [
+      "Match statistics unavailable",
+      "ไม่สามารถโหลดสถิติได้"
+    ],
+    [
+      "RECENT MATCHES",
+      "แมตช์ล่าสุด"
+    ],
+    [
+      "Wins",
+      "ชนะ"
+    ],
+    [
+      "Draws",
+      "เสมอ"
+    ],
+    [
+      "Losses",
+      "แพ้"
+    ],
+    [
+      "win rate",
+      "อัตราชนะ"
+    ],
+    [
+      "W",
+      "ช"
+    ],
+    [
+      "D",
+      "ส"
+    ],
+    [
+      "L",
+      "พ"
+    ],
+    [
+      "Characters",
+      "ตัวละคร"
+    ],
+    [
+      "Card backs",
+      "หลังการ์ด"
+    ],
+    [
+      "Unlock group",
+      "ปลดล็อกกลุ่ม"
+    ],
+    [
+      "CHARACTER OWNED",
+      "มีตัวละครแล้ว"
+    ],
+    [
+      "OWNED",
+      "มีแล้ว"
+    ],
+    [
+      "LOCKED",
+      "ล็อกอยู่"
+    ],
+    [
+      "FREE TO PLAY",
+      "เล่นได้ฟรี"
+    ],
+    [
+      "NOT OWNED",
+      "ยังไม่มี"
+    ],
+    [
+      "STATS",
+      "ค่าสถานะ"
+    ],
+    [
+      "ATTACK & ABILITIES",
+      "การโจมตีและความสามารถ"
+    ],
+    [
+      "CARD DETAILS",
+      "รายละเอียดการ์ด"
+    ],
+    [
+      "DECK MANIFEST",
+      "รายการการ์ดในเด็ค"
+    ],
+    [
+      "Search cards...",
+      "ค้นหาการ์ด..."
+    ],
+    [
+      "Search cards…",
+      "ค้นหาการ์ด…"
+    ],
+    [
+      "← Back",
+      "← กลับ"
+    ],
+    [
+      "< BACK",
+      "< กลับ"
+    ],
+    [
+      "< LOBBY",
+      "< ล็อบบี้"
+    ],
+    [
+      "Save deck",
+      "บันทึกเด็ค"
+    ],
+    [
+      "Change card back",
+      "เปลี่ยนหลังการ์ด"
+    ],
+    [
+      "CHANGE GROUP",
+      "เปลี่ยนกลุ่ม"
+    ],
+    [
+      "SELECT GROUP",
+      "เลือกกลุ่ม"
+    ],
+    [
+      "SELECTED",
+      "เลือกอยู่"
+    ],
+    [
+      "USE",
+      "ใช้"
+    ],
+    [
+      "LOCKED / SHOP",
+      "ล็อกอยู่ / ร้านค้า"
+    ],
+    [
+      "ALL",
+      "ทั้งหมด"
+    ],
+    [
+      "REMOVE",
+      "นำออก"
+    ],
+    [
+      "ADD TO DECK",
+      "เพิ่มลงเด็ค"
+    ],
+    [
+      "No matching cards.",
+      "ไม่พบการ์ดที่ตรงกัน"
+    ],
+    [
+      "Unlock this character in the lobby shop.",
+      "ปลดล็อกตัวละครนี้ในร้านค้า"
+    ],
+    [
+      "Saving to your account...",
+      "กำลังบันทึกลงบัญชี..."
+    ],
+    [
+      "Choose a valid card back.",
+      "กรุณาเลือกหลังการ์ดที่ใช้งานได้"
+    ],
+    [
+      "Use a deck name of 1-40 characters.",
+      "ชื่อเด็คต้องมี 1–40 ตัวอักษร"
+    ],
+    [
+      "Select three different groups.",
+      "เลือกกลุ่มที่แตกต่างกัน 3 กลุ่ม"
+    ],
+    [
+      "Fill all 30 card slots.",
+      "ใส่การ์ดให้ครบ 30 ช่อง"
+    ],
+    [
+      "Each card needs 1-4 copies and a distinct slot.",
+      "แต่ละการ์ดต้องมี 1–4 สำเนาและไม่ซ้ำช่องกัน"
+    ],
+    [
+      "A card belongs to an unselected group.",
+      "มีการ์ดจากกลุ่มที่ไม่ได้เลือก"
+    ],
+    [
+      "Each group needs two different cards at every cost (2-6).",
+      "แต่ละกลุ่มต้องมีการ์ดต่างชนิด 2 ใบในแต่ละค่าร่าย (2–6)"
+    ],
+    [
+      "Unlock this card back in Shop before saving.",
+      "ปลดล็อกหลังการ์ดนี้ในร้านค้าก่อนบันทึก"
+    ],
+    [
+      "Unlock the characters in this deck before saving.",
+      "ปลดล็อกตัวละครในเด็คนี้ก่อนบันทึก"
+    ],
+    [
+      "Purchasing card back...",
+      "กำลังซื้อหลังการ์ด..."
+    ],
+    [
+      "Purchasing...",
+      "กำลังซื้อ..."
+    ],
+    [
+      "Unlocking character...",
+      "กำลังปลดล็อกตัวละคร..."
+    ],
+    [
+      "Card back unlocked. Choose it in Deck → Edit deck.",
+      "ปลดล็อกหลังการ์ดแล้ว เลือกใช้ได้ในหน้าแก้ไขเด็ค"
+    ],
+    [
+      "Arena rankings",
+      "อันดับในอารีนา"
+    ],
+    [
+      "Your rank: loading...",
+      "กำลังโหลดอันดับของคุณ..."
+    ],
+    [
+      "RANK",
+      "อันดับ"
+    ],
+    [
+      "COMMANDER",
+      "ผู้เล่น"
+    ],
+    [
+      "RATING",
+      "คะแนน"
+    ],
+    [
+      "GAMES",
+      "เกม"
+    ],
+    [
+      "Loading arena rankings...",
+      "กำลังโหลดอันดับ..."
+    ],
+    [
+      "You: unranked / starting MMR 1,000",
+      "คุณ: ยังไม่มีอันดับ / คะแนนเริ่มต้น 1,000"
+    ],
+    [
+      "Cannot load leaderboard. Reopen this page to retry.",
+      "โหลดอันดับไม่สำเร็จ เปิดหน้านี้อีกครั้งเพื่อลองใหม่"
+    ],
+    [
+      "Leaderboard unavailable",
+      "ไม่สามารถโหลดอันดับได้"
+    ],
+    [
+      "YOU",
+      "คุณ"
+    ],
+    [
+      "Match history",
+      "ประวัติการเล่น"
+    ],
+    [
+      "Watch replay",
+      "ดูรีเพลย์"
+    ],
+    [
+      "No replays yet. Play a match to save your first replay.",
+      "ยังไม่มีรีเพลย์ เล่นเกมเพื่อบันทึกรีเพลย์แรก"
+    ],
+    [
+      "IN PROGRESS",
+      "กำลังเล่น"
+    ],
+    [
+      "LEFT MATCH",
+      "ออกจากแมตช์"
+    ],
+    [
+      "Unrated",
+      "ไม่จัดอันดับ"
+    ],
+    [
+      "MMR pending",
+      "รอปรับคะแนน"
+    ],
+    [
+      "Export settings",
+      "ส่งออกการตั้งค่า"
+    ],
+    [
+      "PARTICLE / EFFECT",
+      "อนุภาค / เอฟเฟกต์"
+    ],
+    [
+      "Play attack",
+      "เล่นท่าโจมตี"
+    ],
+    [
+      "RESET",
+      "รีเซ็ต"
+    ],
+    [
+      "A small army.\nA bigger plan.",
+      "กองทัพเล็ก ๆ\nแผนการที่ยิ่งใหญ่"
+    ],
+    [
+      "Choose your heroes, shape your deck,\nand find your next rival in the arena.",
+      "เลือกตัวละคร จัดเด็คของคุณ\nและพบคู่ต่อสู้คนต่อไปในอารีนา"
+    ],
+    [
+      "WELCOME, COMMANDER",
+      "ยินดีต้อนรับ ผู้บัญชาการ"
+    ],
+    [
+      "Enter the arena",
+      "เข้าสู่อารีนา"
+    ],
+    [
+      "Connect to play, or explore combat offline.",
+      "เชื่อมต่อเพื่อเล่น หรือทดลองต่อสู้แบบออฟไลน์"
+    ],
+    [
+      "Server address",
+      "ที่อยู่เซิร์ฟเวอร์"
+    ],
+    [
+      "Continue as guest",
+      "เล่นด้วยบัญชีผู้เยี่ยมชม"
+    ],
+    [
+      "JUST HERE TO EXPERIMENT?",
+      "อยากทดลองเล่นก่อน?"
+    ],
+    [
+      "Open Combat Simulator",
+      "เปิดตัวจำลองการต่อสู้"
+    ],
+    [
+      "Six commanders. One arena. Your strategy makes the difference.",
+      "ผู้บัญชาการหกคน หนึ่งอารีนา กลยุทธ์ของคุณคือสิ่งตัดสิน"
+    ],
+    [
+      "CHOOSE YOUR NAME",
+      "ตั้งชื่อผู้เล่น"
+    ],
+    [
+      "ENTER LOBBY",
+      "เข้าสู่ล็อบบี้"
+    ],
+    [
+      "Connecting...",
+      "กำลังเชื่อมต่อ..."
+    ],
+    [
+      "Saving...",
+      "กำลังบันทึก..."
+    ],
+    [
+      "Enter a valid server IP or hostname (without http:// or port).",
+      "ใส่ IP หรือชื่อเซิร์ฟเวอร์ที่ถูกต้อง (ไม่ต้องใส่ http:// หรือพอร์ต)"
+    ],
+    [
+      "Please enter a name with 2–24 characters.",
+      "กรุณาตั้งชื่อที่มี 2–24 ตัวอักษร"
+    ],
+    [
+      "Unable to save your name. Please try again.",
+      "บันทึกชื่อไม่สำเร็จ กรุณาลองใหม่"
+    ],
+    [
+      "COMING SOON",
+      "เร็ว ๆ นี้"
+    ],
+    [
+      "BACK TO PLAY",
+      "กลับไปหน้าเล่น"
+    ],
+    [
+      "More ways to grow your collection are on the way.",
+      "วิธีใหม่ในการเพิ่มคอลเลกชันกำลังจะมา"
+    ],
+    [
+      "SURRENDER",
+      "ยอมแพ้"
+    ],
+    [
+      "BACK TO LOBBY",
+      "กลับล็อบบี้"
+    ],
+    [
+      "LOBBY",
+      "ล็อบบี้"
+    ],
+    [
+      "Searching",
+      "กำลังค้นหา"
+    ],
+    [
+      "CONNECTING TO THE ARENA",
+      "กำลังเชื่อมต่ออารีนา"
+    ],
+    [
+      "Room code",
+      "รหัสห้อง"
+    ],
+    [
+      "CREATE",
+      "สร้างห้อง"
+    ],
+    [
+      "JOIN",
+      "เข้าร่วม"
+    ],
+    [
+      "Starting connection...",
+      "กำลังเริ่มเชื่อมต่อ..."
+    ],
+    [
+      "COMMANDER RECONNECTED",
+      "เชื่อมต่อผู้เล่นอีกครั้งแล้ว"
+    ],
+    [
+      "COMMANDER CONNECTED",
+      "เชื่อมต่อผู้เล่นแล้ว"
+    ],
+    [
+      "RETRY",
+      "ลองใหม่"
+    ],
+    [
+      "WATCH REPLAY",
+      "ดูรีเพลย์"
+    ],
+    [
+      "BATTLE",
+      "ต่อสู้"
+    ],
+    [
+      "BATTLE RESULT",
+      "ผลการต่อสู้"
+    ],
+    [
+      "NEXT ROUND",
+      "รอบถัดไป"
+    ],
+    [
+      "GAME OVER",
+      "จบเกม"
+    ],
+    [
+      "DEPLOY A UNIT FIRST",
+      "วางตัวละครก่อน"
+    ],
+    [
+      "YOUR HAND",
+      "การ์ดในมือ"
+    ],
+    [
+      "DRAG TO DEPLOY OR SELL",
+      "ลากเพื่อวางหรือขาย"
+    ],
+    [
+      "BATTLE IN PROGRESS",
+      "กำลังต่อสู้"
+    ],
+    [
+      "HAND FULL",
+      "การ์ดในมือเต็ม"
+    ],
+    [
+      "CHOOSE CARDS",
+      "เลือกการ์ด"
+    ],
+    [
+      "READY",
+      "พร้อม"
+    ],
+    [
+      "WAITING",
+      "กำลังรอ"
+    ],
+    [
+      "WAITING FOR PLAYERS",
+      "รอผู้เล่นคนอื่น"
+    ],
+    [
+      "WAITING FOR OPPONENT",
+      "รอคู่ต่อสู้"
+    ],
+    [
+      "MAX",
+      "สูงสุด"
+    ],
+    [
+      "LOCK",
+      "ล็อกร้าน"
+    ],
+    [
+      "PAUSE",
+      "หยุดชั่วคราว"
+    ],
+    [
+      "REPLAY",
+      "รีเพลย์"
+    ],
+    [
+      "REPLAY COMPLETE",
+      "จบรีเพลย์"
+    ],
+    [
+      "REPLAY UNAVAILABLE",
+      "รีเพลย์ไม่พร้อมใช้งาน"
+    ],
+    [
+      "Battle not recorded for this round",
+      "ไม่มีบันทึกการต่อสู้รอบนี้"
+    ],
+    [
+      "HP",
+      "พลังชีวิต"
+    ],
+    [
+      "ATK",
+      "พลังโจมตี"
+    ],
+    [
+      "ARMOR",
+      "เกราะ"
+    ],
+    [
+      "SPEED",
+      "ความเร็ว"
+    ],
+    [
+      "STARS",
+      "ดาว"
+    ],
+    [
+      "Cost",
+      "ค่าร่าย"
+    ],
+    [
+      "Cost {0}",
+      "ค่าร่าย {0}"
+    ],
+    [
+      "{0} matches played",
+      "เล่นแล้ว {0} แมตช์"
+    ],
+    [
+      "{0} coin",
+      "{0} เหรียญ"
+    ],
+    [
+      "{0} GOLD",
+      "{0} ทอง"
+    ],
+    [
+      "UP {0}",
+      "อัป {0}"
+    ],
+    [
+      "LEVEL {0}",
+      "ระดับ {0}"
+    ],
+    [
+      "Round {0}",
+      "รอบที่ {0}"
+    ],
+    [
+      "FIELD {0}/{1}",
+      "สนาม {0}/{1}"
+    ],
+    [
+      "OWNED / {0}",
+      "มีแล้ว / {0}"
+    ],
+    [
+      "BUY / {0} COINS",
+      "ซื้อ / {0} เหรียญ"
+    ],
+    [
+      "Buy {0} COINS",
+      "ซื้อ {0} เหรียญ"
+    ],
+    [
+      "UNLOCK ALL / {0} COINS",
+      "ปลดล็อกทั้งหมด / {0} เหรียญ"
+    ],
+    [
+      "IN DECK  x{0}",
+      "อยู่ในเด็ค ×{0}"
+    ],
+    [
+      "Included: {0} / {1} copies",
+      "ในเด็ค: {0} / {1} สำเนา"
+    ],
+    [
+      "{0}/30 kinds  /  {1} copies",
+      "{0}/30 ชนิด / {1} สำเนา"
+    ],
+    [
+      "{0} needs {1} more cost-{2} card(s).",
+      "{0} ต้องการการ์ดค่าร่าย {2} เพิ่มอีก {1} ใบ"
+    ],
+    [
+      "Could not save: {0}",
+      "บันทึกไม่สำเร็จ: {0}"
+    ],
+    [
+      "Purchase failed: {0}",
+      "ซื้อไม่สำเร็จ: {0}"
+    ],
+    [
+      "Unable to login: {0}",
+      "เข้าสู่ระบบไม่สำเร็จ: {0}"
+    ],
+    [
+      "Could not select deck: {0}",
+      "เลือกเด็คไม่สำเร็จ: {0}"
+    ],
+    [
+      "Could not load your account: {0}",
+      "โหลดบัญชีไม่สำเร็จ: {0}"
+    ],
+    [
+      "{0} added to your collection.",
+      "เพิ่ม {0} ลงคอลเลกชันแล้ว"
+    ],
+    [
+      "{0} unlocked. You can now select this character in Deck Builder.",
+      "ปลดล็อก {0} แล้ว เลือกได้ในหน้าจัดเด็ค"
+    ],
+    [
+      "Replace {0}",
+      "แทนที่ {0}"
+    ],
+    [
+      "+ Choose cost {0}",
+      "+ เลือกค่าร่าย {0}"
+    ],
+    [
+      "BACK TO LOBBY ({0}s)",
+      "กลับล็อบบี้ ({0} วินาที)"
+    ],
+    [
+      "PLAYER {0} WINS MATCH",
+      "ผู้เล่น {0} ชนะแมตช์"
+    ],
+    [
+      "BATTLE FINISHED / {0} HP DAMAGE",
+      "จบการต่อสู้ / เสียพลังชีวิต {0}"
+    ],
+    [
+      "BATTLE FINISHED / LOST {0} HP",
+      "จบการต่อสู้ / เสียพลังชีวิต {0}"
+    ],
+    [
+      "You: #{0} / {1} MMR / {2} rated games",
+      "คุณ: อันดับ {0} / {1} MMR / เล่นจัดอันดับ {2} เกม"
+    ],
+    [
+      "Attacker A",
+      "ตัวละคร A / ผู้โจมตี"
+    ],
+    [
+      "Target B",
+      "ตัวละคร B / เป้าหมายทดลอง"
+    ],
+    [
+      "Animation preview",
+      "ดูแอนิเมชันทีละท่า / Animation preview"
+    ],
+    [
+      "Source attack",
+      "ท่าในเกมที่ต้องการปรับ"
+    ],
+    [
+      "Display animation",
+      "แอนิเมชันที่แสดง / ท่าที่ไม่ซ้ำ"
+    ],
+    [
+      "Effect on B",
+      "เอฟเฟกต์บน B"
+    ],
+    [
+      "Effect anchor",
+      "จุดยึดเอฟเฟกต์"
+    ],
+    [
+      "Automatic",
+      "อัตโนมัติ"
+    ],
+    [
+      "Center of B",
+      "กลางตัว B"
+    ],
+    [
+      "Feet of B",
+      "เท้า B"
+    ],
+    [
+      "X position (right +)",
+      "ตำแหน่ง X (ขวา +)"
+    ],
+    [
+      "Y position (down +)",
+      "ตำแหน่ง Y (ลง +)"
+    ],
+    [
+      "Effect scale",
+      "ขนาดเอฟเฟกต์ (เท่า)"
+    ],
+    [
+      "Preview zoom",
+      "ซูมภาพทดลอง"
+    ],
+    [
+      "Combat / Attack target",
+      "Combat / โจมตีเป้าหมาย"
+    ],
+    [
+      "No effect",
+      "ไม่มีเอฟเฟกต์"
+    ],
+    [
+      "Auto-save failed",
+      "บันทึกอัตโนมัติไม่สำเร็จ"
+    ],
+    [
+      "Auto-saved · Active in game",
+      "บันทึกอัตโนมัติแล้ว • เกมใช้ค่านี้อยู่"
+    ],
+    [
+      "Default settings",
+      "ค่าเริ่มต้น"
+    ],
+    [
+      "Auto-saved · Applied in game and kept after restart",
+      "บันทึกอัตโนมัติแล้ว • ใช้ในเกมทันที และยังอยู่หลังเปิดเกมใหม่"
+    ],
+    [
+      "Restored defaults",
+      "กลับไปใช้ค่าเริ่มต้นแล้ว"
+    ],
+    [
+      "Save failed: {0}",
+      "เซฟไม่สำเร็จ: {0}"
+    ],
+    [
+      "Reset failed: {0}",
+      "รีเซ็ตไม่สำเร็จ: {0}"
+    ],
+    [
+      "Exported settings: {0}",
+      "ส่งออกค่าที่เซฟแล้ว: {0}"
+    ],
+    [
+      "Export failed: {0}",
+      "ส่งออกไม่สำเร็จ: {0}"
+    ],
+    [
+      "Abilities",
+      "ความสามารถ"
+    ],
+    [
+      "Melee attack",
+      "โจมตีประชิด"
+    ],
+    [
+      "Ranged attack; cannot be countered",
+      "โจมตีระยะไกล ไม่ถูกสวนกลับ"
+    ],
+    [
+      "Repeated attack sequence",
+      "ลำดับการโจมตี (วนซ้ำ)"
+    ],
+    [
+      "First action: ",
+      "ครั้งแรก: "
+    ],
+    [
+      "First incoming attack deals 50% less damage",
+      "การโจมตีแรกที่ได้รับมีดาเมจลดลง 50%"
+    ],
+    [
+      "Intercept one attack against an ally directly behind (once per battle)",
+      "รับการโจมตีแทนฝ่ายเดียวกันที่อยู่ด้านหลังในแนวเดียวกัน 1 ครั้งต่อการต่อสู้"
+    ],
+    [
+      "Swap a back-row enemy with the enemy in front",
+      "ดึงศัตรูแถวหลังมาแถวหน้า สลับกับตัวที่อยู่ด้านหน้า"
+    ],
+    [
+      "Target a random back-row enemy; if none remain, target any enemy",
+      "สุ่มโจมตีศัตรูแถวหลัง หากไม่มีจะสุ่มจากศัตรูที่เหลือ"
+    ],
+    [
+      "Prevent the target from healing until the end of its next turn",
+      "ห้ามเป้าหมายรับการฟื้นฟูเลือดจนจบคิวถัดไป"
+    ],
+    [
+      "Weaken the enemy: its next attack deals 50% damage",
+      "ทำให้ศัตรูอ่อนแรง: การโจมตีถัดไปมีดาเมจเหลือ 50%"
+    ],
+    [
+      "Revive the ally with the highest maximum HP at 40% HP and 0 armor (once per battle). Requires an empty slot; excludes summons and previously revived units. Melee attack if unable to revive",
+      "คืนชีพเพื่อนที่มีเลือดเต็มมากที่สุด ด้วยเลือด 40% เกราะ 0 (1 ครั้งต่อการต่อสู้) ต้องมีช่องว่าง; ไม่รวมตัวอัญเชิญและตัวที่เคยคืนชีพ หากคืนชีพไม่ได้จะโจมตีประชิด"
+    ],
+    [
+      "Die after killing an enemy with an attack",
+      "เมื่อโจมตีจนศัตรูตาย ตัวเองจะตายด้วย"
+    ],
+    [
+      "Cannot be countered after the first kill",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ไม่ถูกสวนกลับ"
+    ],
+    [
+      "Stun: skip the next turn",
+      "สตั้น: ข้ามคิวถัดไป"
+    ],
+    [
+      "Heal the most injured ally for {0}",
+      "ฟื้นเลือด {0} ให้ฝ่ายเดียวกันที่เสียเลือดมากที่สุด"
+    ],
+    [
+      "Summon a Skeleton with {0} HP and 0 armor, up to 2 per battle. Requires an empty slot; melee attack if unable to summon",
+      "อัญเชิญ Skeleton เลือด {0} เกราะ 0 สูงสุด 2 ตัวต่อการต่อสู้ ต้องมีช่องว่าง; หากอัญเชิญไม่ได้จะโจมตีประชิด"
+    ],
+    [
+      "Attack {0} times for {1}% total attack damage",
+      "โจมตี {0} ครั้ง ดาเมจรวม {1}% ของพลังโจมตี"
+    ],
+    [
+      "Deal {0}% attack damage",
+      "ดาเมจ {0}% ของพลังโจมตี"
+    ],
+    [
+      "{0}% of damage ignores armor",
+      "ดาเมจ {0}% ไม่คิดเกราะ"
+    ],
+    [
+      "Fire: take {0} extra damage on the next attack",
+      "ติดไฟ: รับดาเมจเพิ่ม {0} ในการโจมตีถัดไป"
+    ],
+    [
+      "Poison: lose {0} HP after acting for 2 turns, ignoring armor",
+      "ติดพิษ: เสียเลือด {0} หลังถึงคิวตนเอง 2 ครั้ง โดยไม่คิดเกราะ"
+    ],
+    [
+      "If still alive, heal all allies for {0} each",
+      "หากยังรอด ฟื้นเลือดให้ฝ่ายเดียวกันทุกตัว ตัวละ {0}"
+    ],
+    [
+      "First attack deals {0} extra damage",
+      "โจมตีครั้งแรก ดาเมจเพิ่ม {0}"
+    ],
+    [
+      "After first taking damage, heal {0} if still alive (once per battle)",
+      "เมื่อเสียเลือดครั้งแรกและยังรอด ฟื้นเลือดทันที {0} (1 ครั้งต่อการต่อสู้)"
+    ],
+    [
+      "Below half HP, gain {0} armor if still alive (once per battle)",
+      "เมื่อเลือดต่ำกว่าครึ่งและยังรอด ได้เกราะ {0} (1 ครั้งต่อการต่อสู้)"
+    ],
+    [
+      "On death, grant {0} armor to one random living ally",
+      "เมื่อตาย สุ่มเพิ่มเกราะ {0} ให้ฝ่ายเดียวกันที่ยังมีชีวิต 1 ตัว"
+    ],
+    [
+      "Execute a target at {0}% maximum HP or less, ignoring armor (once per battle)",
+      "เมื่อเป้าหมายมีเลือดไม่เกิน {0}% ของเลือดสูงสุด ประหารโดยไม่คิดเกราะ (1 ครั้งต่อการต่อสู้)"
+    ],
+    [
+      "Finisher: attack {0} times for 120% total attack damage",
+      "ท่าปิดฉาก: โจมตี {0} ครั้ง ดาเมจรวม 120% ของพลังโจมตี"
+    ],
+    [
+      "Lifesteal up to {0}, limited by actual HP damage",
+      "ดูดเลือดเท่าที่ศัตรูเสียจริง สูงสุด {0}"
+    ],
+    [
+      "Lifesteal up to {0}, limited by actual HP damage, if surviving the counterattack",
+      "ดูดเลือดเท่าที่ศัตรูเสียจริง สูงสุด {0} หากรอดจากการสวนกลับ"
+    ],
+    [
+      "{0} stars and above: {1}",
+      "{0} ดาวขึ้นไป: {1}"
+    ],
+    [
+      "On the first kill: enemies {0}",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรู{0}"
+    ],
+    [
+      "Enemies directly behind the target take {0}% attack damage",
+      "ศัตรูด้านหลังเป้าหมายในแนวเดียวกันรับดาเมจ {0}% ของพลังโจมตี"
+    ],
+    [
+      "Enemies beside the target take {0}% attack damage",
+      "ศัตรูข้างเป้าหมายในแถวเดียวกันรับดาเมจ {0}% ของพลังโจมตี"
+    ],
+    [
+      "Enemies within one tile of the target take {0}% attack damage",
+      "ศัตรูรอบเป้าหมาย 1 ช่องรับดาเมจ {0}% ของพลังโจมตี"
+    ],
+    [
+      "Enemies in the same lane on the other row take {0}% attack damage",
+      "ศัตรูอีกแถวในแนวเดียวกับเป้าหมายรับดาเมจ {0}% ของพลังโจมตี"
+    ],
+    [
+      "Enemies near the target take {0}% attack damage",
+      "ศัตรูใกล้เป้าหมายรับดาเมจ {0}% ของพลังโจมตี"
+    ],
+    [
+      "On the first kill, enemies directly behind the target receive Fire: take {0} extra damage on the next attack",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูด้านหลังเป้าหมายในแนวเดียวกันติดไฟ: รับดาเมจเพิ่ม {0} ในการโจมตีถัดไป"
+    ],
+    [
+      "On the first kill, enemies directly behind the target receive Poison: lose {0} HP after acting for 2 turns, ignoring armor",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูด้านหลังเป้าหมายในแนวเดียวกันติดพิษ: เสียเลือด {0} หลังถึงคิวตนเอง 2 ครั้ง โดยไม่คิดเกราะ"
+    ],
+    [
+      "Enemies directly behind the target take {0}% attack damage and {1}",
+      "ศัตรูด้านหลังเป้าหมายในแนวเดียวกันรับดาเมจ {0}% ของพลังโจมตี และ{1}"
+    ],
+    [
+      "On the first kill, enemies beside the target receive Fire: take {0} extra damage on the next attack",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูข้างเป้าหมายในแถวเดียวกันติดไฟ: รับดาเมจเพิ่ม {0} ในการโจมตีถัดไป"
+    ],
+    [
+      "On the first kill, enemies beside the target receive Poison: lose {0} HP after acting for 2 turns, ignoring armor",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูข้างเป้าหมายในแถวเดียวกันติดพิษ: เสียเลือด {0} หลังถึงคิวตนเอง 2 ครั้ง โดยไม่คิดเกราะ"
+    ],
+    [
+      "Enemies beside the target take {0}% attack damage and {1}",
+      "ศัตรูข้างเป้าหมายในแถวเดียวกันรับดาเมจ {0}% ของพลังโจมตี และ{1}"
+    ],
+    [
+      "On the first kill, enemies within one tile of the target receive Fire: take {0} extra damage on the next attack",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูรอบเป้าหมาย 1 ช่องติดไฟ: รับดาเมจเพิ่ม {0} ในการโจมตีถัดไป"
+    ],
+    [
+      "On the first kill, enemies within one tile of the target receive Poison: lose {0} HP after acting for 2 turns, ignoring armor",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูรอบเป้าหมาย 1 ช่องติดพิษ: เสียเลือด {0} หลังถึงคิวตนเอง 2 ครั้ง โดยไม่คิดเกราะ"
+    ],
+    [
+      "Enemies within one tile of the target take {0}% attack damage and {1}",
+      "ศัตรูรอบเป้าหมาย 1 ช่องรับดาเมจ {0}% ของพลังโจมตี และ{1}"
+    ],
+    [
+      "On the first kill, enemies in the same lane on the other row receive Fire: take {0} extra damage on the next attack",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูอีกแถวในแนวเดียวกับเป้าหมายติดไฟ: รับดาเมจเพิ่ม {0} ในการโจมตีถัดไป"
+    ],
+    [
+      "On the first kill, enemies in the same lane on the other row receive Poison: lose {0} HP after acting for 2 turns, ignoring armor",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูอีกแถวในแนวเดียวกับเป้าหมายติดพิษ: เสียเลือด {0} หลังถึงคิวตนเอง 2 ครั้ง โดยไม่คิดเกราะ"
+    ],
+    [
+      "Enemies in the same lane on the other row take {0}% attack damage and {1}",
+      "ศัตรูอีกแถวในแนวเดียวกับเป้าหมายรับดาเมจ {0}% ของพลังโจมตี และ{1}"
+    ],
+    [
+      "On the first kill, enemies near the target receive Fire: take {0} extra damage on the next attack",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูใกล้เป้าหมายติดไฟ: รับดาเมจเพิ่ม {0} ในการโจมตีถัดไป"
+    ],
+    [
+      "On the first kill, enemies near the target receive Poison: lose {0} HP after acting for 2 turns, ignoring armor",
+      "เมื่อฆ่าศัตรูได้ครั้งแรก ทำให้ศัตรูใกล้เป้าหมายติดพิษ: เสียเลือด {0} หลังถึงคิวตนเอง 2 ครั้ง โดยไม่คิดเกราะ"
+    ],
+    [
+      "Enemies near the target take {0}% attack damage and {1}",
+      "ศัตรูใกล้เป้าหมายรับดาเมจ {0}% ของพลังโจมตี และ{1}"
+    ],
+    [
+      "LOGIN AGAIN",
+      "เข้าสู่ระบบอีกครั้ง"
+    ],
+    [
+      "Deck deleted.",
+      "ลบเด็คแล้ว"
+    ],
+    [
+      "Update your deck with characters available in your collection.",
+      "แก้ไขเด็คให้ใช้ตัวละครที่มีในคอลเลกชัน"
+    ],
+    [
+      "Your session ended. Login again to continue.",
+      "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง"
+    ],
+    [
+      "Connected / Your match has ended.",
+      "เชื่อมต่อแล้ว / แมตช์ของคุณจบแล้ว"
+    ],
+    [
+      "Connected / Your previous match is no longer available.",
+      "เชื่อมต่อแล้ว / ไม่พบแมตช์ก่อนหน้า"
+    ],
+    [
+      "Your characters will remain in your collection.",
+      "ตัวละครของคุณจะยังอยู่ในคอลเลกชัน"
+    ],
+    [
+      "Delete {0}?",
+      "ลบ {0} หรือไม่?"
+    ],
+    [
+      "Could not delete deck: {0}",
+      "ลบเด็คไม่สำเร็จ: {0}"
+    ],
+    [
+      "Connection lost / Reconnecting ({0})...",
+      "การเชื่อมต่อขาด / กำลังเชื่อมต่อใหม่ ({0})..."
+    ],
+    [
+      "Waiting for your opponent...",
+      "กำลังรอคู่ต่อสู้..."
+    ],
+    [
+      "PREPARING",
+      "กำลังเตรียมตัว"
+    ],
+    [
+      "PREPARING NEXT ROUND...",
+      "กำลังเตรียมรอบถัดไป..."
+    ],
+    [
+      "ELIMINATED / Left match / Return to Lobby",
+      "ตกรอบ / ออกจากแมตช์ / กลับล็อบบี้"
+    ],
+    [
+      "MATCH OVER / YOU WIN",
+      "จบแมตช์ / คุณชนะ"
+    ],
+    [
+      "MATCH OVER / Final standings",
+      "จบแมตช์ / อันดับสุดท้าย"
+    ],
+    [
+      "OTHER BATTLES IN PROGRESS / {0}s MAX",
+      "การต่อสู้อื่นยังดำเนินอยู่ / สูงสุด {0} วินาที"
+    ],
+    [
+      "BATTLE / {0}s MAX",
+      "ต่อสู้ / สูงสุด {0} วินาที"
+    ],
+    [
+      "PREPARATION {0}s / {1}/{2} READY",
+      "เตรียมตัว {0} วินาที / พร้อม {1}/{2}"
+    ],
+    [
+      "PREPARATION {0}s / A {1} / B {2}",
+      "เตรียมตัว {0} วินาที / A {1} / B {2}"
+    ],
+    [
+      "ARENA  /  ROUND {0}",
+      "อารีนา / รอบที่ {0}"
+    ],
+    [
+      "MMR updating",
+      "กำลังปรับคะแนน"
+    ],
+    [
+      "DISCONNECTED",
+      "ขาดการเชื่อมต่อ"
+    ],
+    [
+      "SURRENDER?",
+      "ยอมแพ้หรือไม่?"
+    ],
+    [
+      "Leave this match and return to the lobby?",
+      "ออกจากแมตช์นี้และกลับล็อบบี้หรือไม่?"
+    ],
+    [
+      "DEFEAT",
+      "พ่ายแพ้"
+    ],
+    [
+      "VICTORY",
+      "ชัยชนะ"
+    ],
+    [
+      "YOU WIN",
+      "คุณชนะ"
+    ],
+    [
+      "YOU LOSE",
+      "คุณแพ้"
+    ],
+    [
+      "ROUND {0} / BATTLE",
+      "รอบที่ {0} / ต่อสู้"
+    ],
+    [
+      "ROUND {0}  /  PREPARATION",
+      "รอบที่ {0} / เตรียมตัว"
+    ],
+    [
+      "ROUND {0} / PREPARATION / STEP {1} OF {2} / {3}",
+      "รอบที่ {0} / เตรียมตัว / ขั้น {1} จาก {2} / {3}"
+    ],
+    [
+      "OPPONENT / HAND {0}/{1}",
+      "คู่ต่อสู้ / การ์ดในมือ {0}/{1}"
+    ],
+    [
+      "Opponent",
+      "คู่ต่อสู้"
+    ],
+    [
+      "Ally",
+      "ฝ่ายเรา"
+    ],
+    [
+      "Enemy",
+      "ศัตรู"
+    ],
+    [
+      "Local arena",
+      "อารีนาในเครื่อง"
+    ],
+    [
+      "Refresh",
+      "รีเฟรช"
+    ],
+    [
+      "English",
+      "English"
+    ],
+    [
+      "ไทย",
+      "ไทย"
+    ],
+    [
+      "The source attack is not in this character's rotation. Choose an active source attack to see it in game",
+      "ท่าต้นทางนี้ยังไม่อยู่ในรอบโจมตีของตัวละคร เลือกท่าต้นทางที่ใช้อยู่เพื่อเห็นในเกม"
+    ],
+    [
+      "ACHIEVEMENTS",
+      "ความสำเร็จ"
+    ],
+    [
+      "Action {0} of every {1} turns: {2}",
+      "คิวที่ {0} ของทุก {1} คิว: {2}"
+    ],
+    [
+      "Enemies {0} take damage equal to {1}% of ATK",
+      "ศัตรู{0}รับดาเมจ {1}% ของพลังโจมตี"
+    ],
+    [
+      "First action: Enemies directly behind the target take damage equal to 40% of ATK",
+      "ครั้งแรก: ศัตรูด้านหลังเป้าหมายในแนวเดียวกันรับดาเมจ 40% ของพลังโจมตี"
+    ],
+    [
+      "{0}% chance: {1}",
+      "โอกาส {0}%: {1}"
+    ],
+    [
+      "WIN",
+      "ชนะ"
+    ],
+    [
+      "LOSS",
+      "แพ้"
+    ],
+    [
+      "DRAW",
+      "เสมอ"
+    ],
+    [
+      "Burn: lose 2 HP at the end of every action on either team, ignoring armor",
+      "ติดไฟ: เสียพลังชีวิต 2 แต้มทุกเทิร์นของทั้งสองฝ่าย โดยไม่คิดเกราะ"
+    ],
+    [
+      "Lose 2 HP every turn on either team, ignoring armor",
+      "เสียพลังชีวิต 2 แต้มทุกเทิร์นของทั้งสองฝ่าย โดยไม่คิดเกราะ"
+    ],
+    [
+      "Heal all allied characters for 1 HP after every turn",
+      "ทุกเทิร์น ฟื้นพลังชีวิตให้ตัวละครฝ่ายเดียวกันทั้งหมด 1 แต้ม"
+    ],
+    [
+      "Healing Totem",
+      "โทเท็มฟื้นฟู"
+    ],
+    [
+      "Healing Aura",
+      "ออร่าฟื้นฟู"
+    ],
+    [
+      "At battle start, grant all allies 2 armor.",
+      "เมื่อเริ่มการต่อสู้ เพิ่มเกราะให้ฝ่ายเดียวกันทั้งหมด 2 แต้ม"
+    ],
+    [
+      "Allies deal 10% more attack damage.",
+      "ฝ่ายเดียวกันสร้างความเสียหายจากการโจมตีเพิ่มขึ้น 10%"
+    ],
+    [
+      "Each turn, cleanse fire or poison from the affected ally with the lowest HP.",
+      "ทุกเทิร์น ลบสถานะไฟหรือพิษหนึ่งอย่างจากฝ่ายเดียวกันที่ติดสถานะและมีพลังชีวิตน้อยที่สุด"
+    ],
+    [
+      "After the first enemy melee attack, deal 4 damage to its attacker, ignoring armor. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 4 แต้มโดยไม่คิดเกราะ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "After the first enemy attack, stun its attacker for one action. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ทำให้ผู้โจมตีมึนงงและข้ามการกระทำถัดไป ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "After the first enemy melee attack, burn its attacker and adjacent allies. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก ทำให้ผู้โจมตีและตัวละครข้างเคียงติดไฟ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Prevent the first lethal damage instance to an ally. Single use.",
+      "ป้องกันความเสียหายครั้งแรกที่ทำให้ฝ่ายเดียวกันตาย ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Reflect 50% of the first enemy ranged attack damage. Single use.",
+      "สะท้อนความเสียหาย 50% จากการโจมตีระยะไกลครั้งแรกของศัตรู ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Reduce the first enemy multi-hit attack to one hit at its original per-hit damage. Single use.",
+      "ลดการโจมตีหลายครั้งครั้งแรกของศัตรูเหลือหนึ่งครั้ง โดยคงความเสียหายต่อครั้งเดิม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Cancel search",
+      "ยกเลิกการค้นหา"
+    ],
+    [
+      "Paladin Skill 01",
+      "ทักษะพาลาดิน 01"
+    ],
+    [
+      "Paladin Skill 02",
+      "ทักษะพาลาดิน 02"
+    ],
+    [
+      "Paladin Skill 03",
+      "ทักษะพาลาดิน 03"
+    ],
+    [
+      "Paladin Skill 04",
+      "ทักษะพาลาดิน 04"
+    ],
+    [
+      "Paladin Skill 05",
+      "ทักษะพาลาดิน 05"
+    ],
+    [
+      "Paladin Skill 06",
+      "ทักษะพาลาดิน 06"
+    ],
+    [
+      "Paladin Skill 07",
+      "ทักษะพาลาดิน 07"
+    ],
+    [
+      "Paladin Skill 08",
+      "ทักษะพาลาดิน 08"
+    ],
+    [
+      "Paladin Skill 09",
+      "ทักษะพาลาดิน 09"
+    ],
+    [
+      "Paladin Skill 10",
+      "ทักษะพาลาดิน 10"
+    ],
+    [
+      "Paladin Skill 11",
+      "ทักษะพาลาดิน 11"
+    ],
+    [
+      "Paladin Skill 12",
+      "ทักษะพาลาดิน 12"
+    ],
+    [
+      "Paladin Skill 13",
+      "ทักษะพาลาดิน 13"
+    ],
+    [
+      "Paladin Skill 14",
+      "ทักษะพาลาดิน 14"
+    ],
+    [
+      "Paladin Skill 15",
+      "ทักษะพาลาดิน 15"
+    ],
+    [
+      "Paladin Skill 16",
+      "ทักษะพาลาดิน 16"
+    ],
+    [
+      "Paladin Skill 17",
+      "ทักษะพาลาดิน 17"
+    ],
+    [
+      "Paladin Skill 18",
+      "ทักษะพาลาดิน 18"
+    ],
+    [
+      "Paladin Skill 19",
+      "ทักษะพาลาดิน 19"
+    ],
+    [
+      "Paladin Skill 20",
+      "ทักษะพาลาดิน 20"
+    ],
+    [
+      "Paladin Skill 21",
+      "ทักษะพาลาดิน 21"
+    ],
+    [
+      "Paladin Skill 22",
+      "ทักษะพาลาดิน 22"
+    ],
+    [
+      "Paladin Skill 23",
+      "ทักษะพาลาดิน 23"
+    ],
+    [
+      "Paladin Skill 24",
+      "ทักษะพาลาดิน 24"
+    ],
+    [
+      "Paladin Skill 25",
+      "ทักษะพาลาดิน 25"
+    ],
+    [
+      "Paladin Skill 26",
+      "ทักษะพาลาดิน 26"
+    ],
+    [
+      "Paladin Skill 27",
+      "ทักษะพาลาดิน 27"
+    ],
+    [
+      "Paladin Skill 28",
+      "ทักษะพาลาดิน 28"
+    ],
+    [
+      "Paladin Skill 29",
+      "ทักษะพาลาดิน 29"
+    ],
+    [
+      "Paladin Skill 30",
+      "ทักษะพาลาดิน 30"
+    ],
+    [
+      "Paladin Skill 31",
+      "ทักษะพาลาดิน 31"
+    ],
+    [
+      "Paladin Skill 32",
+      "ทักษะพาลาดิน 32"
+    ],
+    [
+      "Paladin Skill 33",
+      "ทักษะพาลาดิน 33"
+    ],
+    [
+      "Paladin Skill 34",
+      "ทักษะพาลาดิน 34"
+    ],
+    [
+      "Paladin Skill 35",
+      "ทักษะพาลาดิน 35"
+    ],
+    [
+      "Paladin Skill 36",
+      "ทักษะพาลาดิน 36"
+    ],
+    [
+      "Paladin Skill 37",
+      "ทักษะพาลาดิน 37"
+    ],
+    [
+      "Paladin Skill 38",
+      "ทักษะพาลาดิน 38"
+    ],
+    [
+      "Paladin Skill 39",
+      "ทักษะพาลาดิน 39"
+    ],
+    [
+      "Paladin Skill 40",
+      "ทักษะพาลาดิน 40"
+    ],
+    [
+      "Paladin Skill 41",
+      "ทักษะพาลาดิน 41"
+    ],
+    [
+      "Paladin Skill 42",
+      "ทักษะพาลาดิน 42"
+    ],
+    [
+      "Paladin Skill 43",
+      "ทักษะพาลาดิน 43"
+    ],
+    [
+      "Paladin Skill 44",
+      "ทักษะพาลาดิน 44"
+    ],
+    [
+      "Paladin Skill 45",
+      "ทักษะพาลาดิน 45"
+    ],
+    [
+      "Paladin Skill 46",
+      "ทักษะพาลาดิน 46"
+    ],
+    [
+      "Paladin Skill 47",
+      "ทักษะพาลาดิน 47"
+    ],
+    [
+      "Paladin Skill 48",
+      "ทักษะพาลาดิน 48"
+    ],
+    [
+      "Dawn Judgment",
+      "พิพากษารุ่งอรุณ"
+    ],
+    [
+      "After the first enemy melee attack, deal 6 damage to the attacker, ignoring armor. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 6 แต้มโดยไม่คิดเกราะ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Healing Prayer",
+      "คำอธิษฐานรักษา"
+    ],
+    [
+      "After an action, heal the injured ally with the lowest HP for 8. Waits until healing is possible. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันที่บาดเจ็บและมีพลังชีวิตน้อยที่สุด 8 แต้ม รอจนมีเป้าหมายที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Stunning Gauntlet",
+      "หมัดมึนงง"
+    ],
+    [
+      "After the first enemy attack, stun its attacker for one action and deal 2 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ทำให้ผู้โจมตีข้ามการกระทำถัดไป และสร้างความเสียหาย 2 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Rain of Grace",
+      "สายฝนแห่งเมตตา"
+    ],
+    [
+      "After an action, heal all allies for 2. Waits until an ally can be healed. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันทั้งหมด 2 แต้ม รอจนมีผู้ที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Holy Riposte",
+      "สวนกลับศักดิ์สิทธิ์"
+    ],
+    [
+      "After the first enemy attack, deal 5 damage to its attacker. Armor applies. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 5 แต้ม โดยคิดเกราะตามปกติ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Unbroken Faith",
+      "ศรัทธาไม่สลาย"
+    ],
+    [
+      "Prevent the first lethal damage instance to an ally and grant that ally 2 armor. Single use.",
+      "ป้องกันความเสียหายครั้งแรกที่ทำให้ฝ่ายเดียวกันตาย แล้วเพิ่มเกราะให้เป้าหมาย 2 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Purifying Elixir",
+      "น้ำยาชำระล้าง"
+    ],
+    [
+      "After an action, remove fire, poison, stun, weaken and anti-heal from the affected ally with the lowest HP, then heal 4 HP. Single use.",
+      "หลังจบการกระทำ ลบไฟ พิษ มึนงง อ่อนแรง และห้ามฟื้นฟู จากฝ่ายเดียวกันที่ติดสถานะและมีพลังชีวิตน้อยที่สุด แล้วฟื้นพลังชีวิต 4 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Golden Skin",
+      "ผิวกายทองคำ"
+    ],
+    [
+      "At battle start, grant all allies 2 armor. Single use.",
+      "เมื่อเริ่มการต่อสู้ เพิ่มเกราะให้ฝ่ายเดียวกันทั้งหมด 2 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Hammer of Silence",
+      "ค้อนแห่งความเงียบ"
+    ],
+    [
+      "After the first enemy attack, stun its attacker for one action and deal 1 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ทำให้ผู้โจมตีข้ามการกระทำถัดไป และสร้างความเสียหาย 1 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Avenging Hammer",
+      "ค้อนล้างแค้น"
+    ],
+    [
+      "After the first enemy melee attack, deal 7 damage to the attacker, ignoring armor. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 7 แต้มโดยไม่คิดเกราะ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Renewing Aura",
+      "ออร่าฟื้นฟู"
+    ],
+    [
+      "After an action, heal all allies for 3. Waits until an ally can be healed. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันทั้งหมด 3 แต้ม รอจนมีผู้ที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Sanctified Light",
+      "แสงชำระบาป"
+    ],
+    [
+      "After an action, heal all allies for 4. Waits until an ally can be healed. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันทั้งหมด 4 แต้ม รอจนมีผู้ที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Solar Snare",
+      "กับดักสุริยะ"
+    ],
+    [
+      "After the first enemy melee attack, burn its attacker and side-adjacent allies, then deal 3 damage to the attacker. Fire deals 2 HP damage after every action. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก ทำให้ผู้โจมตีและฝ่ายเดียวกันที่อยู่ติดด้านข้างติดไฟ แล้วสร้างความเสียหายแก่ผู้โจมตี 3 แต้ม ไฟลดพลังชีวิต 2 แต้มหลังทุกการกระทำ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Guiding Star",
+      "ดวงดาวนำทาง"
+    ],
+    [
+      "After an action, remove fire, poison, stun, weaken and anti-heal from the affected ally with the lowest HP, then heal 6 HP. Single use.",
+      "หลังจบการกระทำ ลบไฟ พิษ มึนงง อ่อนแรง และห้ามฟื้นฟู จากฝ่ายเดียวกันที่ติดสถานะและมีพลังชีวิตน้อยที่สุด แล้วฟื้นพลังชีวิต 6 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Guardian Helm",
+      "หมวกผู้พิทักษ์"
+    ],
+    [
+      "Prevent the first lethal damage instance to an ally and grant that ally 3 armor. Single use.",
+      "ป้องกันความเสียหายครั้งแรกที่ทำให้ฝ่ายเดียวกันตาย แล้วเพิ่มเกราะให้เป้าหมาย 3 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Blessed Plate",
+      "เกราะแผ่นรับพร"
+    ],
+    [
+      "At battle start, grant all allies 3 armor. Single use.",
+      "เมื่อเริ่มการต่อสู้ เพิ่มเกราะให้ฝ่ายเดียวกันทั้งหมด 3 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Oath of Survival",
+      "คำสัตย์แห่งการอยู่รอด"
+    ],
+    [
+      "Prevent the first lethal damage instance to an ally and grant that ally 1 armor. Single use.",
+      "ป้องกันความเสียหายครั้งแรกที่ทำให้ฝ่ายเดียวกันตาย แล้วเพิ่มเกราะให้เป้าหมาย 1 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Rebuke of Kings",
+      "คำตำหนิราชัน"
+    ],
+    [
+      "After the first enemy attack, halve the power of its next attack and deal 3 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ลดพลังของการโจมตีถัดไปของผู้โจมตีลงครึ่งหนึ่ง และสร้างความเสียหาย 3 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Thunder Reprisal",
+      "สายฟ้าตอบโต้"
+    ],
+    [
+      "After the first enemy attack, deal 7 damage to its attacker. Armor applies. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 7 แต้ม โดยคิดเกราะตามปกติ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Sanctuary",
+      "เขตศักดิ์สิทธิ์"
+    ],
+    [
+      "After an action, heal all allies for 1. Waits until an ally can be healed. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันทั้งหมด 1 แต้ม รอจนมีผู้ที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Storm Hammer",
+      "ค้อนพายุ"
+    ],
+    [
+      "After the first enemy attack, stun its attacker for one action and deal 3 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ทำให้ผู้โจมตีข้ามการกระทำถัดไป และสร้างความเสียหาย 3 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Blazing Spears",
+      "หอกเพลิง"
+    ],
+    [
+      "After the first enemy melee attack, burn its attacker and side-adjacent allies, then deal 4 damage to the attacker. Fire deals 2 HP damage after every action. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก ทำให้ผู้โจมตีและฝ่ายเดียวกันที่อยู่ติดด้านข้างติดไฟ แล้วสร้างความเสียหายแก่ผู้โจมตี 4 แต้ม ไฟลดพลังชีวิต 2 แต้มหลังทุกการกระทำ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Swordbreaker",
+      "ทำลายคมดาบ"
+    ],
+    [
+      "Reduce the first enemy multi-hit attack to one hit dealing 60% of its original per-hit damage. Single use.",
+      "ลดการโจมตีหลายครั้งครั้งแรกของศัตรูเหลือหนึ่งครั้ง โดยดาเมจเหลือ 60% ของดาเมจต่อครั้งเดิม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Radiant Aegis",
+      "โล่แสงเจิดจ้า"
+    ],
+    [
+      "After the first enemy ranged attack, reflect 60% of its attack damage to the attacker. Single use.",
+      "หลังศัตรูโจมตีระยะไกลครั้งแรก สะท้อนความเสียหาย 60% กลับไปยังผู้โจมตี ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Orb of Humility",
+      "ลูกแก้วถ่อมตน"
+    ],
+    [
+      "After the first enemy attack, halve the power of its next attack and deal 1 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ลดพลังของการโจมตีถัดไปของผู้โจมตีลงครึ่งหนึ่ง และสร้างความเสียหาย 1 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Last Stand",
+      "ยืนหยัดครั้งสุดท้าย"
+    ],
+    [
+      "Prevent the first lethal damage instance to an ally and grant that ally 4 armor. Single use.",
+      "ป้องกันความเสียหายครั้งแรกที่ทำให้ฝ่ายเดียวกันตาย แล้วเพิ่มเกราะให้เป้าหมาย 4 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Royal Bulwark",
+      "ปราการราชัน"
+    ],
+    [
+      "At battle start, grant all allies 4 armor. Single use.",
+      "เมื่อเริ่มการต่อสู้ เพิ่มเกราะให้ฝ่ายเดียวกันทั้งหมด 4 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Binding Chains",
+      "โซ่พันธนาการ"
+    ],
+    [
+      "Reduce the first enemy multi-hit attack to one hit dealing 40% of its original per-hit damage. Single use.",
+      "ลดการโจมตีหลายครั้งครั้งแรกของศัตรูเหลือหนึ่งครั้ง โดยดาเมจเหลือ 40% ของดาเมจต่อครั้งเดิม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Twilight Mirror",
+      "กระจกสนธยา"
+    ],
+    [
+      "After the first enemy ranged attack, reflect 80% of its attack damage to the attacker. Single use.",
+      "หลังศัตรูโจมตีระยะไกลครั้งแรก สะท้อนความเสียหาย 80% กลับไปยังผู้โจมตี ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Burning Shield",
+      "โล่เพลิงสวนกลับ"
+    ],
+    [
+      "After the first enemy melee attack, deal 5 damage to the attacker, ignoring armor. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 5 แต้มโดยไม่คิดเกราะ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Pendant of Mercy",
+      "จี้แห่งความเมตตา"
+    ],
+    [
+      "After an action, heal the injured ally with the lowest HP for 10. Waits until healing is possible. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันที่บาดเจ็บและมีพลังชีวิตน้อยที่สุด 10 แต้ม รอจนมีเป้าหมายที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Emerald Renewal",
+      "มรกตชุบชีวิต"
+    ],
+    [
+      "After an action, remove fire, poison, stun, weaken and anti-heal from the affected ally with the lowest HP, then heal 8 HP. Single use.",
+      "หลังจบการกระทำ ลบไฟ พิษ มึนงง อ่อนแรง และห้ามฟื้นฟู จากฝ่ายเดียวกันที่ติดสถานะและมีพลังชีวิตน้อยที่สุด แล้วฟื้นพลังชีวิต 8 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Hammerfall",
+      "ค้อนถล่ม"
+    ],
+    [
+      "After the first enemy attack, deal 9 damage to its attacker. Armor applies. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 9 แต้ม โดยคิดเกราะตามปกติ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Disarming Sweep",
+      "กวาดปลดอาวุธ"
+    ],
+    [
+      "Reduce the first enemy multi-hit attack to one hit dealing 80% of its original per-hit damage. Single use.",
+      "ลดการโจมตีหลายครั้งครั้งแรกของศัตรูเหลือหนึ่งครั้ง โดยดาเมจเหลือ 80% ของดาเมจต่อครั้งเดิม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Rising Sun",
+      "อาทิตย์ผงาด"
+    ],
+    [
+      "After the first enemy melee attack, burn its attacker and side-adjacent allies, then deal 1 damage to the attacker. Fire deals 2 HP damage after every action. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก ทำให้ผู้โจมตีและฝ่ายเดียวกันที่อยู่ติดด้านข้างติดไฟ แล้วสร้างความเสียหายแก่ผู้โจมตี 1 แต้ม ไฟลดพลังชีวิต 2 แต้มหลังทุกการกระทำ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Flash of Retribution",
+      "แสงลงทัณฑ์"
+    ],
+    [
+      "After the first enemy attack, deal 3 damage to its attacker. Armor applies. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 3 แต้ม โดยคิดเกราะตามปกติ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Pillar of Hope",
+      "เสาแห่งความหวัง"
+    ],
+    [
+      "After an action, heal all allies for 5. Waits until an ally can be healed. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันทั้งหมด 5 แต้ม รอจนมีผู้ที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Healing Embrace",
+      "อ้อมกอดเยียวยา"
+    ],
+    [
+      "After an action, heal the injured ally with the lowest HP for 6. Waits until healing is possible. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันที่บาดเจ็บและมีพลังชีวิตน้อยที่สุด 6 แต้ม รอจนมีเป้าหมายที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Cleansing Ray",
+      "ลำแสงชำระล้าง"
+    ],
+    [
+      "After an action, remove fire, poison, stun, weaken and anti-heal from the affected ally with the lowest HP, then heal 2 HP. Single use.",
+      "หลังจบการกระทำ ลบไฟ พิษ มึนงง อ่อนแรง และห้ามฟื้นฟู จากฝ่ายเดียวกันที่ติดสถานะและมีพลังชีวิตน้อยที่สุด แล้วฟื้นพลังชีวิต 2 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Second Breath",
+      "ลมหายใจครั้งใหม่"
+    ],
+    [
+      "After an action, heal the injured ally with the lowest HP for 12. Waits until healing is possible. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันที่บาดเจ็บและมีพลังชีวิตน้อยที่สุด 12 แต้ม รอจนมีเป้าหมายที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Sanctum Shield",
+      "โล่วิหาร"
+    ],
+    [
+      "At battle start, grant all allies 1 armor. Single use.",
+      "เมื่อเริ่มการต่อสู้ เพิ่มเกราะให้ฝ่ายเดียวกันทั้งหมด 1 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Seal of Penance",
+      "ผนึกสำนึกผิด"
+    ],
+    [
+      "After the first enemy attack, halve the power of its next attack and deal 4 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ลดพลังของการโจมตีถัดไปของผู้โจมตีลงครึ่งหนึ่ง และสร้างความเสียหาย 4 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Scripture of Renewal",
+      "คัมภีร์ฟื้นฟู"
+    ],
+    [
+      "After an action, heal the injured ally with the lowest HP for 4. Waits until healing is possible. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันที่บาดเจ็บและมีพลังชีวิตน้อยที่สุด 4 แต้ม รอจนมีเป้าหมายที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Reflection Scripture",
+      "คัมภีร์สะท้อน"
+    ],
+    [
+      "After the first enemy ranged attack, reflect 40% of its attack damage to the attacker. Single use.",
+      "หลังศัตรูโจมตีระยะไกลครั้งแรก สะท้อนความเสียหาย 40% กลับไปยังผู้โจมตี ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Hand of Restraint",
+      "หัตถ์ยับยั้ง"
+    ],
+    [
+      "After the first enemy attack, stun its attacker for one action and deal 0 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ทำให้ผู้โจมตีข้ามการกระทำถัดไป และสร้างความเสียหาย 0 แต้ม ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Rune of Communion",
+      "รูนร่วมพลัง"
+    ],
+    [
+      "After an action, heal all allies for 6. Waits until an ally can be healed. Single use.",
+      "หลังจบการกระทำ ฟื้นพลังชีวิตให้ฝ่ายเดียวกันทั้งหมด 6 แต้ม รอจนมีผู้ที่รักษาได้ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Rune of Endurance",
+      "รูนอดทน"
+    ],
+    [
+      "After the first enemy melee attack, deal 3 damage to the attacker, ignoring armor. Single use.",
+      "หลังศัตรูโจมตีประชิดครั้งแรก สร้างความเสียหายแก่ผู้โจมตี 3 แต้มโดยไม่คิดเกราะ ใช้ได้ครั้งเดียว"
+    ],
+    [
+      "Rune of Atonement",
+      "รูนไถ่บาป"
+    ],
+    [
+      "After the first enemy attack, halve the power of its next attack and deal 2 damage. Single use.",
+      "หลังศัตรูโจมตีครั้งแรก ลดพลังของการโจมตีถัดไปของผู้โจมตีลงครึ่งหนึ่ง และสร้างความเสียหาย 2 แต้ม ใช้ได้ครั้งเดียว"
+    ]
+  ],
+  "fragments": [
+    [
+      "Cost",
+      "ค่าร่าย"
+    ],
+    [
+      "ARMOR",
+      "เกราะ"
+    ],
+    [
+      "SPEED",
+      "ความเร็ว"
+    ],
+    [
+      "HP",
+      "พลังชีวิต"
+    ],
+    [
+      "ATK",
+      "พลังโจมตี"
+    ],
+    [
+      "STARS",
+      "ดาว"
+    ],
+    [
+      "ROUND",
+      "รอบ"
+    ],
+    [
+      "PREPARATION",
+      "เตรียมตัว"
+    ],
+    [
+      "BATTLE",
+      "ต่อสู้"
+    ],
+    [
+      "STEP",
+      "ขั้น"
+    ],
+    [
+      "OF",
+      "จาก"
+    ],
+    [
+      "GOLD",
+      "ทอง"
+    ],
+    [
+      "COINS",
+      "เหรียญ"
+    ],
+    [
+      "READY",
+      "พร้อม"
+    ],
+    [
+      "WAITING FOR PLAYERS",
+      "รอผู้เล่นคนอื่น"
+    ],
+    [
+      "WAITING FOR OPPONENT",
+      "รอคู่ต่อสู้"
+    ],
+    [
+      "YOUR HAND",
+      "การ์ดในมือ"
+    ],
+    [
+      "DRAG TO DEPLOY OR SELL",
+      "ลากเพื่อวางหรือขาย"
+    ],
+    [
+      "BATTLE IN PROGRESS",
+      "กำลังต่อสู้"
+    ],
+    [
+      "OWNED",
+      "มีแล้ว"
+    ],
+    [
+      "FREE TO PLAY",
+      "เล่นได้ฟรี"
+    ],
+    [
+      "NOT OWNED",
+      "ยังไม่มี"
+    ],
+    [
+      "CARD BACK",
+      "หลังการ์ด"
+    ],
+    [
+      "Applies to all cards",
+      "ใช้กับการ์ดทุกใบ"
+    ],
+    [
+      "1-star stats",
+      "ค่าสถานะ 1 ดาว"
+    ],
+    [
+      "Abilities",
+      "ความสามารถ"
+    ],
+    [
+      " rounds",
+      " รอบ"
+    ],
+    [
+      "Place #",
+      "อันดับ #"
+    ],
+    [
+      "directly behind the target",
+      "ด้านหลังเป้าหมายในแนวเดียวกัน"
+    ],
+    [
+      "beside the target",
+      "ข้างเป้าหมายในแถวเดียวกัน"
+    ],
+    [
+      "within one tile of the target",
+      "รอบเป้าหมาย 1 ช่อง"
+    ],
+    [
+      "in the same lane on the other row",
+      "อีกแถวในแนวเดียวกับเป้าหมาย"
+    ],
+    [
+      "near the target",
+      "ใกล้เป้าหมาย"
+    ],
+    [
+      " and ",
+      " และ"
+    ],
+    [
+      "First action:",
+      "ครั้งแรก:"
+    ],
+    [
+      "MMR updating",
+      "กำลังปรับคะแนน"
+    ],
+    [
+      "DISCONNECTED",
+      "ขาดการเชื่อมต่อ"
+    ],
+    [
+      "PREPARING",
+      "กำลังเตรียมตัว"
+    ],
+    [
+      "WAITING",
+      "กำลังรอ"
+    ],
+    [
+      "MATCH OVER",
+      "จบแมตช์"
+    ],
+    [
+      "YOU WIN",
+      "คุณชนะ"
+    ],
+    [
+      "YOUR TEAM",
+      "ฝ่ายเรา"
+    ],
+    [
+      "OPPONENT",
+      "คู่ต่อสู้"
+    ],
+    [
+      "LOGIN AGAIN",
+      "เข้าสู่ระบบอีกครั้ง"
+    ]
+  ]
+}

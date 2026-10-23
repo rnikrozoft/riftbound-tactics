@@ -84,7 +84,16 @@ public static class CharacterVisual
         float scale = Mathf.Min(FieldHeight/Mathf.Max(1,idleSize.Y),FieldWidth/Mathf.Max(1,idleSize.X));
         // Black Knight A's raised polearm extends above a much smaller torso.
         // Keep its pose scale stable while giving the body the same visual weight.
-        if(frame is AtlasTexture atlas && atlas.Atlas.ResourcePath.Contains("/black_knight_a/"))scale*=1.35f;
+        if(frame is AtlasTexture atlas && atlas.Atlas.ResourcePath.Contains("/black_knight_a/"))scale*=1.62f;
+        // Give Orc Rider's compact mounted body more presence on the field.
+        if(frame is AtlasTexture riderAtlas && riderAtlas.Atlas.ResourcePath.Contains("/orc_rider/"))scale*=1.2f;
+        // Lancer's upright lance occupies almost half the idle height. Scaling that
+        // full silhouette to a humanoid height shrinks the mounted body too far.
+        if(frame is AtlasTexture lancerAtlas && lancerAtlas.Atlas.ResourcePath.Contains("/lancer/"))scale*=1.8f;
+        // These mounted silhouettes include wide blades or tall horns; fitting the
+        // complete silhouette makes the rider and mount much smaller than Lancer.
+        if(frame is AtlasTexture mountedAtlas && (mountedAtlas.Atlas.ResourcePath.Contains("/demon_e/") || mountedAtlas.Atlas.ResourcePath.Contains("/black_knight_c/")))scale*=1.5f;
+        if(frame is AtlasTexture supportAtlas && supportAtlas.Atlas.ResourcePath.Contains("/special_cards/"))scale*=1.65f;
         sprite.Scale = new Vector2(scale, scale);
         sprite.Offset = new Vector2(frame.GetWidth() / 2f - bounds.Position.X - bounds.Size.X / 2f,
             frame.GetHeight() / 2f - bounds.End.Y);

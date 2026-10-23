@@ -36,13 +36,13 @@ public partial class MatchReplayViewer : Node
         _rounds=MatchReplayStore.Rounds.Concat(MatchReplayStore.Preparations).Select(s=>s.Round).Distinct().OrderBy(r=>r).ToArray();
         var layer=new CanvasLayer {Layer=32};AddChild(layer);
         var root=new PanelContainer {Name="ReplayDrawer",AnchorRight=1,AnchorTop=1,AnchorBottom=1,OffsetLeft=16,OffsetRight=-16,OffsetTop=-140,OffsetBottom=-12};_drawer=root;root.AddThemeStyleboxOverride("panel",GameUi.Box(false,8));layer.AddChild(root);
-        _drawerToggle=DeckMenuUi.Button("↓",ToggleDrawer,48,30);_drawerToggle.TooltipText="Hide timeline";_drawerToggle.Name="TimelineToggle";layer.AddChild(_drawerToggle);
+        _drawerToggle=DeckMenuUi.GameplayButton("↓",ToggleDrawer,48,30);_drawerToggle.Name="TimelineToggle";layer.AddChild(_drawerToggle);
         _drawerToggle.AnchorLeft=_drawerToggle.AnchorRight=.5f;_drawerToggle.AnchorTop=_drawerToggle.AnchorBottom=1;
         _drawerToggle.OffsetLeft=-24;_drawerToggle.OffsetRight=24;_drawerToggle.OffsetTop=-174;_drawerToggle.OffsetBottom=-144;
         var box=new VBoxContainer();root.AddChild(box);
         var controls=new HBoxContainer();controls.AddThemeConstantOverride("separation",8);box.AddChild(controls);
-        _playPause=DeckMenuUi.Button("PLAY",TogglePlayback,90);_playPause.Name="PlayPause";_playPause.TooltipText="Play / Pause • Esc: back to replays";controls.AddChild(_playPause);
-        _label=DeckMenuUi.Text("REPLAY",12);_label.SizeFlagsHorizontal=Control.SizeFlags.ExpandFill;controls.AddChild(_label);
+        _playPause=DeckMenuUi.GameplayButton("PLAY",TogglePlayback,90);_playPause.Name="PlayPause";controls.AddChild(_playPause);
+        _label=DeckMenuUi.GameplayText("REPLAY",12);_label.SizeFlagsHorizontal=Control.SizeFlags.ExpandFill;controls.AddChild(_label);
         var scroll=new ScrollContainer {CustomMinimumSize=new(0,70),HorizontalScrollMode=ScrollContainer.ScrollMode.Auto,VerticalScrollMode=ScrollContainer.ScrollMode.Disabled};box.AddChild(scroll);
         _timeline=new ReplayTimeline {Name="ReplayTimeline"};scroll.AddChild(_timeline);_timeline.Build(_rounds);
         _timeline.PointSelected+=(round,preparation,step)=>{SelectSection(round,preparation,step);Start();};
@@ -60,7 +60,7 @@ public partial class MatchReplayViewer : Node
         _battle=_arena.GetNode<BattleDemo>("BattleDemo");_battle.NetworkEnabled=true;
         _battle.SpeedEnabled=_playing;
         AddChild(_arena);_shop=_arena.GetNode<CardShop>("UI/SafeArea/Content/CardShop");
-        var back=DeckMenuUi.Button("BACK TO LOBBY",ReturnToLobby,150,32);
+        var back=DeckMenuUi.GameplayButton("BACK TO LOBBY",ReturnToLobby,150,32);
         back.Name="ReplayLobbyButton";back.Position=new(16,16);back.ProcessMode=ProcessModeEnum.Always;
         _arena.GetNode<Control>("UI/SafeArea/Content").AddChild(back);
     }
@@ -68,7 +68,7 @@ public partial class MatchReplayViewer : Node
     {
         DrawerCollapsed=!DrawerCollapsed;_drawerTween?.Kill();_drawer.Show();
         _drawerToggle.GetNode<Label>("Text").Text=DrawerCollapsed?"↑":"↓";
-        _drawerToggle.TooltipText=DrawerCollapsed?"Show timeline":"Hide timeline";
+        
         _drawerTween=CreateTween().SetParallel().SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.InOut);
         _drawerTween.TweenProperty(_drawer,"offset_top",DrawerCollapsed?12f:-140f,.25);
         _drawerTween.TweenProperty(_drawer,"offset_bottom",DrawerCollapsed?140f:-12f,.25);
@@ -114,7 +114,7 @@ public partial class MatchReplayViewer : Node
     {
         foreach(var player in state.Players)if(player!=null){
             bool own=player.UserId==MatchReplayStore.UserId;
-            var profile=_arena!.GetNode<PlayerProfile>("UI/SafeArea/Content/"+(own?"ProfileA":"ProfileB"));profile.SetCoins(player.Coins);profile.SetHealth(player.Hp);
+            var profile=_arena!.GetNode<PlayerProfile>("UI/SafeArea/Content/"+(own?"ProfileA":"ProfileB"));profile.SetCoins(player.Coins);profile.SetHealth(player.Hp);profile.SetCardBack(player.CardBackId);
         }
     }
     private void Check(int token){if(_closed||token!=_generation)throw new OperationCanceledException();}

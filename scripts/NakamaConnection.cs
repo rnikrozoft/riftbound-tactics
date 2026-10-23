@@ -121,15 +121,21 @@ public sealed class NakamaConnection
     private readonly CancellationTokenSource _searchCancellation = new();
     private string _ticket = "";
     private bool _searchActive;
+    private TaskCompletionSource<bool>? _searchFinished;
     public async Task<RoomResponse> FindMatch(DeckDefinition deck, Action<int>? progress = null)
     {
         if (_searchActive) throw new InvalidOperationException("Already searching");
+        if(_closed)throw new ObjectDisposedException(nameof(NakamaConnection));
+        _searchCancellation.Token.ThrowIfCancellationRequested();
         _searchActive = true;
+        _searchFinished=new(TaskCreationOptions.RunContinuationsAsynchronously);
         try
         {
             await Socket.RpcAsync("queue_begin", JsonSerializer.Serialize(new RoomRequest { Deck = deck },GameJsonContext.Default.RoomRequest));
+            _searchCancellation.Token.ThrowIfCancellationRequested();
             var ticket = await Socket.AddMatchmakerAsync("*",2,6);
             _ticket = ticket.Ticket;
+            _searchCancellation.Token.ThrowIfCancellationRequested();
             long started = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); bool widened = false;
             while (true)
             {
@@ -142,6 +148,7 @@ public sealed class NakamaConnection
                     _searchCancellation.Token.ThrowIfCancellationRequested();
                     MatchId=room.MatchId;Code=room.Code;
                     await Socket.JoinMatchAsync(MatchId);
+                    _searchCancellation.Token.ThrowIfCancellationRequested();
                     return room;
                 }
                 int elapsed=(int)((DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()-started)/1000);
@@ -167,6 +174,7 @@ public sealed class NakamaConnection
             await RemoveTicket();
             try { await Socket.RpcAsync("queue_cancel","{}"); } catch { }
             _searchActive=false;
+            _searchFinished?.TrySetResult(true);
         }
     }
     private async Task RemoveTicket()
@@ -175,12 +183,16 @@ public sealed class NakamaConnection
         if (ticket!="") try { await Socket.RemoveMatchmakerAsync(ticket); } catch { /* Already matched/removed. */ }
     }
     private bool _closed;
-    public async Task Close()
+    private Task? _closeTask;
+    public Task Close()=>_closeTask??=CloseCore();
+    private async Task CloseCore()
     {
         if(_closed)return;
         _searchCancellation.Cancel();
         _closed=true;
         if (Socket == null) {MatchId="";return;}
+        // Let an in-flight queue_begin/ticket request settle before final cleanup.
+        if(_searchActive&&_searchFinished!=null){try{await _searchFinished.Task.WaitAsync(TimeSpan.FromSeconds(10));}catch(TimeoutException){}}
         await RemoveTicket();
         if (_searchActive) try { await Socket.RpcAsync("queue_cancel","{}"); } catch { }
         string match=MatchId;MatchId="";

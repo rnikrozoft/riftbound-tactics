@@ -74,7 +74,7 @@ public partial class IntegrationRunner : Node
             _shop = _field.GetNode<CardShop>("UI/SafeArea/Content/CardShop");
             await Until(() => _shop.Drafting,"Preparation did not start"); await Frames();
             Check(_shop.Offers.Count == 3 && _shop.Offers.Select(c => c.Token).Distinct().Count() == 3,"Shop sampling");
-            Check(_shop.Hand.Count == 0 && _shop.HandRow.GetChildCount() == 0,"No placeholder controls");
+            Check(_shop.Hand.Count == 0 && _shop.HandRow.GetChildren().OfType<Panel>().Count(c=>c.Visible)==6,"Six visual empty hand slots");
             Check(_shop.Deployed.Count == 0,"Demo allies removed");
             Check(!_shop.IsProcessing(),"No per-frame details polling");
             Check(!_shop.FieldZone!.IsProcessing(),"No idle grid redraw");

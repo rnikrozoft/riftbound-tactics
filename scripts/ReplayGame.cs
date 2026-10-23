@@ -3,6 +3,7 @@ using System.Collections.Generic;
 public sealed class ReplayGame
 {
     public string Id {get;set;}="";
+    public string DeckId {get;set;}="";
     public string UserId {get;set;}="";
     public string PlayerName {get;set;}="";
     public string Code {get;set;}="";

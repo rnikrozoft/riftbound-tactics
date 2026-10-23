@@ -1,17 +1,34 @@
 # Game assets
 
-- `characters/knight`: Knight atlas, card portrait and one editable Aseprite source (original pack name: Soldier).
-- `characters/orc`: Orc idle/walk/attack/hit/death sheets and one editable Aseprite source.
-- `characters/demon` and `characters/blood_monster`: the newly supplied monster packs, including original atlases, alternate attacks, shadow variants and editable sources.
-- `terrain`: the arena tile atlas.
-- `ui/travel_book`: supplied sprites, animated sprites, sprite sheets and editable sources. Original sprite names are kept because `TravelBookUi` resolves icons by name.
-- `ui/cards`: card frames, backs and shape icons.
-- `effects/pixel`: animation frames and sprite sheets grouped by effect category, plus the supplier's documentation and license.
-- `effects/cards`: card rip and sheen effects.
-- `effects/projectiles`: both supplied arrow sizes.
+All artwork is grouped under four categories. Asset pixels and original pack filenames are preserved.
 
-Use lower snake case for new character/terrain files and category directories. Do not rename TravelBook icon keys or frame sequences without updating their consumers. Godot `.import` files travel with their source images to retain resource IDs.
+| Folder | Contents |
+| --- | --- |
+| `characters/<character>/` | Character animation sheets, shadows and editable sources |
+| `characters/packs/tiny_rpg_01/` | Original Tiny RPG pack, including its character, projectile and Aseprite folders |
+| `characters/licenses/` | Character pack license information |
+| `terrain/` | Arena ground and generated terrain atlases |
+| `terrain/isometric/` | Original isometric terrain pack |
+| `terrain/bushes/` | Original bush pack and its derived bush atlas |
+| `terrain/critters/` | Wildlife sprite sheets |
+| `ui/travel_book/` | UI sprites, animations, sheets and editable sources |
+| `ui/cards/` | Card frames, backs and shape icons |
+| `ui/cards/deco/` | Original DecoCards pack |
+| `ui/status_icons/` | Buff/debuff icons, source files, palettes and previews |
+| `ui/slate_brass/` | Existing alternate UI resources |
+| `effects/characters/` | Character-specific effect sheets |
+| `effects/projectiles/` | Shared and character-specific projectiles |
+| `effects/cards/` | Card rip and sheen effects |
+| `effects/screen/bloody/` | Original bloody screen effect pack |
+| `effects/pixel/` | Effect frames and sheets, documentation and licenses |
 
-Character scenes live in `scenes/characters`. The backend runtime JSON catalog and packaged `data/characters.json` point at these resources. Both teams use each card's `scene_path`; facing direction and outline material identify the opponent. Keep existing numeric kinds stable when renaming a displayed character or a resource.
+## Conventions
 
-Cleanup removed unused shadow/alternate Knight/Orc sheets and duplicate Knight/Orc sources. The newly supplied Demon/Blood Monster packs are retained and registered in the character catalog. All UI and effect files were retained. Every moved asset was checked against its original bytes.
+- Use lower snake case for new category folders and runtime asset names.
+- Preserve original filenames inside third-party packs, especially names used as lookup keys.
+- Move Godot `.import` metadata with each image to retain its resource UID.
+- Update resource paths in scenes, tile sets, code, tools and all three character catalog copies together.
+- Character scenes belong in `scenes/characters/`; preserve published character IDs even when retiring a character.
+- Generated atlases are rebuilt with `tools/build-bush-atlas.py` and `tools/blend-living-garden.py`.
+
+Validation: `python3 tools/audit-character-assets.py`, the Godot/.NET build, card-idle/projectile tests and live catalog loading cover the consumers affected by asset moves.

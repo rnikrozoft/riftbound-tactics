@@ -6,6 +6,7 @@ public static class CharacterCombatAnimations
     private static readonly Dictionary<string,SpriteFrames> Cache=new();
     public static SpriteFrames Load(int kind,SpriteFrames original)
     {
+        if(CharacterData.IsSupport(kind))return original;
         var c=CharacterData.Get(kind);if(Cache.TryGetValue(c.ScenePath,out var cached))return cached;
         var frames=(SpriteFrames)original.Duplicate();string slug=c.ScenePath.GetFile().GetBaseName();string folder=$"res://assets/characters/{slug}";
         for(int i=1;i<=3;i++){
@@ -17,7 +18,7 @@ public static class CharacterCombatAnimations
             }else if(slug=="knight"&&ResourceLoader.Exists(folder+"/knight_atlas.png")){
                 var atlas=GD.Load<Texture2D>(folder+"/knight_atlas.png");frames.AddAnimation(name);frames.SetAnimationSpeed(name,12);frames.SetAnimationLoopMode(name,SpriteFrames.LoopMode.None);
                 for(int f=0;f<(i==3?9:6);f++)frames.AddFrame(name,new AtlasTexture {Atlas=atlas,Region=new Rect2(f*100,(i+1)*100,100,100)});
-            }else{
+            }else if(!frames.HasAnimation(name)){
                 StringName source=i==2&&frames.HasAnimation("heavy_attack")?new("heavy_attack"):BattleAnimations.Attack;
                 frames.AddAnimation(name);frames.SetAnimationSpeed(name,12);frames.SetAnimationLoopMode(name,SpriteFrames.LoopMode.None);
                 for(int f=0;f<frames.GetFrameCount(source);f++)frames.AddFrame(name,frames.GetFrameTexture(source,f));

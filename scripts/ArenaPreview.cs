@@ -10,7 +10,7 @@ public partial class ArenaPreview : SubViewportContainer
         var arena=new Node2D {YSortEnabled=true};viewport.AddChild(arena);
         var source=GD.Load<PackedScene>("res://scenes/main.tscn").Instantiate<Node2D>();
         foreach(var child in source.GetChildren()) {
-            if(child is TileMapLayer || child.Name=="Ally_01" || child.Name=="Enemy_01") {
+            if(child is TileMapLayer || child.Name=="Wildlife" || child.Name=="Ally_01" || child.Name=="Enemy_01") {
                 child.Owner=null;source.RemoveChild(child);arena.AddChild(child);
             }
         }

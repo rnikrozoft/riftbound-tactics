@@ -1,0 +1,59 @@
+[gd_resource type="Theme" load_steps=21 format=3]
+
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/primary_normal.tres" id="primary_normal"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/primary_hover.tres" id="primary_hover"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/primary_pressed.tres" id="primary_pressed"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/primary_disabled.tres" id="primary_disabled"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/secondary_normal.tres" id="secondary_normal"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/secondary_hover.tres" id="secondary_hover"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/secondary_pressed.tres" id="secondary_pressed"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/secondary_disabled.tres" id="secondary_disabled"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/tab_normal.tres" id="tab_normal"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/tab_hover.tres" id="tab_hover"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/tab_selected.tres" id="tab_selected"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/tab_disabled.tres" id="tab_disabled"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/input_normal.tres" id="input_normal"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/input_focus.tres" id="input_focus"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/input_error.tres" id="input_error"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/input_disabled.tres" id="input_disabled"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/panel_plain.tres" id="panel_plain"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/panel_ornate.tres" id="panel_ornate"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/tooltip.tres" id="tooltip"]
+[ext_resource type="StyleBox" path="res://assets/ui/slate_brass/styles/modal.tres" id="modal"]
+
+[resource]
+default_font_size = 16
+Label/colors/font_color = Color(0.945, 0.914, 0.824, 1)
+Button/colors/font_color = Color(0.945, 0.914, 0.824, 1)
+Button/colors/font_disabled_color = Color(0.48, 0.53, 0.56, 1)
+PrimaryButton/base_type = &"Button"
+PrimaryButton/colors/font_color = Color(0.102, 0.149, 0.2, 1)
+PrimaryButton/colors/font_hover_color = Color(0.102, 0.149, 0.2, 1)
+PrimaryButton/colors/font_pressed_color = Color(0.102, 0.149, 0.2, 1)
+Button/styles/normal = ExtResource("secondary_normal")
+PrimaryButton/styles/normal = ExtResource("primary_normal")
+Button/styles/hover = ExtResource("secondary_hover")
+PrimaryButton/styles/hover = ExtResource("primary_hover")
+Button/styles/pressed = ExtResource("secondary_pressed")
+PrimaryButton/styles/pressed = ExtResource("primary_pressed")
+Button/styles/disabled = ExtResource("secondary_disabled")
+PrimaryButton/styles/disabled = ExtResource("primary_disabled")
+Button/styles/focus = ExtResource("tab_selected")
+Panel/styles/panel = ExtResource("panel_ornate")
+PanelContainer/styles/panel = ExtResource("panel_plain")
+PopupPanel/styles/panel = ExtResource("tooltip")
+LineEdit/styles/normal = ExtResource("input_normal")
+LineEdit/styles/focus = ExtResource("input_focus")
+LineEdit/styles/read_only = ExtResource("input_disabled")
+TabContainer/styles/tab_unselected = ExtResource("tab_normal")
+TabContainer/styles/tab_selected = ExtResource("tab_selected")
+TabContainer/styles/tab_hovered = ExtResource("tab_hover")
+TabContainer/styles/tab_disabled = ExtResource("tab_disabled")
+TabContainer/styles/panel = ExtResource("panel_plain")
+PopupMenu/styles/panel = ExtResource("panel_plain")
+PopupMenu/styles/hover = ExtResource("tab_selected")
+PopupMenu/colors/font_color = Color(0.945, 0.914, 0.824, 1)
+PopupMenu/colors/font_hover_color = Color(0.945, 0.914, 0.824, 1)
+PopupMenu/colors/font_disabled_color = Color(0.48, 0.53, 0.56, 1)
+TooltipPanel/styles/panel = ExtResource("tooltip")
+TooltipLabel/colors/font_color = Color(0.945, 0.914, 0.824, 1)

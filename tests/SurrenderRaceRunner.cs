@@ -28,8 +28,8 @@ public partial class SurrenderRaceRunner : Node
                 var user=(await transport.Client.GetUsersAsync(transport.Session,new[]{online.UserId})).Users.First();
                 string expected=string.IsNullOrWhiteSpace(user.DisplayName)?user.Username:user.DisplayName;
                 var text=new System.Globalization.StringInfo(expected);if(text.LengthInTextElements>14)expected=text.SubstringByTextElements(0,13)+"…";
-                var roster=(Label)typeof(OnlineBattle).GetField("_roster",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(online)!;
-                await Wait(()=>roster.Text.Contains(expected));
+                var roster=(ArenaRoster)typeof(OnlineBattle).GetField("_roster",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(online)!;
+                await Wait(()=>roster.FindChildren("*","Label",true,false).OfType<Label>().Any(label=>label.Text.Contains(expected)));
                 var button=GetTree().CurrentScene.GetNode<TextureButton>("UI/SafeArea/Content/MatchLobbyButton");
                 if(modal.Visible || !button.Visible)throw new Exception("Final result must replace surrender dialog with lobby exit");
                 if(scenario==0) {await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);GetViewport().GetTexture().GetImage().SavePng("/tmp/riftbound-surrender-match-end.png");modal.Cancel!();}

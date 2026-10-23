@@ -34,12 +34,14 @@ public partial class OnlineBattle : Node
     private double _defeatRemaining;
     private DeckDefinition? _selectedDeck;
     private bool _launchPending, _launchCreate, _matchmaking;
-    private Label _roster = null!;
+    private ArenaRoster _roster = null!;
     private PanelContainer _rosterPanel=null!;
     private Label _roundTitle=null!;
+    private PixelLoadingIndicator _searchSpinner=null!;
+    private Control _searchOverlay=null!;
     private string _launchCode = "";
     private GameModal _surrenderModal=null!;
-    private TextureButton _matchLobby=null!, _back=null!;
+    private TextureButton _matchLobby=null!, _back=null!, _cancelSearch=null!;
     private volatile bool _transportLost;
     private string _message = "";
     private string _displayedStatus = "";
@@ -63,6 +65,7 @@ public partial class OnlineBattle : Node
         _matchmaking=BattleLaunch.Matchmaking;BattleLaunch.Matchmaking=false;
         BattleLaunch.Pending = false;
         if(!BattleRecovery.Ready)MatchReplayStore.Clear();
+        MatchReplayStore.BindDeck(BattleRecovery.Ready?BattleRecovery.Deck:_selectedDeck);
         BuildUi();
         Callable.From(ConnectDebugUser).CallDeferred();
     }
@@ -70,7 +73,7 @@ public partial class OnlineBattle : Node
     {
         var button = new TextureButton {
             TextureNormal = TravelBookUi.Texture("FrameSelect01a"), IgnoreTextureSize = true, StretchMode = TextureButton.StretchModeEnum.Scale,
-            CustomMinimumSize = new(width,30), TextureFilter = CanvasItem.TextureFilterEnum.Nearest
+            CustomMinimumSize = new(width,MobileLayout.Enabled?60:30), TextureFilter = CanvasItem.TextureFilterEnum.Nearest
         };
         TravelBookUi.StyleButton(button);
         var label = new Label { Text = text, Modulate = Colors.White, HorizontalAlignment = HorizontalAlignment.Center,
@@ -81,40 +84,51 @@ public partial class OnlineBattle : Node
     private void BuildUi()
     {
         var panel = new VBoxContainer { Name = "RoomUI",MouseFilter = Control.MouseFilterEnum.Ignore };
-        var frame=new PanelContainer {Name="ArenaStatus",Position=new(16,76),CustomMinimumSize=new(230,0)};_rosterPanel=frame;
+        var frame=new PanelContainer {Name="ArenaStatus",Position=new(16,76),CustomMinimumSize=new(0,0)};_rosterPanel=frame;
         frame.AddThemeStyleboxOverride("panel",GameUi.Box());
         GetParent().GetNode<Control>("UI/SafeArea/Content").AddChild(frame);frame.AddChild(panel);
         panel.AddThemeConstantOverride("separation",9);
         var content=GetParent().GetNode<Control>("UI/SafeArea/Content");
         var back=Button("SURRENDER",ShowSurrender,100);back.Name="BackButton";back.Position=new(16,16);content.AddChild(back);
         _back=back;_back.Hide();
+        _cancelSearch=DeckMenuUi.Button("Cancel search",CancelMatchmaking,190,44);_cancelSearch.Name="CancelMatchmaking";content.AddChild(_cancelSearch);_cancelSearch.Position=new(16,16);_cancelSearch.Visible=_matchmaking;
         _matchLobby=Button("BACK TO LOBBY",ReturnToLobby,180);_matchLobby.Name="MatchLobbyButton";
         content.AddChild(_matchLobby);_matchLobby.AnchorLeft=_matchLobby.AnchorRight=_matchLobby.AnchorTop=_matchLobby.AnchorBottom=.5f;
         _matchLobby.OffsetLeft=-90;_matchLobby.OffsetRight=90;_matchLobby.OffsetTop=68;_matchLobby.OffsetBottom=112;
         GameUi.Primary(_matchLobby);_matchLobby.Hide();
         _roundTitle=new Label {Name="RoundTitle",Text="Searching",AnchorLeft=.5f,AnchorRight=.5f,OffsetLeft=-220,OffsetRight=220,OffsetTop=8,OffsetBottom=44,HorizontalAlignment=HorizontalAlignment.Center,MouseFilter=Control.MouseFilterEnum.Ignore};GameUi.Label(_roundTitle,24);content.AddChild(_roundTitle);
+        _searchSpinner=new PixelLoadingIndicator {Name="MatchmakingSpinner",AnchorLeft=.5f,AnchorRight=.5f,OffsetLeft=-24,OffsetRight=24,OffsetTop=48,OffsetBottom=96};content.AddChild(_searchSpinner);
+        _roundTitle.Hide();
+        var searchingLayer=new CanvasLayer {Layer=20};AddChild(searchingLayer);
+        _searchOverlay=new Control {Name="SearchingOverlay",MouseFilter=Control.MouseFilterEnum.Stop};searchingLayer.AddChild(_searchOverlay);_searchOverlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        var shade=new ColorRect {Name="SearchingShade",Color=new Color(0,0,0,.78f),MouseFilter=Control.MouseFilterEnum.Stop};_searchOverlay.AddChild(shade);shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        var centered=new CenterContainer {MouseFilter=Control.MouseFilterEnum.Ignore};_searchOverlay.AddChild(centered);centered.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        var searchBox=new VBoxContainer {CustomMinimumSize=new(240,0),MouseFilter=Control.MouseFilterEnum.Ignore};searchBox.AddThemeConstantOverride("separation",18);centered.AddChild(searchBox);
+        var searchTitle=DeckMenuUi.Text("Searching",24);searchTitle.HorizontalAlignment=HorizontalAlignment.Center;searchBox.AddChild(searchTitle);
+        _searchSpinner.Reparent(searchBox);_searchSpinner.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopLeft);_searchSpinner.CustomMinimumSize=new(56,56);_searchSpinner.SizeFlagsHorizontal=Control.SizeFlags.ShrinkCenter;
+        _cancelSearch.Reparent(searchBox);_cancelSearch.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopLeft);_cancelSearch.SizeFlagsHorizontal=Control.SizeFlags.ShrinkCenter;
         _identity = new Label { Text = "CONNECTING TO THE ARENA",MouseFilter = Control.MouseFilterEnum.Ignore };
         GameUi.Label(_identity,13);_identity.AddThemeColorOverride("font_color",GameUi.Gold);panel.AddChild(_identity);_identity.Hide();
         _roomControls = new HBoxContainer(); panel.AddChild(_roomControls);
         var inputFrame = new NinePatchRect {
-            Texture = TravelBookUi.Texture("Popup01a"), PatchMarginLeft = 4,PatchMarginRight = 4,PatchMarginTop = 4,PatchMarginBottom = 4,
+            Texture = SlateBrassUi.UiTexture("controls","input_normal"), PatchMarginLeft = 7,PatchMarginRight = 7,PatchMarginTop = 7,PatchMarginBottom = 7,
             CustomMinimumSize = new(112,30),MouseFilter = Control.MouseFilterEnum.Ignore
         };
-        _roomControls.AddChild(inputFrame);
+        _roomControls.AddChild(inputFrame);MenuUi.StyleSurface(inputFrame);
         var paper = new TextureRect { Texture = TravelBookUi.Texture("BookPageRight01a"),ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,MouseFilter = Control.MouseFilterEnum.Ignore };
-        inputFrame.AddChild(paper);paper.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        paper.Hide();inputFrame.AddChild(paper);paper.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         paper.OffsetLeft = paper.OffsetTop = 4;paper.OffsetRight = paper.OffsetBottom = -4;
         _code = new LineEdit { PlaceholderText = "Room code",MaxLength = 6,MouseFilter = Control.MouseFilterEnum.Stop };
         _code.AddThemeStyleboxOverride("normal",new StyleBoxEmpty());_code.AddThemeStyleboxOverride("focus",new StyleBoxEmpty());
-        _code.AddThemeColorOverride("font_color",Colors.Black);_code.AddThemeColorOverride("font_placeholder_color",new Color(.3f,.3f,.3f));
+        _code.AddThemeColorOverride("font_color",GameUi.Text);_code.AddThemeColorOverride("font_placeholder_color",new Color(.3f,.3f,.3f));
         inputFrame.AddChild(_code);_code.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _code.OffsetLeft = 6;_code.OffsetRight = -6;
         _code.TextSubmitted += code => JoinRoom();
         _create = Button("CREATE",() => CreateRoom(),90);_join = Button("JOIN",() => JoinRoom(),80);
         _roomControls.AddChild(_create);_roomControls.AddChild(_join);
-        _status = new Label { Text = "Starting connection...",AutowrapMode = TextServer.AutowrapMode.WordSmart,CustomMinimumSize = new(250,48),MouseFilter = Control.MouseFilterEnum.Ignore };
+        _status = new Label { Name="ConnectionStatus",Text = "Starting connection...",AutowrapMode = TextServer.AutowrapMode.WordSmart,CustomMinimumSize = new(250,48),MouseFilter = Control.MouseFilterEnum.Ignore };
         GameUi.Label(_status,13);panel.AddChild(_status);_status.Hide();
-        _roster=new Label {MouseFilter=Control.MouseFilterEnum.Ignore};GameUi.Label(_roster,13,true);_roster.AddThemeConstantOverride("line_spacing",8);panel.AddChild(_roster);
+        _roster=new ArenaRoster {MouseFilter=Control.MouseFilterEnum.Ignore};panel.AddChild(_roster);
         if (_matchmaking) _roomControls.Hide();
         _create.Disabled = _join.Disabled = true;
         if (_matchmaking) frame.Hide();
@@ -126,11 +140,11 @@ public partial class OnlineBattle : Node
         _shop.CloseDetails();
         if(_surrenderModal==null){
             var layer=new CanvasLayer {Layer=30};AddChild(layer);_surrenderModal=new GameModal();layer.AddChild(_surrenderModal);
-            _surrenderModal.Body.AddChild(DeckMenuUi.Text("SURRENDER?",26));
-            var message=DeckMenuUi.Text("Leave this match and return to the lobby?",15);message.AutowrapMode=TextServer.AutowrapMode.WordSmart;_surrenderModal.Body.AddChild(message);
+            _surrenderModal.Body.AddChild(DeckMenuUi.GameplayText("SURRENDER?",26));
+            var message=DeckMenuUi.GameplayText("Leave this match and return to the lobby?",15);message.AutowrapMode=TextServer.AutowrapMode.WordSmart;_surrenderModal.Body.AddChild(message);
             var buttons=new HBoxContainer();_surrenderModal.Body.AddChild(buttons);
-            buttons.AddChild(DeckMenuUi.Button("CANCEL",CancelSurrender,156,42));
-            buttons.AddChild(DeckMenuUi.Button("SURRENDER",ReturnToLobby,156,42));
+            buttons.AddChild(DeckMenuUi.GameplayButton("CANCEL",CancelSurrender,156,42));
+            buttons.AddChild(DeckMenuUi.GameplayButton("SURRENDER",ReturnToLobby,156,42));
             _surrenderModal.Cancel=CancelSurrender;
         }
         _surrenderModal.Show();
@@ -140,6 +154,11 @@ public partial class OnlineBattle : Node
         _surrenderModal.Hide();
         // A queued cancel from the old dialog must not strand a completed match.
         if(State?.Phase=="game_over" && _defeatModal==null)ReturnToLobby();
+    }
+    public void CancelMatchmaking()
+    {
+        if(_exiting||!_matchmaking||(State!=null&&State.Round>0&&State.Phase!="waiting"))return;
+        _cancelSearch.Disabled=true;ReturnToLobby();
     }
     public async void ReturnToLobby()
     {
@@ -338,8 +357,11 @@ public partial class OnlineBattle : Node
         }
         bool playing=State!=null && State.Round>0 && State.Phase!="waiting";
         _battle.MatchEntered=playing;_back.Visible=playing&&_defeatModal==null;
+        _cancelSearch.Visible=_matchmaking&&!playing&&!_exiting;
+        _searchSpinner.Visible=!playing&&!_exiting;
+        _searchOverlay.Visible=!playing&&!_exiting;
         _roundTitle.Text=playing?$"Round {State!.Round}":"Searching";
-        _roundTitle.Visible=!playing || State!.Phase=="preparation";
+        _roundTitle.Visible=playing && State!.Phase=="preparation";
         _rosterPanel.Visible=playing && State!.Roster.Length>0 || (!playing && !_matchmaking);
         _status.Visible=!string.IsNullOrEmpty(_message) && !_message.StartsWith("SEARCHING") && !_message.Contains("Searching");
         if (_status.Visible) _rosterPanel.Show();
@@ -368,10 +390,10 @@ public partial class OnlineBattle : Node
         _defeatModal=new GameModal {Name="DefeatModal"};layer.AddChild(_defeatModal);
         _blood.Complete(!_shop.NetworkUnits.Values.Any(unit=>unit.IsAlly&&!unit.IsDead));
         var effect=_blood.Image;effect.Reparent(_defeatModal);_defeatModal.MoveChild(effect,1);effect.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        var title=DeckMenuUi.Text("DEFEAT",32);title.HorizontalAlignment=HorizontalAlignment.Center;_defeatModal.Body.AddChild(title);
+        var title=DeckMenuUi.GameplayText("DEFEAT",32);title.HorizontalAlignment=HorizontalAlignment.Center;_defeatModal.Body.AddChild(title);
         var buttons=new HBoxContainer();buttons.AddThemeConstantOverride("separation",12);_defeatModal.Body.AddChild(buttons);
-        _defeatLobby=DeckMenuUi.Button("BACK TO LOBBY (15s)",ReturnToLobby,220,44);_defeatLobby.Name="DefeatLobbyButton";buttons.AddChild(_defeatLobby);
-        var replay=DeckMenuUi.Button("WATCH REPLAY",WatchReplay,180,44);replay.Name="WatchReplayButton";replay.Disabled=MatchReplayStore.Rounds.Count==0;buttons.AddChild(replay);
+        _defeatLobby=DeckMenuUi.GameplayButton("BACK TO LOBBY (15s)",ReturnToLobby,220,44);_defeatLobby.Name="DefeatLobbyButton";buttons.AddChild(_defeatLobby);
+        var replay=DeckMenuUi.GameplayButton("WATCH REPLAY",WatchReplay,180,44);replay.Name="WatchReplayButton";replay.Disabled=MatchReplayStore.Rounds.Count==0;buttons.AddChild(replay);
         bool replayAvailable=!replay.Disabled;_defeatLobby.Disabled=replay.Disabled=true;
         var fade=_defeatModal.FadeIn(5);
         fade.Finished+=()=>{if(!_exiting){_defeatLobby.Disabled=false;replay.Disabled=!replayAvailable;}};
@@ -385,13 +407,9 @@ public partial class OnlineBattle : Node
     }
     private void UpdateRosterNames(OnlineState state)
     {
-        _roster.Text=string.Join("\n",state.Roster.Select((p,i)=> {
-            string name=_rosterNames.TryGetValue(p.UserId,out var known) && !string.IsNullOrWhiteSpace(known) ? known : p.UserId==UserId ? "YOU" : p.Bot ? "BOT" : "PLAYER";
-            var letters=new System.Globalization.StringInfo(name);
-            if(letters.LengthInTextElements>14)name=letters.SubstringByTextElements(0,13)+"…";
-            return $"{i+1:00}   {name}   {p.Hp:00} HP{(p.Place>0 ? $" / #{p.Place}" : "")}";
-        }));
+        _roster.UpdateRoster(state,UserId,_rosterNames);
     }
+
     private async void FetchRosterNames()
     {
         if(_fetchingRosterNames || State==null || Connection?.Session==null)return;
@@ -401,7 +419,7 @@ public partial class OnlineBattle : Node
         try {
             var users=await Connection.Client.GetUsersAsync(Connection.Session,ids);
             if(_exiting || !IsInsideTree())return;
-            foreach(var user in users.Users)_rosterNames[user.Id]=string.IsNullOrWhiteSpace(user.DisplayName)?user.Username:user.DisplayName;
+            foreach(var user in users.Users){AvatarProfiles.Update(user);_rosterNames[user.Id]=string.IsNullOrWhiteSpace(user.DisplayName)?user.Username:user.DisplayName;}
             foreach(var id in ids)if(!_rosterNames.ContainsKey(id))_rosterNames[id]="";
             if(State!=null)UpdateRosterNames(State);
         } catch(Exception e) {if(!_exiting)GD.Print("Roster names unavailable: "+e.Message);}
@@ -414,8 +432,8 @@ public partial class OnlineBattle : Node
         {
             bool local = profile.Team == localTeam;
             profile.AnchorLeft = profile.AnchorRight = local ? 0 : 1;
-            profile.OffsetLeft = local ? 12 : -284;
-            profile.OffsetRight = local ? 284 : -12;
+            profile.OffsetLeft = local ? 12 : (MobileLayout.Enabled?-192:-284);
+            profile.OffsetRight = local ? (MobileLayout.Enabled?192:284) : -12;
         }
     }
     private async Task WaitUntil(long time, int generation)

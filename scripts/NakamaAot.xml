@@ -1,0 +1,11 @@
+<linker>
+  <!-- TinyJson invokes collection capacity constructors through reflection. -->
+  <assembly fullname="System.Private.CoreLib">
+    <type fullname="System.Collections.Generic.Dictionary`2">
+      <method name=".ctor" />
+    </type>
+    <type fullname="System.Collections.Generic.List`1">
+      <method name=".ctor" />
+    </type>
+  </assembly>
+</linker>

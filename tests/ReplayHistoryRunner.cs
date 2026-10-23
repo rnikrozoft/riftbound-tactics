@@ -14,7 +14,7 @@ public partial class ReplayHistoryRunner : Node
     private async void Run()
     {
         string path=ProjectSettings.GlobalizePath($"user://replays-test-{Guid.NewGuid():N}.json");
-        MatchReplayStore.TestPath=path;
+        MatchReplayStore.TestPath=path;DeckMatchHistory.TestPath=path+".stats";
         try {
             MatchReplayStore.Clear();
             MatchReplayStore.Record(new OnlineState {Round=1,Battle=new OnlinePlan()},"effects-a");
@@ -23,7 +23,7 @@ public partial class ReplayHistoryRunner : Node
             var fixture=JsonSerializer.Deserialize(Godot.FileAccess.GetFileAsString("res://tests/combat_fixture.json"),GameJsonContext.Default.OnlineState)!;
             long played=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             for(int i=0;i<11;i++){
-                MatchReplayStore.Clear();var state=MatchReplayStore.Clone(fixture);state.Round=1;state.Code=$"game-{i}";state.ServerMs=played+i*1000;
+                MatchReplayStore.Clear();MatchReplayStore.BindDeck(new DeckDefinition {Id="history-deck"});var state=MatchReplayStore.Clone(fixture);state.Round=1;state.Code=$"game-{i}";state.ServerMs=played+i*1000;
                 state.Roster=new[]{new OnlineStanding {UserId="effects-a",Hp=30,Rating=1000},new OnlineStanding {UserId="effects-b",Hp=30,Rating=1000}};
                 state.Phase="preparation";MatchReplayStore.RecordPreparation(state,"effects-a");
                 MatchReplayStore.RecordPreparation(state,"effects-a");Check(MatchReplayStore.Preparations.Count==1,"Duplicate preparation broadcasts must be ignored");
@@ -41,6 +41,12 @@ public partial class ReplayHistoryRunner : Node
                 state.MmrPending=false;state.MmrDelta=-20;MatchReplayStore.Observe(state,"effects-a");
                 var game=MatchReplayStore.History().First();Check(game.MmrDelta==-20&&!game.MmrPending&&game.Result=="LOSS"&&game.Place==6,"Settled server outcome must update same game");
             }
+            var stats=DeckMatchHistory.ForDeck("effects-a","history-deck");
+            Check(stats.Length==11&&stats.All(r=>r.Result=="LOSS"),"Completed matches must survive replay eviction and count once despite MMR updates");
+            Check(DeckMatchHistory.ForDeck("other-user","history-deck").Length==0&&DeckMatchHistory.ForDeck("effects-a","other-deck").Length==0,"Statistics must isolate users and decks");
+            DeckMatchHistory.Record(new ReplayGame {Id="left",UserId="effects-a",DeckId="history-deck",Result="LEFT MATCH"});
+            DeckMatchHistory.Record(new ReplayGame {Id="unknown",UserId="effects-a",Result="WIN"});
+            Check(DeckMatchHistory.ForDeck("effects-a","history-deck").Length==11,"Incomplete or unidentified matches must not affect statistics");
             var history=MatchReplayStore.History();Check(history.Count==10,"Replay capacity is ten games");
             Check(history.First().Code=="game-10"&&history.Last().Code=="game-1","Newest game replaces oldest");
             Check(history.All(g=>g.Rounds.Count==2&&g.UserId=="effects-a"&&g.PlayedAt>0),"Persisted metadata and round plans");
@@ -115,6 +121,6 @@ public partial class ReplayHistoryRunner : Node
             Check(Engine.TimeScale==1,"Leaving replay restores normal engine speed");
             GD.Print($"PASS replay history: {_checks} checks");GetTree().Quit(0);
         }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
-        finally{if(File.Exists(path))File.Delete(path);MatchReplayStore.TestPath=null;}
+        finally{if(File.Exists(path))File.Delete(path);MatchReplayStore.TestPath=null;if(File.Exists(path+".stats"))File.Delete(path+".stats");DeckMatchHistory.TestPath=null;}
     }
 }

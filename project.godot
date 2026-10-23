@@ -15,6 +15,11 @@ run/main_scene="res://scenes/welcome.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+MobileLayout="*res://scripts/MobileLayout.cs"
+Localization="*res://scripts/Localization.cs"
+
 [display]
 
 window/size/viewport_width=1280
@@ -22,11 +27,16 @@ window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/handheld/orientation=4
 
 [dotnet]
 
 project/assembly_name="RiftboundTactics"
+
+[gui]
+
+theme/custom="res://assets/ui/slate_brass/slate_brass_theme.tres"
 
 [physics]
 
@@ -35,4 +45,5 @@ project/assembly_name="RiftboundTactics"
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.025, 0.03, 0.045, 1)

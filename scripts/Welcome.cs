@@ -5,24 +5,44 @@ public partial class Welcome : Control
 {
     private NakamaConnection? _connection;
     private bool _busy,_exiting;
+    private PixelLoadingIndicator _loader=null!;
+    public override void _Process(double delta){if(_loader!=null)_loader.Visible=_busy;}
     private TextureButton _guest=null!,_continue=null!;
     private Label _status=null!,_error=null!;
     private LineEdit _name=null!,_server=null!;
     private GameModal _modal=null!;
     public override void _Ready()
     {
+        if(OS.IsDebugBuild()&&OS.GetEnvironment("RIFT_IOS_NETWORK_TEST")=="1"){AddChild(new IosNetworkRunner());return;}
         var page=DeckMenuUi.Page(this);
+        var brand=MenuUi.Eyebrow("RIFTBOUND TACTICS   /   TACTICAL AUTO BATTLER");page.AddChild(brand);
         var center=new CenterContainer {SizeFlagsVertical=SizeFlags.ExpandFill};page.AddChild(center);
-        var body=new VBoxContainer {CustomMinimumSize=new(420,0)};body.AddThemeConstantOverride("separation",20);center.AddChild(body);
-        var title=DeckMenuUi.Text("RIFTBOUND\nTACTICS",48);title.HorizontalAlignment=HorizontalAlignment.Center;title.AddThemeColorOverride("font_color",GameUi.Gold);body.AddChild(title);
-        var subtitle=DeckMenuUi.Text("BUILD YOUR ARMY. RULE THE ARENA.",15);subtitle.HorizontalAlignment=HorizontalAlignment.Center;body.AddChild(subtitle);
-        body.AddChild(new ArenaPreview {CustomMinimumSize=new(420,200)});
-        body.AddChild(DeckMenuUi.Text("SERVER IP",14));
-        _server=DeckMenuUi.Input(GameAccount.ServerHost,"127.0.0.1",420);_server.Name="ServerIpInput";body.AddChild(_server);
+        var body=new HBoxContainer();body.AddThemeConstantOverride("separation",64);center.AddChild(body);
+        var hero=new VBoxContainer {CustomMinimumSize=new(480,0),SizeFlagsVertical=SizeFlags.ShrinkCenter};body.AddChild(hero);hero.Visible=!MobileLayout.Enabled;
+        hero.AddChild(MenuUi.Eyebrow("BUILD YOUR STRATEGY"));
+        hero.AddChild(DeckMenuUi.Text("A small army.\nA bigger plan.",50));
+        var intro=DeckMenuUi.Text("Choose your heroes, shape your deck,\nand find your next rival in the arena.",17);hero.AddChild(intro);
+        var arena=new PanelContainer {CustomMinimumSize=new(480,220)};arena.AddThemeStyleboxOverride("panel",MenuUi.Box(false,4));hero.AddChild(arena);
+        arena.AddChild(new ArenaPreview {CustomMinimumSize=new(460,208)});
+        var form=DeckMenuUi.Panel(body,MobileLayout.Enabled?420:400);form.GetParent<Control>().SizeFlagsVertical=SizeFlags.ShrinkCenter;
+        form.AddChild(MenuUi.Eyebrow("WELCOME, COMMANDER"));form.AddChild(DeckMenuUi.Text("Enter the arena",30));
+        var subtitle=DeckMenuUi.Text("Connect to play, or explore combat offline.",14);subtitle.AutowrapMode=TextServer.AutowrapMode.WordSmart;form.AddChild(subtitle);
+        form.AddChild(new Control {CustomMinimumSize=new(0,12)});
+        form.AddChild(DeckMenuUi.Text("Server address",14));
+        _server=DeckMenuUi.Input(GameAccount.ServerHost,"127.0.0.1",360);_server.Name="ServerIpInput";form.AddChild(_server);
         _server.TextSubmitted+=_=>LoginGuest();
-        _guest=DeckMenuUi.Button("LOGIN WITH GUEST",LoginGuest,420,48);GameUi.Primary(_guest);body.AddChild(_guest);
-        _status=DeckMenuUi.Text("",14);_status.HorizontalAlignment=HorizontalAlignment.Center;body.AddChild(_status);
-        var layer=new CanvasLayer {Layer=30};AddChild(layer);_modal=new GameModal();layer.AddChild(_modal);
+        _guest=DeckMenuUi.Button("Continue as guest",LoginGuest,360,48);GameUi.Primary(_guest);form.AddChild(_guest);
+        form.AddChild(new HSeparator());
+        form.AddChild(DeckMenuUi.Text("JUST HERE TO EXPERIMENT?",12));
+        var simulator=DeckMenuUi.Button("Open Combat Simulator",()=>{
+            if(_busy)return;
+            CombatSimulatorLab.ReturnScene="res://scenes/welcome.tscn";
+            GetTree().ChangeSceneToFile("res://scenes/combat_simulator_lab.tscn");
+        },360,44);simulator.Name="OfflineCombatSimulatorButton";form.AddChild(simulator);
+        _loader=new PixelLoadingIndicator {Name="DataLoadingSpinner",Visible=false};form.AddChild(_loader);
+        _status=DeckMenuUi.Text("",14);_status.AutowrapMode=TextServer.AutowrapMode.WordSmart;form.AddChild(_status);
+        page.AddChild(DeckMenuUi.Text("Six commanders. One arena. Your strategy makes the difference.",13));
+        var layer=new CanvasLayer {Layer=30};AddChild(layer);_modal=new GameModal {MenuStyle=true};layer.AddChild(_modal);
         _modal.Body.AddChild(DeckMenuUi.Text("CHOOSE YOUR NAME",24));
         _name=DeckMenuUi.Input("","Your commander name",332);_name.MaxLength=24;_modal.Body.AddChild(_name);
         _error=DeckMenuUi.Text("",14);_modal.Body.AddChild(_error);
@@ -40,8 +60,9 @@ public partial class Welcome : Control
             await PlayerInventory.Load(_connection,importLegacy:true);
             var account=await _connection.Client.GetAccountAsync(_connection.Session);
             if(_exiting)return;
+            AvatarProfiles.Update(account.User);
             _name.Text=account.User.DisplayName??"";_status.Text="";_modal.Show();_name.GrabFocus();
-        }catch(Exception e){if(!_exiting){_status.Text="Unable to login: "+e.Message;GD.Print(e.Message);}if(_connection!=null)await _connection.Close();_connection=null;}
+        }catch(Exception e){if(!_exiting){_status.Text="Unable to login: "+e.Message;GD.PushError(e.ToString());}if(_connection!=null)await _connection.Close();_connection=null;}
         finally{_busy=false;if(!_exiting){_guest.Disabled=false;_server.Editable=true;}}
     }
     public async void ConfirmName()

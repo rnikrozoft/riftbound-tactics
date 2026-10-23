@@ -19,9 +19,9 @@ public partial class PlayerStorageRunner : Node
             a=new(deviceId:"rift-player-storage-ui-"+Guid.NewGuid().ToString("N"));await a.Connect(realtime:false);
             await PlayerInventory.Load(a);
             Check(PlayerInventory.Ready,"account bootstrap did not bind to this user");
-            Check(PlayerInventory.AllUnlocked&&PlayerInventory.Coins==0,"temporary free access and explicit zero wallet");
-            Check(DeckStore.Decks.Count==1&&DeckStore.Selected!.Cards.Count==40,"server starter deck missing");
-            Check(PlayerInventory.State!.Profile.OwnedCharacters.Length==40,"starter ownership missing");
+            Check(!PlayerInventory.AllUnlocked&&PlayerInventory.Coins==0,"ownership must be enforced and wallet starts at zero");
+            Check(DeckStore.Decks.Count==1&&DeckStore.Selected!.Cards.Count==30,"server starter deck missing");
+            Check(PlayerInventory.State!.Profile.OwnedCharacters.Length==30,"starter ownership missing");
             string version=PlayerInventory.State.ConfigVersion;string profileVersion=PlayerInventory.State.ProfileVersion;
             await PlayerInventory.Load(a);
             Check(PlayerInventory.State.ConfigVersion==version&&PlayerInventory.State.ProfileVersion==profileVersion,"cache bootstrap overwrote collection");
@@ -37,7 +37,7 @@ public partial class PlayerStorageRunner : Node
             lobby.DeleteDeck(initialDeck.Id);
             ulong deleteUntil=Time.GetTicksMsec()+8000;while(DeckStore.Decks.Count>0&&Time.GetTicksMsec()<deleteUntil)await Frames(1);
             Check(DeckStore.Decks.Count==0&&DeckStore.Selected==null,"Delete button flow did not remove the last deck");
-            await PlayerInventory.Load(a);Check(DeckStore.Decks.Count==0&&PlayerInventory.State.Profile.OwnedCharacters.Length==40,"Deleted deck returned or owned collection changed on reload");
+            await PlayerInventory.Load(a);Check(DeckStore.Decks.Count==0&&PlayerInventory.State.Profile.OwnedCharacters.Length==30,"Deleted deck returned or owned collection changed on reload");
             await PlayerInventory.SaveDecks(new(){initialDeck},initialDeck.Id);
             lobby.QueueFree();await Frames();
             var deck=DeckStore.Selected!.Clone();deck.Name="Cloud expedition";

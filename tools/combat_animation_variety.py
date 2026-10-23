@@ -59,3 +59,17 @@ def set_animation(action, name, frames):
     action['frames'] = frames
     hits = action['hits']
     action['hit_frames'] = [min(frames - 1, max(1, round((i + 1) * frames / (hits + 1)))) for i in range(hits)]
+
+
+def apply_reviewed_hit_counts(slug, rules):
+    timings = {('demoness_a', 'attack03'): [5, 11], ('knight_templar', 'attack03'): [4, 7], ('orc_rider', 'attack03'): [4, 7], ('werebear', 'attack02'): [4, 9], ('werewolf', 'attack02'): [3, 6, 10]}
+    for (character, animation), frames in timings.items():
+        if slug != character:
+            continue
+        for action in rules["actions"]:
+            if action["animation"] == animation:
+                action["hits"] = len(frames)
+                action["hit_frames"] = frames.copy()
+        if rules.get("finisher") == animation:
+            rules["finisher_hits"] = len(frames)
+            rules["finisher_hit_frames"] = frames.copy()

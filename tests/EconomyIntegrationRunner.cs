@@ -39,7 +39,7 @@ public partial class EconomyIntegrationRunner : Node
             await Capture("economy-details"); shop.CloseDetails();
             int token=shop.Offers[0].Token;
             Check(shop.TakeCard(token) && shop.Coins==2,"Purchase 2 coin");
-            Check(shop.SellCard(token) && shop.Coins==3,"Half-price hand refund");
+            Check(shop.SellCard(token) && shop.Coins==3,"One-coin hand refund");
             shop.RerollShop(); Check(shop.Coins == 1 && shop.Offers.Count == 3, "Paid reroll");
             Check(!shop.TakeCard(shop.Offers[0].Token), "Unaffordable buy");
             shop.ToggleShopLock(); var tokens = shop.Offers.Select(c=>c.Token).ToArray();

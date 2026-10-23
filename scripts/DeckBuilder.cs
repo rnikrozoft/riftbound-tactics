@@ -17,6 +17,9 @@ public partial class DeckBuilder : Control
     private Label _status=null!,_total=null!;
     private LineEdit _search=null!;
     private TextureButton _save=null!;
+    private TabContainer _inspectorTabs=null!;
+    private TextureRect _cardBackPreview=null!;
+    private Label _cardBackName=null!;
     public override void _Ready()
     {
         DeckStore.Load();Draft=(DeckStore.Decks.Find(d=>d.Id==DeckStore.EditId)??DeckDefinition.Starter()).Clone();
@@ -24,26 +27,36 @@ public partial class DeckBuilder : Control
         ActiveGroup=Draft.Heroes[0];
         var page=DeckMenuUi.Page(this);
         var header=new HBoxContainer();page.AddChild(header);
-        header.AddChild(DeckMenuUi.Button("< LOBBY",()=>GetTree().ChangeSceneToFile("res://scenes/lobby.tscn"),120));
+        header.AddChild(DeckMenuUi.Button("← Back",()=>GetTree().ChangeSceneToFile("res://scenes/lobby.tscn"),120));
         var name=DeckMenuUi.Input(Draft.Name,"Deck name",360);name.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(name);
         name.TextChanged+=text=>{Draft.Name=text;RefreshStatus();};
-        _save=DeckMenuUi.Button("SAVE DECK",Save,150);header.AddChild(_save);GameUi.Primary(_save);
+        _save=DeckMenuUi.Button("Save deck",Save,150);header.AddChild(_save);GameUi.Primary(_save);
+        var backRow=new HBoxContainer {Name="DeckCardBack"};page.AddChild(backRow);
+        _cardBackPreview=CardBackCatalog.Preview(Draft.CardBackId,24,32);backRow.AddChild(_cardBackPreview);
+        _cardBackName=DeckMenuUi.Text("",14);_cardBackName.SizeFlagsHorizontal=SizeFlags.ExpandFill;backRow.AddChild(_cardBackName);
+        var chooseBack=DeckMenuUi.Button("Change card back",ShowCardBackChoices,200);chooseBack.Name="ChooseCardBackButton";backRow.AddChild(chooseBack);
         _tabs=new HBoxContainer();page.AddChild(_tabs);
         _heroChoices=new Control {ZIndex=100,MouseFilter=MouseFilterEnum.Stop};AddChild(_heroChoices);_heroChoices.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);_heroChoices.Hide();
         var body=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};body.AddThemeConstantOverride("separation",12);page.AddChild(body);
-        var detailsShell=DeckMenuUi.Panel(body,224);var detailsScroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};detailsShell.AddChild(detailsScroll);_details=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};detailsScroll.AddChild(_details);
         var center=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};body.AddChild(center);
-        _search=DeckMenuUi.Input("","Search cards...",220);center.AddChild(_search);_search.TextChanged+=_=>RenderCatalog();
-        _filters=new HBoxContainer();center.AddChild(_filters);
+        Container tools=MobileLayout.Enabled?new VBoxContainer():new HBoxContainer();center.AddChild(tools);
+        _search=DeckMenuUi.Input("","Search your cards",180);_search.SizeFlagsHorizontal=SizeFlags.ExpandFill;tools.AddChild(_search);_search.TextChanged+=_=>RenderCatalog();
+        _filters=new HBoxContainer();tools.AddChild(_filters);
         var scroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,SizeFlagsHorizontal=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};center.AddChild(scroll);
-        _catalog=new GridContainer {Columns=3,SizeFlagsHorizontal=SizeFlags.ExpandFill};_catalog.AddThemeConstantOverride("h_separation",10);_catalog.AddThemeConstantOverride("v_separation",10);scroll.AddChild(_catalog);
-        var right=DeckMenuUi.Panel(body,308);right.AddChild(DeckMenuUi.Text("DECK MANIFEST",20));_total=DeckMenuUi.Text("",15);right.AddChild(_total);
-        _summary=new VBoxContainer();right.AddChild(_summary);
-        right.AddChild(DeckMenuUi.Text("Click to inspect / drag here to replace",12));
-        var listScroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};right.AddChild(listScroll);
+        _catalog=new GridContainer {Columns=MobileLayout.Enabled?2:4,SizeFlagsHorizontal=SizeFlags.ExpandFill};_catalog.AddThemeConstantOverride("h_separation",12);_catalog.AddThemeConstantOverride("v_separation",12);scroll.AddChild(_catalog);
+        void FitColumns(){int columns=Math.Max(1,(int)((scroll.Size.X-16)/178));if(_catalog.Columns!=columns)_catalog.Columns=columns;}
+        scroll.Resized+=FitColumns;
+        var right=DeckMenuUi.Panel(body,MobileLayout.Enabled?280:320);right.AddChild(MenuUi.Eyebrow("DECK WORKSPACE"));
+        _total=DeckMenuUi.Text("",15);right.AddChild(_total);
+        _inspectorTabs=new TabContainer {SizeFlagsVertical=SizeFlags.ExpandFill};right.AddChild(_inspectorTabs);
+        var deckTab=new VBoxContainer {Name="Deck"};_inspectorTabs.AddChild(deckTab);
+        _summary=new VBoxContainer();deckTab.AddChild(_summary);
+        var listScroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};deckTab.AddChild(listScroll);
         _list=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};listScroll.AddChild(_list);
+        var detailsScroll=new ScrollContainer {Name="Card details",SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};_inspectorTabs.AddChild(detailsScroll);
+        _details=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};detailsScroll.AddChild(_details);
         _status=DeckMenuUi.Text("",14);page.AddChild(_status);
-        SelectCard(CardCatalog.Options(ActiveGroup,2).First());Render();
+        SelectCard(CardCatalog.Options(ActiveGroup,2).First());Render();_inspectorTabs.CurrentTab=0;
     }
     public void SetHero(int index,int group)
     {
@@ -54,31 +67,32 @@ public partial class DeckBuilder : Control
     }
     public void SetGroup(int group)
     {
-        if(!Draft.Heroes.Append(4).Contains(group))return;
-        ActiveGroup=group;CostFilter=0;_heroChoices.Hide();SelectCard(CardCatalog.Options(group,2).First());Render();
+        if(group!=4&&!Draft.Heroes.Contains(group))return;
+        ActiveGroup=group;CostFilter=0;_heroChoices.Hide();SelectCard(group==4?CharacterData.SupportKinds.First():CardCatalog.Options(group,2).First());Render();
     }
     public void Filter(int cost,string search=""){CostFilter=cost;_search.Text=search;RenderFilters();RenderCatalog();}
     private void Render()
     {
+        _cardBackPreview.Texture=CardBackCatalog.Texture(Draft.CardBackId);
+        _cardBackName.Text="CARD BACK / "+CardBackCatalog.Find(Draft.CardBackId)?.Name+"  · Applies to all cards";
         DeckMenuUi.Clear(_tabs);
         for(int i=0;i<3;i++)
         {
             int index=i,group=Draft.Heroes[i];
-            var tab=DeckMenuUi.Button((group==ActiveGroup?"> ":"")+CardCatalog.Groups[group],()=>{_heroIndex=index;SetGroup(group);},170,38);_tabs.AddChild(tab);GameUi.Selected(tab,group==ActiveGroup);
+            var tab=DeckMenuUi.Button(CardCatalog.Groups[group],()=>{_heroIndex=index;SetGroup(group);},170,38);_tabs.AddChild(tab);GameUi.Selected(tab,group==ActiveGroup);
         }
-        _tabs.AddChild(DeckMenuUi.Button((ActiveGroup==4?"> ":"")+"Neutral",()=>SetGroup(4),150));
-        _tabs.AddChild(DeckMenuUi.Button("CHANGE CHARACTER",ShowHeroChoices,180));
+        var neutral=DeckMenuUi.Button("Neutral",()=>SetGroup(4),140,38);neutral.Name="NeutralGroupTab";_tabs.AddChild(neutral);GameUi.Selected(neutral,ActiveGroup==4);
+        if(ActiveGroup!=4)_tabs.AddChild(DeckMenuUi.Button("CHANGE GROUP",ShowHeroChoices,180));
         RenderFilters();RenderCatalog();RenderDeck();RenderDetails();RefreshStatus();
     }
     private void ShowHeroChoices()
     {
-        if(ActiveGroup==4){_status.Text="Select a character tab to change its character.";return;}
         _heroIndex=Array.IndexOf(Draft.Heroes,ActiveGroup);DeckMenuUi.Clear(_heroChoices);_heroChoices.Show();
         var shade=new ColorRect {Color=new Color(0,0,0,.8f),MouseFilter=MouseFilterEnum.Stop};_heroChoices.AddChild(shade);shade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        var panel=new PanelContainer {AnchorLeft=.06f,AnchorRight=.94f,AnchorTop=.1f,AnchorBottom=.9f};panel.AddThemeStyleboxOverride("panel",GameUi.Box(true,14));_heroChoices.AddChild(panel);
+        var panel=new PanelContainer {AnchorLeft=.06f,AnchorRight=.94f,AnchorTop=.1f,AnchorBottom=.9f};panel.AddThemeStyleboxOverride("panel",MenuUi.Box(true,14));_heroChoices.AddChild(panel);
         var content=new VBoxContainer();panel.AddChild(content);
         var header=new HBoxContainer();content.AddChild(header);
-        var title=DeckMenuUi.Text("SELECT CHARACTER",20);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(title);
+        var title=DeckMenuUi.Text("SELECT GROUP",20);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(title);
         header.AddChild(DeckMenuUi.Button("CLOSE",()=>_heroChoices.Hide(),100));
         var scroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,SizeFlagsHorizontal=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};content.AddChild(scroll);
         var row=new GridContainer {Columns=GetViewportRect().Size.X<900?2:4,SizeFlagsHorizontal=SizeFlags.ExpandFill};row.AddThemeConstantOverride("h_separation",8);row.AddThemeConstantOverride("v_separation",8);scroll.AddChild(row);
@@ -89,7 +103,27 @@ public partial class DeckBuilder : Control
             var image=new TextureRect {Texture=CardCatalog.Portrait(CardCatalog.Options(g,2).First()),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,Position=new(6,8),Size=new(50,48),MouseFilter=MouseFilterEnum.Ignore,TextureFilter=TextureFilterEnum.Nearest};choice.AddChild(image);
             var label=choice.GetNode<Label>("Text");label.OffsetLeft=58;GameUi.Label(label,13);label.Text=CardCatalog.Groups[g];label.AutowrapMode=TextServer.AutowrapMode.WordSmart;
         }
-        content.AddChild(DeckMenuUi.Text("Choose a character to replace its ten deck slots.",13));
+    }
+    public bool SelectCardBack(string id)
+    {
+        if(CardBackCatalog.Find(id)==null||!PlayerInventory.OwnsCardBack(id))return false;
+        Draft.CardBackId=CardBackCatalog.Normalize(id);_heroChoices.Hide();Render();return true;
+    }
+    private void ShowCardBackChoices()
+    {
+        DeckMenuUi.Clear(_heroChoices);_heroChoices.Show();
+        var shade=new ColorRect {Color=new Color(0,0,0,.8f),MouseFilter=MouseFilterEnum.Stop};_heroChoices.AddChild(shade);shade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        var panel=new PanelContainer {AnchorLeft=.06f,AnchorRight=.94f,AnchorTop=.06f,AnchorBottom=.94f};panel.AddThemeStyleboxOverride("panel",MenuUi.Box(true,14));_heroChoices.AddChild(panel);
+        var content=new VBoxContainer();panel.AddChild(content);
+        var header=new HBoxContainer();content.AddChild(header);var title=DeckMenuUi.Text("Change card back",20);title.SizeFlagsHorizontal=SizeFlags.ExpandFill;header.AddChild(title);header.AddChild(DeckMenuUi.Button("CLOSE",()=>_heroChoices.Hide(),100));
+        var scroll=new ScrollContainer {SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled};content.AddChild(scroll);
+        var grid=new GridContainer {Columns=GetViewportRect().Size.X<900?2:5,SizeFlagsHorizontal=SizeFlags.ExpandFill};scroll.AddChild(grid);
+        foreach(var back in CardBackCatalog.All){
+            string id=back.Id;var box=new VBoxContainer();grid.AddChild(box);box.AddChild(CardBackCatalog.Preview(id,96,128));
+            var name=DeckMenuUi.Text(back.Name,13);name.HorizontalAlignment=HorizontalAlignment.Center;box.AddChild(name);
+            var button=DeckMenuUi.Button(Draft.CardBackId==id?"SELECTED":PlayerInventory.OwnsCardBack(id)?"USE":"LOCKED / SHOP",()=>SelectCardBack(id),160);
+            button.Name="CardBackChoice_"+id;button.Disabled=!PlayerInventory.OwnsCardBack(id);GameUi.Selected(button,Draft.CardBackId==id);box.AddChild(button);
+        }
     }
     private void RenderFilters()
     {
@@ -102,27 +136,30 @@ public partial class DeckBuilder : Control
         foreach(int kind in Enumerable.Range(0,CardCatalog.Count).Where(k=>CharacterData.Get(k).Enabled&&CardCatalog.Group(k)==ActiveGroup&&(CostFilter==0||CardCatalog.Cost(k)==CostFilter)&&CardCatalog.Name(k).Contains(_search.Text,StringComparison.OrdinalIgnoreCase)))
         {
             VisibleCardCount++;int captured=kind;
-            var card=new DeckCatalogCard {Builder=this,Kind=kind,CustomMinimumSize=new(154,192),SizeFlagsHorizontal=SizeFlags.ExpandFill,IgnoreTextureSize=true,StretchMode=TextureButton.StretchModeEnum.Scale};TravelBookUi.StyleButton(card);_catalog.AddChild(card);
+            var card=new DeckCatalogCard {Builder=this,Kind=kind,CustomMinimumSize=new(166,MobileLayout.Enabled?244:224),SizeFlagsHorizontal=SizeFlags.ExpandFill,IgnoreTextureSize=true,StretchMode=TextureButton.StretchModeEnum.Scale};MenuUi.Button(card);_catalog.AddChild(card);
             card.Pressed+=()=>SelectCard(captured);
             var content=new VBoxContainer {MouseFilter=MouseFilterEnum.Ignore};card.AddChild(content);content.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);content.OffsetLeft=8;content.OffsetRight=-8;content.OffsetTop=6;content.OffsetBottom=-6;
-            var title=DeckMenuUi.Text($"{CardCatalog.Groups[ActiveGroup]} / Cost {CardCatalog.Cost(kind)}",12);content.AddChild(title);
+            var title=DeckMenuUi.Text($"{CardCatalog.Groups[ActiveGroup]} / Cost {CardCatalog.Cost(kind)}",12);title.ClipText=true;title.TextOverrunBehavior=TextServer.OverrunBehavior.TrimEllipsis;content.AddChild(title);
             var art=DeckMenuUi.Art(kind,84,104);art.SizeFlagsHorizontal=SizeFlags.ExpandFill;content.AddChild(art);
             var name=DeckMenuUi.Text(CardCatalog.Name(kind),16);name.AutowrapMode=TextServer.AutowrapMode.WordSmart;name.HorizontalAlignment=HorizontalAlignment.Center;content.AddChild(name);
-            var selected=Draft.Cards.Find(c=>c.Kind==kind);var state=DeckMenuUi.Text(!PlayerInventory.CanUse(kind)?"LOCKED":selected==null?"Click to choose":$"IN DECK  x{selected.Copies}",12);state.HorizontalAlignment=HorizontalAlignment.Center;content.AddChild(state);
-            card.TooltipText="Click to inspect. Drag onto a same-cost deck card to replace it.";
+            var selected=Draft.Cards.Find(c=>c.Kind==kind);var state=DeckMenuUi.Text(!PlayerInventory.CanUse(kind)?"LOCKED":selected==null?"":$"IN DECK  x{selected.Copies}",12);state.HorizontalAlignment=HorizontalAlignment.Center;content.AddChild(state);
+            
         }
         if(VisibleCardCount==0)_catalog.AddChild(DeckMenuUi.Text("No matching cards.",15));
     }
-    public void SelectCard(int kind){_selectedKind=kind;RenderDetails();}
+    public void SelectCard(int kind){_selectedKind=kind;RenderDetails();if(_inspectorTabs!=null)_inspectorTabs.CurrentTab=1;}
+    public void BeginCardDrag(int kind){_selectedKind=kind;RenderDetails();_inspectorTabs.CurrentTab=0;}
     private void RenderDetails()
     {
         if(_details==null||_selectedKind<0)return;
         DeckMenuUi.Clear(_details);int kind=_selectedKind;
-        _details.AddChild(DeckMenuUi.Text("CARD DETAILS",18));_details.AddChild(DeckMenuUi.Art(kind,160,190));
-        var name=DeckMenuUi.Text(CardCatalog.Name(kind),18);name.AutowrapMode=TextServer.AutowrapMode.WordSmart;name.CustomMinimumSize=new(190,50);_details.AddChild(name);
+        _details.AddChild(DeckMenuUi.Art(kind,120,124));
+        var name=DeckMenuUi.Text(CardCatalog.Name(kind),18);name.AutowrapMode=TextServer.AutowrapMode.WordSmart;name.CustomMinimumSize=new(190,28);_details.AddChild(name);
         var stats=CharacterData.Stats(kind,1);var character=CharacterData.Get(kind);
-        _details.AddChild(DeckMenuUi.Text($"Cost {CardCatalog.Cost(kind)}   /   1-star stats\nHP / ATK {stats.Hp}   ARMOR {stats.Armor}",14));
+        if(CharacterData.IsSupport(kind))_details.AddChild(DeckMenuUi.Text($"Cost {CardCatalog.Cost(kind)}",14));
+        else _details.AddChild(DeckMenuUi.Text($"Cost {CardCatalog.Cost(kind)}   /   1-star stats\nHP / ATK {stats.Hp}   ARMOR {stats.Armor}",14));
         var description=DeckMenuUi.Text(CharacterData.CombatDescription(kind,1),14);description.AutowrapMode=TextServer.AutowrapMode.WordSmart;_details.AddChild(description);
+        if(CharacterData.IsSupport(kind))return;
         if(!PlayerInventory.CanUse(kind)){_details.AddChild(DeckMenuUi.Text("Unlock this character in the lobby shop.",14));return;}
         var entry=Draft.Cards.Find(c=>c.Kind==kind);
         if(entry!=null)
@@ -131,7 +168,7 @@ public partial class DeckBuilder : Control
             var row=new HBoxContainer();_details.AddChild(row);
             var minus=DeckMenuUi.Button("-",()=>ChangeCopies(kind,-1),44,30);minus.Disabled=entry.Copies<=1;row.AddChild(minus);
             var plus=DeckMenuUi.Button("+",()=>ChangeCopies(kind,1),44,30);plus.Disabled=entry.Copies>=CharacterData.Get(kind).MaxCopies;row.AddChild(plus);
-            row.AddChild(DeckMenuUi.Button("REMOVE",()=>RemoveCard(kind),96,30));
+            var remove=DeckMenuUi.Button("REMOVE",()=>RemoveCard(kind),96,30);if(MobileLayout.Enabled)_details.AddChild(remove);else row.AddChild(remove);
         }
         else
         {
@@ -139,7 +176,6 @@ public partial class DeckBuilder : Control
             if(matches.Length<2)_details.AddChild(DeckMenuUi.Button("ADD TO DECK",()=>AddCard(kind),190));
             else
             {
-                _details.AddChild(DeckMenuUi.Text("Choose a card to replace:",13));
                 foreach(var match in matches){int target=match.Kind;_details.AddChild(DeckMenuUi.Button("Replace "+CardCatalog.Name(target),()=>ReplaceCard(target,kind),190,30));}
             }
         }
@@ -150,7 +186,7 @@ public partial class DeckBuilder : Control
         entry.Copies+=delta;Render();return true;
     }
     public void RemoveCard(int kind){Draft.Cards.RemoveAll(c=>c.Kind==kind);Render();}
-    public bool CanAdd(int kind)=>kind>=0&&kind<CardCatalog.Count&&CharacterData.Get(kind).Enabled&&PlayerInventory.CanUse(kind)&&Draft.Heroes.Append(4).Contains(CardCatalog.Group(kind))&&!Draft.Cards.Any(c=>c.Kind==kind)&&Draft.Cards.Count(c=>CardCatalog.Group(c.Kind)==CardCatalog.Group(kind)&&CardCatalog.Cost(c.Kind)==CardCatalog.Cost(kind))<2;
+    public bool CanAdd(int kind)=>kind>=0&&kind<CardCatalog.Count&&CharacterData.Get(kind).Enabled&&PlayerInventory.CanUse(kind)&&Draft.Heroes.Contains(CardCatalog.Group(kind))&&!Draft.Cards.Any(c=>c.Kind==kind)&&Draft.Cards.Count(c=>CardCatalog.Group(c.Kind)==CardCatalog.Group(kind)&&CardCatalog.Cost(c.Kind)==CardCatalog.Cost(kind))<2;
     public bool AddCard(int kind)
     {
         if(!CanAdd(kind))return false;
@@ -165,38 +201,41 @@ public partial class DeckBuilder : Control
     private void RenderDeck()
     {
         DeckMenuUi.Clear(_summary);DeckMenuUi.Clear(_list);
-        foreach(int group in Draft.Heroes.Append(4))
+        foreach(int group in Draft.Heroes)
         {
             int g=group;int count=Draft.Cards.Count(c=>CardCatalog.Group(c.Kind)==g);
-            _summary.AddChild(DeckMenuUi.Button((g==ActiveGroup?"> ":"")+CardCatalog.Groups[g]+$"   {count}/10",()=>SetGroup(g),280,27));
+            _summary.AddChild(DeckMenuUi.Button((g==ActiveGroup?"> ":"")+CardCatalog.Groups[g]+$"   {count}/10",()=>SetGroup(g),264,32));
         }
+        _summary.AddChild(DeckMenuUi.Button((ActiveGroup==4?"> ":"")+"Neutral",()=>SetGroup(4),264,32));
+        if(ActiveGroup==4){foreach(int k in CharacterData.SupportKinds){int kind=k;_list.AddChild(DeckMenuUi.Button(CardCatalog.Name(k),()=>SelectCard(kind),264,36));}return;}
         for(int cost=2;cost<=6;cost++)
         {
             _list.AddChild(DeckMenuUi.Text($"Cost {cost}",12));
             var entries=Draft.Cards.Where(c=>CardCatalog.Group(c.Kind)==ActiveGroup&&CardCatalog.Cost(c.Kind)==cost).OrderBy(c=>c.Kind).ToArray();
             foreach(var entry in entries)
             {
-                int kind=entry.Kind;var row=new HBoxContainer();_list.AddChild(row);
-                var target=new DeckCardDrop {Builder=this,Kind=kind,CustomMinimumSize=new(152,28),SizeFlagsHorizontal=SizeFlags.ExpandFill,IgnoreTextureSize=true,StretchMode=TextureButton.StretchModeEnum.Scale};TravelBookUi.StyleButton(target);row.AddChild(target);target.Pressed+=()=>SelectCard(kind);
-                var label=DeckMenuUi.Text(CardCatalog.Name(kind)+$"  x{entry.Copies}",13);label.ClipText=true;target.TooltipText=CardCatalog.Name(kind);target.AddChild(label);label.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);label.HorizontalAlignment=HorizontalAlignment.Center;label.VerticalAlignment=VerticalAlignment.Center;
+                int kind=entry.Kind;var row=new HBoxContainer();VBoxContainer? mobileEntry=null;
+                if(MobileLayout.Enabled){mobileEntry=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};_list.AddChild(mobileEntry);}else _list.AddChild(row);
+                var target=new DeckCardDrop {Builder=this,Kind=kind,CustomMinimumSize=new(152,MobileLayout.Enabled?60:28),SizeFlagsHorizontal=SizeFlags.ExpandFill,IgnoreTextureSize=true,StretchMode=TextureButton.StretchModeEnum.Scale};MenuUi.Button(target);if(mobileEntry!=null){mobileEntry.AddChild(target);mobileEntry.AddChild(row);}else row.AddChild(target);target.Pressed+=()=>SelectCard(kind);
+                var label=DeckMenuUi.Text(CardCatalog.Name(kind)+$"  x{entry.Copies}",13);label.ClipText=true;target.AddChild(label);label.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);label.HorizontalAlignment=HorizontalAlignment.Center;label.VerticalAlignment=VerticalAlignment.Center;
                 var minus=DeckMenuUi.Button("-",()=>ChangeCopies(kind,-1),30,28);minus.Disabled=entry.Copies<=1;row.AddChild(minus);
                 var plus=DeckMenuUi.Button("+",()=>ChangeCopies(kind,1),30,28);plus.Disabled=entry.Copies>=CharacterData.Get(kind).MaxCopies;row.AddChild(plus);
                 row.AddChild(DeckMenuUi.Button("x",()=>RemoveCard(kind),28,28));
             }
             for(int empty=entries.Length;empty<2;empty++)
             {
-                int c=cost;var slot=new DeckEmptyDrop {Builder=this,Group=ActiveGroup,Cost=cost,CustomMinimumSize=new(270,28),IgnoreTextureSize=true,StretchMode=TextureButton.StretchModeEnum.Scale};TravelBookUi.StyleButton(slot);_list.AddChild(slot);slot.Pressed+=()=>Filter(c);
+                int c=cost;var slot=new DeckEmptyDrop {Builder=this,Group=ActiveGroup,Cost=cost,CustomMinimumSize=new(MobileLayout.Enabled?220:256,28),IgnoreTextureSize=true,StretchMode=TextureButton.StretchModeEnum.Scale};MenuUi.Button(slot);_list.AddChild(slot);slot.Pressed+=()=>Filter(c);
                 var label=DeckMenuUi.Text("+ Choose cost "+cost,13);slot.AddChild(label);label.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);label.HorizontalAlignment=HorizontalAlignment.Center;
             }
         }
     }
     private void RefreshStatus()
     {
-        if(_status==null)return;string error=Draft.Validate();if(error==""&&Draft.Cards.Any(c=>!PlayerInventory.CanUse(c.Kind)))error="Unlock the characters in this deck before saving.";_save.Disabled=_saving||error!="";
-        _total.Text=$"{Draft.Cards.Count}/40 kinds  /  {Draft.Cards.Sum(c=>c.Copies)} copies";
-        _status.Text=error==""?"Ready to save. Choose a card to inspect, or drag it onto a same-cost slot.":error;
-        if(error!=""&&Draft.Cards.Count<40)
-            foreach(int g in Draft.Heroes.Append(4))for(int c=2;c<=6;c++){int count=Draft.Cards.Count(e=>CardCatalog.Group(e.Kind)==g&&CardCatalog.Cost(e.Kind)==c);if(count<2){_status.Text=$"{CardCatalog.Groups[g]} needs {2-count} more cost-{c} card(s).";return;}}
+        if(_status==null)return;string error=Draft.Validate();if(error==""&&!PlayerInventory.OwnsCardBack(Draft.CardBackId))error="Unlock this card back in Shop before saving.";if(error==""&&Draft.Cards.Any(c=>!PlayerInventory.CanUse(c.Kind)))error="Unlock the characters in this deck before saving.";_save.Disabled=_saving||error!="";
+        _total.Text=$"{Draft.Cards.Count}/30 kinds  /  {Draft.Cards.Sum(c=>c.Copies)} copies";
+        _status.Text=error==""?"":error;
+        if(error!=""&&Draft.Cards.Count<30)
+            foreach(int g in Draft.Heroes)for(int c=2;c<=6;c++){int count=Draft.Cards.Count(e=>CardCatalog.Group(e.Kind)==g&&CardCatalog.Cost(e.Kind)==c);if(count<2){_status.Text=$"{CardCatalog.Groups[g]} needs {2-count} more cost-{c} card(s).";return;}}
     }
     public async void Save()
     {
@@ -218,7 +257,7 @@ public partial class DeckCatalogCard : TextureButton
     public DeckBuilder Builder {get;set;}=null!;public int Kind {get;set;}
     public override Variant _GetDragData(Vector2 atPosition)
     {
-        Builder.SelectCard(Kind);var preview=DeckMenuUi.Art(Kind,84,104);SetDragPreview(preview);return Kind;
+        Builder.BeginCardDrag(Kind);var preview=DeckMenuUi.Art(Kind,84,104);SetDragPreview(preview);return Kind;
     }
 }
 public partial class DeckCardDrop : TextureButton

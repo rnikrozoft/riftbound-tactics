@@ -8,12 +8,15 @@ using System.Threading.Tasks;
 
 public sealed class EconomySettings
 {
+    [JsonPropertyName("free_card_backs")] public bool FreeCardBacks {get;set;}
+    [JsonPropertyName("free_character_cards")] public bool FreeCharacterCards {get;set;}
     [JsonPropertyName("all_unlocked")] public bool AllUnlocked {get;set;}
     [JsonPropertyName("currency")] public string Currency {get;set;}="coins";
     [JsonPropertyName("prices")] public Dictionary<string,long> Prices {get;set;}=new();
 }
 public sealed class GameConfiguration
 {
+    [JsonPropertyName("card_backs")] public CardBackDefinition[] CardBacks {get;set;}=Array.Empty<CardBackDefinition>();
     [JsonPropertyName("schema_version")] public int SchemaVersion {get;set;}
     [JsonPropertyName("catalog")] public CharacterCatalogData Catalog {get;set;}=new();
     [JsonPropertyName("economy")] public EconomySettings Economy {get;set;}=new();
@@ -25,15 +28,17 @@ public sealed class StoredCard
 }
 public sealed class StoredDeck
 {
+    [JsonPropertyName("card_back_id")] public string CardBackId {get;set;}=CardBackCatalog.DefaultId;
     [JsonPropertyName("id")] public string Id {get;set;}="";
     [JsonPropertyName("name")] public string Name {get;set;}="";
     [JsonPropertyName("heroes")] public int[] Heroes {get;set;}=Array.Empty<int>();
     [JsonPropertyName("cards")] public StoredCard[] Cards {get;set;}=Array.Empty<StoredCard>();
-    public static StoredDeck From(DeckDefinition deck)=>new(){Id=deck.Id,Name=deck.Name,Heroes=deck.Heroes.ToArray(),Cards=deck.Cards.Select(c=>new StoredCard {CharacterId=CharacterData.Get(c.Kind).Id,Copies=c.Copies}).ToArray()};
-    public DeckDefinition ToDeck()=>new(){Id=Id,Name=Name,Heroes=Heroes.ToArray(),Cards=Cards.Select(c=>new DeckEntry {Kind=CharacterData.All.FirstOrDefault(d=>d.Id==c.CharacterId)?.Kind??throw new Exception("Unknown owned character: "+c.CharacterId),Copies=c.Copies}).ToList()};
+    public static StoredDeck From(DeckDefinition deck)=>new(){CardBackId=deck.CardBackId,Id=deck.Id,Name=deck.Name,Heroes=deck.Heroes.ToArray(),Cards=deck.Cards.Select(c=>new StoredCard {CharacterId=CharacterData.Get(c.Kind).Id,Copies=c.Copies}).ToArray()};
+    public DeckDefinition ToDeck()=>new(){CardBackId=CardBackCatalog.Normalize(CardBackId),Id=Id,Name=Name,Heroes=Heroes.ToArray(),Cards=Cards.Select(c=>new DeckEntry {Kind=CharacterData.All.FirstOrDefault(d=>d.Id==c.CharacterId)?.Kind??throw new Exception("Unknown owned character: "+c.CharacterId),Copies=c.Copies}).ToList()};
 }
 public sealed class PlayerProfileData
 {
+    [JsonPropertyName("owned_card_backs")] public string[] OwnedCardBacks {get;set;}=Array.Empty<string>();
     [JsonPropertyName("schema_version")] public int SchemaVersion {get;set;}
     [JsonPropertyName("owned_characters")] public string[] OwnedCharacters {get;set;}=Array.Empty<string>();
     [JsonPropertyName("decks")] public StoredDeck[] Decks {get;set;}=Array.Empty<StoredDeck>();
@@ -67,6 +72,12 @@ public sealed class CharacterPurchaseRequest
     [JsonPropertyName("request_id")] public string RequestId {get;set;}="";
     [JsonPropertyName("config_version")] public string ConfigVersion {get;set;}="";
 }
+public sealed class CharacterGroupPurchaseRequest
+{
+    [JsonPropertyName("group")] public int Group {get;set;}
+    [JsonPropertyName("request_id")] public string RequestId {get;set;}="";
+    [JsonPropertyName("config_version")] public string ConfigVersion {get;set;}="";
+}
 public sealed class CatalogCache
 {
     [JsonPropertyName("version")] public string Version {get;set;}="";
@@ -82,19 +93,20 @@ public static class PlayerInventory
     public static bool Owns(int kind)=>State?.Profile.OwnedCharacters.Contains(CharacterData.Get(kind).Id)??false;
     public static bool CanUse(int kind)=>AllUnlocked||Owns(kind);
     public static long Price(int kind)=>Configuration?.Economy.Prices.GetValueOrDefault(CharacterData.Get(kind).Id)??0;
+    public static long GroupPrice(int group)=>CharacterData.All.Where(c=>c.Enabled&&c.Group==group&&!Owns(c.Kind)).Sum(c=>Price(c.Kind));
     public static void Reset(){State=null;Configuration=null;DeckStore.ResetAccount();}
     private static string CachePath(NakamaConnection c)
     {
         string key=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(c.Client.Scheme+"://"+c.Client.Host+":"+c.Client.Port)));
         return "user://catalog-"+key+".json";
     }
-    public static async Task Load(NakamaConnection c,bool importLegacy=false)
+    public static async Task Load(NakamaConnection c,bool importLegacy=false,bool forceConfiguration=false)
     {
         CatalogCache? cache=null;
         string path=CachePath(c);
         try {if(Godot.FileAccess.FileExists(path)){cache=JsonSerializer.Deserialize(Godot.FileAccess.GetFileAsString(path),GameJsonContext.Default.CatalogCache);if(cache!=null)CharacterData.Apply(cache.Config.Catalog);}}
         catch {cache=null;}
-        var request=new PlayerBootstrapRequest {CachedConfigVersion=cache?.Version??""};
+        var request=new PlayerBootstrapRequest {CachedConfigVersion=forceConfiguration?"":cache?.Version??""};
         // The legacy file was shared by every process: migrate it only for the original account slot.
         if(importLegacy&&GameAccount.InstanceSlot==1){DeckStore.Load();request.LegacyDecks=DeckStore.Decks.Where(d=>d.Validate()=="").Select(StoredDeck.From).Take(32).ToArray();request.LegacySelectedId=DeckStore.SelectedId;}
         var response=await c.Client.RpcAsync(c.Session,"player_bootstrap",JsonSerializer.Serialize(request,GameJsonContext.Default.PlayerBootstrapRequest));
@@ -104,6 +116,7 @@ public static class PlayerInventory
         CharacterData.Apply(config.Catalog);
         if(state.UserId!=c.Session.UserId||state.Profile.SchemaVersion!=1)throw new Exception("Player storage belongs to another account");
         Configuration=config;Apply(state);
+        await LocalizationCache.Sync(c);
         // Cache is an optimization; a disk failure must not discard a successful server load.
         try {using var file=Godot.FileAccess.Open(path+".tmp",Godot.FileAccess.ModeFlags.Write);if(file!=null){file.StoreString(JsonSerializer.Serialize(new CatalogCache {Version=state.ConfigVersion,Config=config},GameJsonContext.Default.CatalogCache));file.Close();DirAccess.RenameAbsolute(ProjectSettings.GlobalizePath(path+".tmp"),ProjectSettings.GlobalizePath(path));}}
         catch(Exception e){GD.Print("Catalog cache: "+e.Message);}
@@ -123,6 +136,27 @@ public static class PlayerInventory
             Apply(JsonSerializer.Deserialize(response.Payload,GameJsonContext.Default.PlayerBootstrapResponse)!);
         } catch(Nakama.ApiResponseException e) when(e.StatusCode==409){await Load(c);throw new Exception("Collection was updated elsewhere. Review your deck and save again.");}
         finally {await c.Close();}
+    }
+    public static bool OwnsCardBack(string id)=>CardBackCatalog.Normalize(id)==CardBackCatalog.DefaultId || State?.Profile.OwnedCardBacks.Contains(id)==true;
+    public static async Task PurchaseCardBack(string id,string requestId)
+    {
+        if(!Ready)throw new Exception("Login to purchase card backs");
+        var c=GameAccount.Connection();try {
+            await c.Connect(realtime:false);
+            var request=new CardBackPurchaseRequest {CardBackId=id,RequestId=requestId,ConfigVersion=State!.ConfigVersion};
+            var response=await c.Client.RpcAsync(c.Session,"card_back_purchase",JsonSerializer.Serialize(request,GameJsonContext.Default.CardBackPurchaseRequest));
+            Apply(JsonSerializer.Deserialize(response.Payload,GameJsonContext.Default.PlayerBootstrapResponse)!);
+        } finally {await c.Close();}
+    }
+    public static async Task PurchaseGroup(int group,string requestId)
+    {
+        if(!Ready)throw new Exception("Login to purchase characters");
+        var c=GameAccount.Connection();try {
+            await c.Connect(realtime:false);
+            var request=new CharacterGroupPurchaseRequest {Group=group,RequestId=requestId,ConfigVersion=State!.ConfigVersion};
+            var response=await c.Client.RpcAsync(c.Session,"character_group_purchase",JsonSerializer.Serialize(request,GameJsonContext.Default.CharacterGroupPurchaseRequest));
+            Apply(JsonSerializer.Deserialize(response.Payload,GameJsonContext.Default.PlayerBootstrapResponse)!);
+        } finally {await c.Close();}
     }
     public static async Task Purchase(int kind,string requestId)
     {

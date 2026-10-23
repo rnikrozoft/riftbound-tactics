@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 public partial class BattleDisplay : Node2D
 {
-    // Reserved for future trap/effect cards; combat deployment remains six slots.
-    public static readonly Vector2I[] SupportCells = {new(37,14),new(37,16),new(37,18),new(37,20),new(37,22)};
-    public static readonly Vector2I[] EnemySupportCells = {new(65,14),new(65,16),new(65,18),new(65,20),new(65,22)};
+    // Support cards use the separate back row; heroes retain six combat slots.
+    public static readonly Vector2I[] SupportCells = {new(41,14),new(41,16),new(41,18),new(41,20),new(41,22)};
+    public static readonly Vector2I[] EnemySupportCells = {new(61,14),new(61,16),new(61,18),new(61,20),new(61,22)};
     private Vector2 _arenaOffset;
     public Vector2 ArenaOffset
     {
@@ -43,24 +43,16 @@ public partial class BattleDisplay : Node2D
     public override void _ExitTree(){_phaseTween?.Kill();}
     public override void _Ready()
     {
+        if(!MobileLayout.Enabled) Position+=new Vector2(0,48);
         var tiles=GetNode<TileMapLayer>("TileMapLayer");
-        tiles.Material=new ShaderMaterial {Shader=new Shader {Code="""
-            shader_type canvas_item;
-            void fragment() {
-                vec4 pixel = COLOR;
-                if (pixel.r > pixel.b * 1.15 && pixel.g > pixel.b * 1.05) {
-                    float light = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));
-                    pixel.rgb = vec3(0.43, 0.57, 0.70) * light;
-                }
-                COLOR = pixel;
-            }
-            """}};
         AddHeroSlots(tiles,"HeroSlots",CardShop.DeploymentCells,new Color("79d9eb"),new Color("304c59"));
         AddHeroSlots(tiles,"EnemyHeroSlots",CardShop.EnemyCells,new Color("d99d83"),new Color("59413c"));
         var support=new Node2D {Name="SupportSlots",ZIndex=1};AddChild(support);
         AddSupportSlots(support,tiles,SupportCells);
         var enemySupport=new Node2D {Name="EnemySupportSlots",ZIndex=1};AddChild(enemySupport);
         AddSupportSlots(enemySupport,tiles,EnemySupportCells);
+        GetNode<CanvasLayer>("UI").Layer=2;
+        AddChild(new ArenaCloudShadows {Name="CloudShadows"});
         var content=GetNode<Control>("UI/SafeArea/Content");
         content.AddChild(new CombatStatusPanel());
         AddChild(new BattleSpeedControl {Name="BattleSpeedControl"});
@@ -68,6 +60,7 @@ public partial class BattleDisplay : Node2D
         result.AnchorTop=result.AnchorBottom=.5f;result.OffsetTop=-54;result.OffsetBottom=54;result.OffsetLeft=-230;result.OffsetRight=230;
         result.GetNode<TextureRect>("Banner").Hide();GameUi.Backdrop(result,true);GameUi.Label(result.GetNode<Label>("Text"),26);result.GetNode<Label>("Text").OffsetTop=20;
         var heading=new Label {Name="Heading",Text="BATTLE RESULT",AnchorRight=1,OffsetTop=12,OffsetBottom=32,HorizontalAlignment=HorizontalAlignment.Center,MouseFilter=Control.MouseFilterEnum.Ignore};GameUi.Label(heading,12);heading.AddThemeColorOverride("font_color",GameUi.Gold);result.AddChild(heading);
+        if(MobileLayout.Enabled)Callable.From(()=>AddChild(new MobileBattleLayout {Name="MobileBattleLayout"})).CallDeferred();
         if (OS.GetName() is "Windows" or "Linux" or "macOS")
         {
             var window = GetWindow();

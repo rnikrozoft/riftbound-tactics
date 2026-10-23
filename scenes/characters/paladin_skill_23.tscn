@@ -1,0 +1,15 @@
+[gd_scene format=3]
+[ext_resource type="Texture2D" path="res://assets/free-paladin-pixel-art-skill-icons/PNG/Icon23.png" id="icon"]
+[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="script"]
+[sub_resource type="AtlasTexture" id="f0"]
+atlas = ExtResource("icon")
+region = Rect2(0,0,32,32)
+[sub_resource type="SpriteFrames" id="frames"]
+animations = [{"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"idle", "speed": 1.0}, {"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"walk", "speed": 1.0}, {"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"attack", "speed": 1.0}, {"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"attack01", "speed": 1.0}, {"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"attack02", "speed": 1.0}, {"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"attack03", "speed": 1.0}, {"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"hit", "speed": 1.0}, {"frames": [{"duration": 1.0, "texture": SubResource("f0")}], "loop": true, "name": &"die", "speed": 1.0}]
+[node name="PaladinSkill23" type="CharacterBody2D"]
+script = ExtResource("script")
+texture_filter = 1
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("frames")
+animation = &"idle"
+autoplay = "idle"

@@ -1,0 +1,774 @@
+{
+  "theme": "Slate & Brass",
+  "generator": "built-in image_gen",
+  "assets": [
+    {
+      "name": "primary_normal",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/primary_normal.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        24,
+        114,
+        267,
+        93
+      ],
+      "cell": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "primary_hover",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/primary_hover.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        338,
+        114,
+        267,
+        93
+      ],
+      "cell": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "primary_pressed",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/primary_pressed.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        651,
+        114,
+        267,
+        93
+      ],
+      "cell": [
+        2,
+        0
+      ]
+    },
+    {
+      "name": "primary_disabled",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/primary_disabled.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        964,
+        114,
+        267,
+        93
+      ],
+      "cell": [
+        3,
+        0
+      ]
+    },
+    {
+      "name": "secondary_normal",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/secondary_normal.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        24,
+        423,
+        267,
+        93
+      ],
+      "cell": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "secondary_hover",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/secondary_hover.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        338,
+        423,
+        267,
+        93
+      ],
+      "cell": [
+        1,
+        1
+      ]
+    },
+    {
+      "name": "secondary_pressed",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/secondary_pressed.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        651,
+        423,
+        267,
+        93
+      ],
+      "cell": [
+        2,
+        1
+      ]
+    },
+    {
+      "name": "secondary_disabled",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/secondary_disabled.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        964,
+        423,
+        267,
+        93
+      ],
+      "cell": [
+        3,
+        1
+      ]
+    },
+    {
+      "name": "tab_normal",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/tab_normal.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        24,
+        731,
+        267,
+        93
+      ],
+      "cell": [
+        0,
+        2
+      ]
+    },
+    {
+      "name": "tab_hover",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/tab_hover.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        338,
+        731,
+        267,
+        93
+      ],
+      "cell": [
+        1,
+        2
+      ]
+    },
+    {
+      "name": "tab_selected",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/tab_selected.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        651,
+        731,
+        267,
+        93
+      ],
+      "cell": [
+        2,
+        2
+      ]
+    },
+    {
+      "name": "tab_disabled",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/tab_disabled.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        964,
+        731,
+        267,
+        93
+      ],
+      "cell": [
+        3,
+        2
+      ]
+    },
+    {
+      "name": "input_normal",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/input_normal.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        24,
+        1038,
+        267,
+        96
+      ],
+      "cell": [
+        0,
+        3
+      ]
+    },
+    {
+      "name": "input_focus",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/input_focus.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        338,
+        1038,
+        267,
+        96
+      ],
+      "cell": [
+        1,
+        3
+      ]
+    },
+    {
+      "name": "input_error",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/input_error.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        651,
+        1038,
+        267,
+        96
+      ],
+      "cell": [
+        2,
+        3
+      ]
+    },
+    {
+      "name": "input_disabled",
+      "category": "controls",
+      "texture": "res://assets/ui/slate_brass/controls/input_disabled.tres",
+      "atlas": "res://assets/ui/slate_brass/controls.png",
+      "region": [
+        964,
+        1038,
+        267,
+        96
+      ],
+      "cell": [
+        3,
+        3
+      ]
+    },
+    {
+      "name": "panel_plain",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/panel_plain.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        19,
+        136,
+        278,
+        128
+      ],
+      "cell": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "panel_ornate",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/panel_ornate.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        326,
+        127,
+        290,
+        143
+      ],
+      "cell": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "tooltip",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/tooltip.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        648,
+        141,
+        271,
+        115
+      ],
+      "cell": [
+        2,
+        0
+      ]
+    },
+    {
+      "name": "modal",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/modal.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        950,
+        106,
+        286,
+        182
+      ],
+      "cell": [
+        3,
+        0
+      ]
+    },
+    {
+      "name": "profile",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/profile.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        19,
+        450,
+        278,
+        98
+      ],
+      "cell": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "shop",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/shop.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        328,
+        445,
+        286,
+        107
+      ],
+      "cell": [
+        1,
+        1
+      ]
+    },
+    {
+      "name": "hand_tray",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/hand_tray.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        642,
+        450,
+        284,
+        97
+      ],
+      "cell": [
+        2,
+        1
+      ]
+    },
+    {
+      "name": "standings",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/standings.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        950,
+        409,
+        287,
+        192
+      ],
+      "cell": [
+        3,
+        1
+      ]
+    },
+    {
+      "name": "card_slot",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/card_slot.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        80,
+        669,
+        155,
+        240
+      ],
+      "cell": [
+        0,
+        2
+      ]
+    },
+    {
+      "name": "card_slot_selected",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/card_slot_selected.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        388,
+        662,
+        164,
+        253
+      ],
+      "cell": [
+        1,
+        2
+      ]
+    },
+    {
+      "name": "portrait_frame",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/portrait_frame.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        682,
+        703,
+        203,
+        185
+      ],
+      "cell": [
+        2,
+        2
+      ]
+    },
+    {
+      "name": "portrait_selected",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/portrait_selected.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        996,
+        700,
+        197,
+        192
+      ],
+      "cell": [
+        3,
+        2
+      ]
+    },
+    {
+      "name": "title_banner",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/title_banner.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        19,
+        1044,
+        276,
+        87
+      ],
+      "cell": [
+        0,
+        3
+      ]
+    },
+    {
+      "name": "divider",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/divider.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        328,
+        1065,
+        286,
+        43
+      ],
+      "cell": [
+        1,
+        3
+      ]
+    },
+    {
+      "name": "badge",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/badge.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        704,
+        1013,
+        158,
+        158
+      ],
+      "cell": [
+        2,
+        3
+      ]
+    },
+    {
+      "name": "selection_row",
+      "category": "surfaces",
+      "texture": "res://assets/ui/slate_brass/surfaces/selection_row.tres",
+      "atlas": "res://assets/ui/slate_brass/surfaces.png",
+      "region": [
+        950,
+        1047,
+        287,
+        81
+      ],
+      "cell": [
+        3,
+        3
+      ]
+    },
+    {
+      "name": "battle",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/battle.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        71,
+        94,
+        224,
+        216
+      ],
+      "cell": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "coin",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/coin.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        381,
+        111,
+        187,
+        190
+      ],
+      "cell": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "reroll",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/reroll.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        687,
+        109,
+        194,
+        194
+      ],
+      "cell": [
+        2,
+        0
+      ]
+    },
+    {
+      "name": "lock",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/lock.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        984,
+        78,
+        186,
+        235
+      ],
+      "cell": [
+        3,
+        0
+      ]
+    },
+    {
+      "name": "unlock",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/unlock.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        79,
+        373,
+        197,
+        230
+      ],
+      "cell": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "upgrade",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/upgrade.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        381,
+        392,
+        185,
+        206
+      ],
+      "cell": [
+        1,
+        1
+      ]
+    },
+    {
+      "name": "close",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/close.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        685,
+        400,
+        194,
+        192
+      ],
+      "cell": [
+        2,
+        1
+      ]
+    },
+    {
+      "name": "back",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/back.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        973,
+        410,
+        206,
+        169
+      ],
+      "cell": [
+        3,
+        1
+      ]
+    },
+    {
+      "name": "settings",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/settings.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        69,
+        681,
+        219,
+        217
+      ],
+      "cell": [
+        0,
+        2
+      ]
+    },
+    {
+      "name": "heart",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/heart.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        375,
+        693,
+        214,
+        193
+      ],
+      "cell": [
+        1,
+        2
+      ]
+    },
+    {
+      "name": "shield",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/shield.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        678,
+        667,
+        210,
+        238
+      ],
+      "cell": [
+        2,
+        2
+      ]
+    },
+    {
+      "name": "star",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/star.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        978,
+        678,
+        219,
+        212
+      ],
+      "cell": [
+        3,
+        2
+      ]
+    },
+    {
+      "name": "check",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/check.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        63,
+        983,
+        231,
+        189
+      ],
+      "cell": [
+        0,
+        3
+      ]
+    },
+    {
+      "name": "pause",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/pause.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        389,
+        980,
+        171,
+        191
+      ],
+      "cell": [
+        1,
+        3
+      ]
+    },
+    {
+      "name": "play",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/play.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        687,
+        975,
+        175,
+        203
+      ],
+      "cell": [
+        2,
+        3
+      ]
+    },
+    {
+      "name": "chest",
+      "category": "icons",
+      "texture": "res://assets/ui/slate_brass/icons/chest.tres",
+      "atlas": "res://assets/ui/slate_brass/icons.png",
+      "region": [
+        958,
+        982,
+        238,
+        186
+      ],
+      "cell": [
+        3,
+        3
+      ]
+    }
+  ]
+}

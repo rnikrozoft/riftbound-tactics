@@ -10,8 +10,8 @@ public partial class BattleSpeedControl : Node
     {
         _active=this;ProcessMode=ProcessModeEnum.Always;
         _battle=GetParent().GetNode<BattleDemo>("BattleDemo");
-        _button=DeckMenuUi.Button($"{SelectedSpeed}×",CycleSpeed,80,32);_button.Name="BattleSpeedButton";
-        _button.TooltipText="ความเร็วการต่อสู้ 1× / 2× / 4×";_button.ProcessMode=ProcessModeEnum.Always;
+        _button=DeckMenuUi.GameplayButton($"{SelectedSpeed}×",CycleSpeed,80,32);_button.Name="BattleSpeedButton";
+        _button.ProcessMode=ProcessModeEnum.Always;
         GetParent().GetNode<Control>("UI/SafeArea/Content").AddChild(_button);
         _button.AnchorTop=_button.AnchorBottom=1;_button.OffsetLeft=16;_button.OffsetRight=96;_button.OffsetTop=-186;_button.OffsetBottom=-154;
         _button.Visible=!_battle.NetworkEnabled||_battle.MatchEntered;Apply();
