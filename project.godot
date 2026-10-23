@@ -17,8 +17,10 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-MobileLayout="*res://scripts/MobileLayout.cs"
-Localization="*res://scripts/Localization.cs"
+MobileLayout="*res://scripts/platform/MobileLayout.cs"
+Localization="*res://scripts/localization/Localization.cs"
+GameAudio="*res://scripts/core/GameAudio.cs"
+SessionGuard="*res://scripts/account/SessionGuard.cs"
 
 [display]
 

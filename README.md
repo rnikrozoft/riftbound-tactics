@@ -12,6 +12,9 @@ Godot 4.7.2 **.NET** project. Runtime scripts are C#; scenes, shaders, tiles and
   Screenshot: tests/preparation-csharp.png.
 
 ## Architecture
+
+Source files are grouped by feature under `scripts/`; see [source layout and optimization](docs/source-layout.md). Scene node paths and script UIDs are preserved.
+
 - BattleDemo.cs: alternating attacks, health/death, hitstop and shake. Arena float is disabled by default.
 - BattleUnit.cs: typed unit state, cached animation node and health-change signals.
 - CardShop.cs: round/phase state, card pool, six-slot occupancy, swapping and selling.

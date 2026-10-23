@@ -25,7 +25,7 @@ public partial class SlateBrassUiRunner : Node
                 }
                 page.Free();
             }
-            if(CardCatalog.Art(0).Atlas.ResourcePath!="res://assets/ui/cards/deco/DecoCard.png")throw new Exception("DecoCards changed");
+            if(CardCatalog.Art(0).Atlas.ResourcePath!="res://assets/cards/packs/deco/DecoCard.png")throw new Exception("DecoCards changed");
             GD.Print("SLATE BRASS UI PASS: welcome, lobby, deck builder and simulator use new button states, no old shader, DecoCards retained");GetTree().Quit();
         }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
     }

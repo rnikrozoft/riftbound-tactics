@@ -23,7 +23,7 @@ public partial class ProfileDisplayRunner : Node
             state.Players[0]!.Units[3].Kind=CharacterData.All.Single(c=>c.Enabled&&c.Name=="Black Knight C").Kind;
             field.GetNode<CardShop>("UI/SafeArea/Content/CardShop").ApplyNetworkState(state,state.Players[0]!.UserId);
             await field.WaitForPhaseTransition();
-            if(CardCatalog.Art(0).Atlas.ResourcePath!="res://assets/ui/cards/deco/DecoCard.png")throw new Exception("Deco card skin missing");
+            if(CardCatalog.Art(0).Atlas.ResourcePath!="res://assets/cards/packs/deco/DecoCard.png")throw new Exception("Deco card skin missing");
             if(field.GetNode<TileMapLayer>("GardenTrees").TileSet.ResourcePath!="res://tilesets/bush_tileset.tres")throw new Exception("Bush tileset missing");
             var units=field.GetNode<CardShop>("UI/SafeArea/Content/CardShop").NetworkUnits.Values;
             var lancer=units.First(u=>CharacterData.Get(u.CardKind).Name=="Lancer");

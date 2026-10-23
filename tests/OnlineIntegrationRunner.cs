@@ -25,7 +25,9 @@ public partial class OnlineIntegrationRunner : Node
     {
         var viewport = new SubViewport { Name = name,Size = new(1280,720),RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
         AddChild(viewport);
-        var field = GD.Load<PackedScene>("res://scenes/main.tscn").Instantiate<Node2D>();viewport.AddChild(field);return field;
+        string scene=OS.GetEnvironment("RIFT_TEST_BATTLE_SCENE");
+        if(string.IsNullOrEmpty(scene))scene="res://scenes/main.tscn";
+        var field = GD.Load<PackedScene>(scene).Instantiate<Node2D>();viewport.AddChild(field);return field;
     }
     private async Task Action(OnlineBattle net,CardShop shop,string type,int token=0,int slot=0)
     {
@@ -151,7 +153,7 @@ public partial class OnlineIntegrationRunner : Node
             Check(_netA.State!.Battle!.Winner == _netB.State!.Battle!.Winner,"Winner differs");
             var dead = _shopA.NetworkUnits.Values.First(u=>u.IsDead);
             _shopA.ShowUnitDetails(dead);
-            Check(_shopA.DetailsText.Text.Contains("DEAD"),"Dead network-unit inspection");_shopA.CloseDetails();
+            Check(_shopA.Details.Visible && _shopA.DetailsText.Text.Contains($"HP  {dead.Health}") && dead.Health==0,"Dead network-unit inspection");_shopA.CloseDetails();
             int endA = _shopA.Coins, endB = _shopB.Coins;
             Check(endA == 0 && endB == 0,"Battle does not award coins");
             _shopA.ConfirmTurn();_shopB.ConfirmTurn();

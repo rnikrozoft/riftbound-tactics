@@ -1,5 +1,5 @@
 [gd_scene format=3]
-[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="unit"]
+[ext_resource type="Script" path="res://scripts/combat/BattleUnit.cs" id="unit"]
 [ext_resource type="Texture2D" path="res://assets/characters/demon/demon_idle.png" id="idle"]
 [ext_resource type="Texture2D" path="res://assets/characters/demon/demon_walk.png" id="walk"]
 [ext_resource type="Texture2D" path="res://assets/characters/demon/demon_attack01.png" id="attack"]

@@ -10,7 +10,7 @@ public partial class LocalizationRunner : Node
         string original=GamePreferences.Language;
         try{
             int checks=0;
-            for(int frame=0;frame<16;frame++)if(GD.Load<Texture2D>($"res://assets/effects/four-fire_v1.1.0/frames/wide-fire_red_32/{frame:000}.png")==null)throw new Exception("Missing fire animation frame");
+            for(int frame=0;frame<16;frame++)if(GD.Load<Texture2D>($"res://assets/effects/packs/four_fire_v1_1_0/frames/wide-fire_red_32/{frame:000}.png")==null)throw new Exception("Missing fire animation frame");
             void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
             foreach(var character in CharacterData.All.Where(c=>c.Enabled))
                 for(int tier=1;tier<=4;tier++) {

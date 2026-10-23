@@ -33,6 +33,9 @@ public partial class ArenaWildlifeRunner : Node
             source.Free();
             var wildlife=arena.GetNode<ArenaWildlife>("Wildlife");
             if(wildlife.VegetationCount<35) throw new Exception("Forest bushes missing");
+            int forestNodes=wildlife.GetChildren().OfType<Node2D>().Count(n=>n is not AnimatedSprite2D);
+            if(forestNodes>=wildlife.VegetationCount)throw new Exception("Forest batching did not reduce node count");
+            GD.Print($"FOREST BATCH: {wildlife.VegetationCount} bushes in {forestNodes} depth-sorted nodes");
             if(arena.GetChildren().OfType<TileMapLayer>().Any(t=>t.TileSet!=GD.Load<TileSet>(t.Name=="GardenTrees"?"res://tilesets/bush_tileset.tres":"res://tilesets/woodland_tileset.tres"))) throw new Exception("Terrain uses another asset pack");
             var usedStone=arena.GetChildren().OfType<TileMapLayer>().SelectMany(t=>t.GetUsedCells().Where(c=>t.GetCellSourceId(c)==1).Select(c=>t.GetCellAtlasCoords(c))).Distinct().Count();
             if(usedStone!=971) throw new Exception("Stone atlas coverage incomplete");

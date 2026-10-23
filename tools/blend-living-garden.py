@@ -9,10 +9,10 @@ import subprocess
 subprocess.run(["python3",str(Path(__file__).with_name("build-bush-atlas.py"))],check=True)
 ROOT=Path(__file__).resolve().parents[1]
 # Only resample the supplied nature sprites to the existing 24 x 12 gameplay grid.
-Image.open(ROOT/'assets/terrain/isometric/spritesheet.png').resize((264,264),Image.Resampling.NEAREST).save(ROOT/'assets/terrain/woodland_atlas.png')
+Image.open(ROOT/'assets/terrain/isometric/spritesheet.png').resize((264,264),Image.Resampling.NEAREST).save(ROOT/'assets/terrain/atlases/woodland_atlas.png')
 stone_defs=(ROOT/'tilesets/arena_tileset.tres').read_text()
 stone_tiles=[tuple(map(int,m)) for m in re.findall(r'^(\d+):(\d+)/0 =',stone_defs,re.M)]
-lines=['[gd_resource type="TileSet" format=3]','','[ext_resource type="Texture2D" path="res://assets/terrain/woodland_atlas.png" id="1"]','[ext_resource type="Texture2D" path="res://assets/terrain/stone_tiles.png" id="2"]','','[sub_resource type="TileSetAtlasSource" id="Nature"]','texture = ExtResource("1")','texture_region_size = Vector2i(24, 24)']
+lines=['[gd_resource type="TileSet" format=3]','','[ext_resource type="Texture2D" path="res://assets/terrain/atlases/woodland_atlas.png" id="1"]','[ext_resource type="Texture2D" path="res://assets/terrain/atlases/stone_tiles.png" id="2"]','','[sub_resource type="TileSetAtlasSource" id="Nature"]','texture = ExtResource("1")','texture_region_size = Vector2i(24, 24)']
 for i in range(121):
  x,y=i%11,i//11;lines += [f'{x}:{y}/0 = 0',f'{x}:{y}/0/texture_origin = Vector2i(0, -3)']
 lines+=['','[sub_resource type="TileSetAtlasSource" id="Stone"]','texture = ExtResource("2")','texture_region_size = Vector2i(32, 32)']
@@ -24,7 +24,7 @@ p=ROOT/'scenes/main.tscn';scene=p.read_text()
 if 'id="16_bush"' not in scene:
  scene=scene.replace('[sub_resource type="ShaderMaterial"','[ext_resource type="TileSet" path="res://tilesets/bush_tileset.tres" id="16_bush"]\n\n[sub_resource type="ShaderMaterial"',1)
 if 'id="15_coverage"' not in scene:
- scene=scene.replace('[sub_resource type="ShaderMaterial"','[ext_resource type="Script" path="res://scripts/TerrainCoverage.cs" id="15_coverage"]\n\n[sub_resource type="ShaderMaterial"',1)
+ scene=scene.replace('[sub_resource type="ShaderMaterial"','[ext_resource type="Script" path="res://scripts/arena/TerrainCoverage.cs" id="15_coverage"]\n\n[sub_resource type="ShaderMaterial"',1)
 battle=re.search(r'\[node name="TileMapLayer".*?(?=\[node)',scene,re.S).group()
 raw=base64.b64decode(re.search(r'PackedByteArray\("([^"]+)"',battle)[1])
 # Center the board on deployment rows 14, 18, 22: equal two-cell margins.

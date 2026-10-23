@@ -1,0 +1,12 @@
+{
+  "assets/ui/cards/deco": "assets/cards/packs/deco",
+  "assets/ui/cards/fageltomten": "assets/cards/packs/fageltomten",
+  "assets/ui/cards": "assets/cards",
+  "assets/special_cards": "assets/cards/special",
+  "assets/free-paladin-pixel-art-skill-icons": "assets/ui/skill_icons/paladin",
+  "assets/ui/Pixel UI pack 4": "assets/ui/pixel_pack_4",
+  "assets/terrain/critters": "assets/characters/wildlife",
+  "assets/effects/four-fire_v1.1.0": "assets/effects/packs/four_fire_v1_1_0",
+  "assets/terrain/stone_tiles.png": "assets/terrain/atlases/stone_tiles.png",
+  "assets/terrain/woodland_atlas.png": "assets/terrain/atlases/woodland_atlas.png"
+}

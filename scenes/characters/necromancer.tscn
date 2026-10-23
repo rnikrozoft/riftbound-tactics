@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Necromancer/Necromancer/Necromancer_Hurt.png" id="tex4"]
 [ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Necromancer/Necromancer/Necromancer_DEATH.png" id="tex5"]
 [ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Necromancer/Necromancer/Necromancer_Summon.png" id="summon"]
-[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="script"]
+[ext_resource type="Script" path="res://scripts/combat/BattleUnit.cs" id="script"]
 
 [sub_resource type="AtlasTexture" id="f0_0"]
 atlas = ExtResource("tex0")

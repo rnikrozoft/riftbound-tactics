@@ -14,7 +14,7 @@ Network. This setting is separate from developer certificate trust.
 
 Nakama 3.17 TinyJson uses reflection for API/socket models and collection capacity
 constructors. iOS NativeAOT must retain the Nakama assembly and the constructors
-listed in `scripts/NakamaAot.xml`; otherwise authentication may successfully reach
+listed in `scripts/network/NakamaAot.xml`; otherwise authentication may successfully reach
 the backend but fail in `Session.Update` with a NullReferenceException.
 
 For an on-device smoke test, launch the debug app with environment variables

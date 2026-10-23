@@ -24,7 +24,7 @@ The floor cube uses texture_origin (0, -6), matching its original top-diamond ce
 
 Experimental asset mix: GardenTrees now uses bush_tileset.tres built from 34 original BUSH BUSH BUSH sprite regions. Runtime bushes use the derived 48px atlas with a bottom anchor; green variants dominate and seasonal colours form small groups. CardCatalog.Art uses the restored original DecoCards/DecoCard.png frame, retaining character portraits, idle animation, stats, drag behaviour and equipped card-back selection.
 
-Card stat badges use the original grey, gold and copper circle sprites from assets/ui/cards/card_frames.png. The upper-right weapon badge is omitted. Stats and icons ignore mouse input and stay within card padding, including drag previews.
+Card stat badges use the original grey, gold and copper circle sprites from assets/cards/card_frames.png. The upper-right weapon badge is omitted. Stats and icons ignore mouse input and stay within card padding, including drag previews.
 
 Stat badges now use the patterned circular discs from card_frames.png (orange price, blue armour, red HP). The discs are 28px on shop cards and 22px on hand cards, with unclipped text. The upper-right weapon badge has been removed.
 

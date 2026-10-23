@@ -1,6 +1,6 @@
 [gd_scene format=3]
-[ext_resource type="Texture2D" path="res://assets/special_cards/fire_mine/fire_mine_sheet_v1.png" id="sheet"]
-[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="script"]
+[ext_resource type="Texture2D" path="res://assets/cards/special/fire_mine/fire_mine_sheet_v1.png" id="sheet"]
+[ext_resource type="Script" path="res://scripts/combat/BattleUnit.cs" id="script"]
 [sub_resource type="AtlasTexture" id="f0"]
 atlas = ExtResource("sheet")
 region = Rect2(0.0, 0.0, 443.5, 443.5)

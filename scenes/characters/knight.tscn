@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/characters/knight/knight_atlas.png" id="1_wtcfe"]
 
-[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="2_health"]
+[ext_resource type="Script" path="res://scripts/combat/BattleUnit.cs" id="2_health"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wtcfe"]
 atlas = ExtResource("1_wtcfe")

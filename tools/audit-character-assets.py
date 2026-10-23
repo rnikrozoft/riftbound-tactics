@@ -7,14 +7,14 @@ from collections import defaultdict
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-catalog = json.loads((root / 'data/characters.json').read_text())
+catalog = json.loads((root / 'data/characters.json').read_text(encoding='utf-8'))
 by_group = defaultdict(set)
 by_textures = defaultdict(set)
 for card in catalog['characters']:
     if not card['enabled']:
         continue
     scene = root / card['scene_path'].removeprefix('res://')
-    textures = re.findall(r'path="(res://[^"\n]+\.png)"', scene.read_text())
+    textures = re.findall(r'path="(res://[^"\n]+\.png)"', scene.read_text(encoding='utf-8'))
     if not textures:
         raise SystemExit('Missing texture references: ' + str(scene))
     signature = tuple(sorted(hashlib.sha256((root / path.removeprefix('res://')).read_bytes()).hexdigest() for path in textures))

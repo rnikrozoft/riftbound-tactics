@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Attack02.png" id="tex3"]
 [ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Hurt.png" id="tex4"]
 [ext_resource type="Texture2D" path="res://assets/characters/packs/tiny_rpg_01/Characters(100x100 split)/Bat/Bat/Bat_Death.png" id="tex5"]
-[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="script"]
+[ext_resource type="Script" path="res://scripts/combat/BattleUnit.cs" id="script"]
 
 [sub_resource type="AtlasTexture" id="f0_0"]
 atlas = ExtResource("tex0")

@@ -1,6 +1,6 @@
 # Special cards
 
-Nine generated transparent sheets live in `assets/special_cards/<character_id>/`. Each sheet has four columns and two rows: four looping front frames for the player, four rear frames for the opponent. Scenes use the first row; `enemy_animation_path` uses the second row without horizontal mirroring. Idle playback is 5 FPS. Original Healing Totem keeps its existing eight-frame sheets.
+Nine generated transparent sheets live in `assets/cards/special/<character_id>/`. Each sheet has four columns and two rows: four looping front frames for the player, four rear frames for the opponent. Scenes use the first row; `enemy_animation_path` uses the second row without horizontal mirroring. Idle playback is 5 FPS. Original Healing Totem keeps its existing eight-frame sheets.
 
 All ten support cards are available in each player’s shop pool (one copy each), gated by shop level and card cost. They deploy only to the five support slots, cannot attack or be targeted, and do not contribute survivor damage. Hero deck construction still uses 30 hero cards.
 

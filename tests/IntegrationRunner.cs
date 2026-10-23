@@ -19,7 +19,7 @@ public partial class IntegrationRunner : Node
     private int FreshOffer()
     {
         for(int attempt=0;attempt<100;attempt++) {
-            var card = _shop.Offers.FirstOrDefault(c=>!_shop.Hand.Any(h=>h.Name==c.Name)&&!_shop.Deployed.Values.Any(d=>d.Card.Name==c.Name));
+            var card = _shop.Offers.FirstOrDefault(c=>!CharacterData.IsSupport(Array.FindIndex(CharacterData.All,d=>d.Name==c.Name))&&!_shop.Hand.Any(h=>h.Name==c.Name)&&!_shop.Deployed.Values.Any(d=>d.Card.Name==c.Name));
             if(card!=null) return card.Token;
             _shop.RollShop();
         }
@@ -89,7 +89,10 @@ public partial class IntegrationRunner : Node
             }
             _shop.ConfirmTurn(); Check(_shop.Drafting,"Battle requires an ally");
 
-            await Drag(_shop.ShopRow.GetChild<ShopCard>(0).GetGlobalRect().GetCenter(),new(60,230));
+            // The first offer may be a support card, which belongs in the back row.
+            int firstHeroOffer=_shop.Offers.FindIndex(c=>!CharacterData.IsSupport(Array.FindIndex(CharacterData.All,d=>d.Name==c.Name)));
+            Check(firstHeroOffer>=0,"Hero offer available for six-slot drag test");
+            await Drag(_shop.ShopRow.GetChild<ShopCard>(firstHeroOffer).GetGlobalRect().GetCenter(),new(60,230));
             Check(_shop.Hand.Count == 1,"Loose shop drop buys");
             int token = _shop.Hand[0].Token;
             await Click(_shop.HandRow.GetChild<ShopCard>(0).GetGlobalRect().GetCenter());
@@ -127,16 +130,17 @@ public partial class IntegrationRunner : Node
             while (_shop.Hand.Count < 10)
             { Check(_shop.TakeCard(FreshOffer()),"Distinct purchase for full hand"); }
             Check(!_shop.TakeCard(FreshOffer()),"Full hand rejects purchase");
-            int viewCount = _shop.HandRow.GetChildCount();
+            int viewCount = _shop.HandRow.GetChildren().OfType<ShopCard>().Count();
             Check(viewCount == 10,"Views capped at ten");
             Check(!_shop.CanReturnUnit(first),"Full hand rejects return");
             Check(_shop.SellCard(_shop.Hand[0].Token),"Sell one");
-            Check(_shop.HandRow.GetChildCount() == viewCount,"UI controls reused");
+            Check(_shop.HandRow.GetChildren().OfType<ShopCard>().Count() == viewCount,"UI controls reused");
             foreach (var entry in _shop.Deployed.Values)
                 foreach (var anim in entry.Unit.Sprite.SpriteFrames.GetAnimationNames()) entry.Unit.Sprite.SpriteFrames.SetAnimationSpeed(anim,60);
             _shop.ShowUnitDetails(first);
-            first.TakeDamage(1);
-            Check(_shop.DetailsText.Text.Contains("HP  99"),"Health signal updates popup");
+            // Pierce current armor so this checks a health change for every character.
+            int woundedHealth=first.Health-1;first.TakeDamage(first.Armor+1);
+            Check(_shop.DetailsText.Text.Contains($"HP  {woundedHealth}"),"Health signal updates popup");
             first.ResetHealth(); _shop.CloseDetails();
             var probe = new CardDrag { Shop = _shop,Unit = first };
             var probePosition = _shop.Tiles.ToGlobal(_shop.SlotCenters[1]);
@@ -160,15 +164,15 @@ public partial class IntegrationRunner : Node
             Check(_shop.Details.Visible,"Unit inspect during combat");
             _shop.CloseDetails();
             await Until(() => _shop.Finished,"Combat did not finish");
-            Check(_battle.TurnCount == 11,"Alternating combat reaches winner");
+            Check(_shop.ReplayPlan!=null && _battle.TurnCount>0 && _battle.TurnCount==_shop.ReplayPlan.Events.Length,"All current combat-plan events displayed");
             var dead = _field.GetChildren().OfType<BattleUnit>().First(u => u.IsDead);
             Check(_shop.PickDetailUnit(dead.GlobalPosition) != null,"Dead units remain selectable");
             await Click(Screen(_field.ToGlobal(dead.Position + new Vector2(0,-8))));
-            Check(_shop.Details.Visible && _shop.DetailsText.Text.Contains("DEAD"),"Native dead-unit inspect");
+            Check(_shop.Details.Visible && dead.Health==0 && _shop.DetailsText.Text.Contains($"HP  {dead.Health}"),"Native dead-unit inspect");
             _shop.CloseDetails();
             _shop.ConfirmTurn(); await Until(() => _shop.Drafting && _shop.TurnNumber == 2,"Next round");
             Check(_shop.Deployed.Count == 6 && _shop.Hand.Count == 9 && _shop.Offers.Count == _shop.OfferLimit,"Cards persist across rounds");
-            foreach (var entry in _shop.Deployed.Values) Check(!entry.Unit.IsDead && entry.Unit.Health == 100,"Round resets HP");
+            foreach (var entry in _shop.Deployed.Values) Check(!entry.Unit.IsDead && entry.Unit.Health == entry.Unit.MaxHealth,"Round resets HP");
             Check(!_shop.CanReturnUnit(first),"Veteran cannot return even with hand capacity");
             await Frames();
             await Drag(Screen(_field.ToGlobal(first.Position + new Vector2(0,-18))),_shop.ShopRow.GetChild<ShopCard>(0).GetGlobalRect().GetCenter());

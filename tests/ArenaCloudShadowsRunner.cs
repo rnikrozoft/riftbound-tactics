@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 public partial class ArenaCloudShadowsRunner:Node
 {
@@ -12,10 +13,10 @@ public partial class ArenaCloudShadowsRunner:Node
         clouds.SetProcess(false);
         if(clouds.Surface.Size.X<1200||clouds.Surface.Size.Y<700)throw new Exception("Cloud surface does not cover the viewport");
         clouds.Surface.Hide();await Render();
-        using var clear=GetViewport().GetTexture().GetImage();clear.SavePng("/tmp/riftbound-cloud-shadows-off.png");clouds.Surface.Show();clouds.Material.SetShaderParameter("elapsed_seconds",0f);await Render();
-        using var first=GetViewport().GetTexture().GetImage();first.SavePng("/tmp/riftbound-cloud-shadows-0.png");
+        using var clear=GetViewport().GetTexture().GetImage();clear.SavePng(Path.Combine(Path.GetTempPath(),"riftbound-cloud-shadows-off.png"));clouds.Surface.Show();clouds.Material.SetShaderParameter("elapsed_seconds",0f);await Render();
+        using var first=GetViewport().GetTexture().GetImage();first.SavePng(Path.Combine(Path.GetTempPath(),"riftbound-cloud-shadows-0.png"));
         clouds.Material.SetShaderParameter("elapsed_seconds",22f);await Render();
-        using var later=GetViewport().GetTexture().GetImage();later.SavePng("/tmp/riftbound-cloud-shadows-22.png");
+        using var later=GetViewport().GetTexture().GetImage();later.SavePng(Path.Combine(Path.GetTempPath(),"riftbound-cloud-shadows-22.png"));
         int shadowed=0;int dark=0;
         for(int y=0;y<later.GetHeight();y+=8)for(int x=0;x<later.GetWidth();x+=8)if(clear.GetPixel(x,y).R-later.GetPixel(x,y).R>.025f)shadowed++;
         for(int y=0;y<later.GetHeight();y+=8)for(int x=0;x<later.GetWidth();x+=8)if(clear.GetPixel(x,y).R-later.GetPixel(x,y).R>.09f)dark++;
@@ -30,7 +31,7 @@ public partial class ArenaCloudShadowsRunner:Node
         var originalScale=field.Scale;var originalPosition=field.Position;var beforeTransform=field.GetGlobalTransformWithCanvas();
         var center=GetViewport().GetVisibleRect().Size/2;
         field.Scale*=1.5f;field.Position=center+(field.Position-center)*1.5f;clouds.UpdateProjection();
-        await Render();using var zoomMask=GetViewport().GetTexture().GetImage();zoomMask.SavePng("/tmp/riftbound-cloud-shadows-zoom-mask.png");
+        await Render();using var zoomMask=GetViewport().GetTexture().GetImage();zoomMask.SavePng(Path.Combine(Path.GetTempPath(),"riftbound-cloud-shadows-zoom-mask.png"));
         var remap=field.GetGlobalTransformWithCanvas()*beforeTransform.AffineInverse();int checkedPixels=0,mismatched=0;
         for(int y=20;y<normalMask.GetHeight()-20;y+=12)for(int x=20;x<normalMask.GetWidth()-20;x+=12){
             var zoomed=remap*new Vector2(x,y);int zx=Mathf.RoundToInt(zoomed.X),zy=Mathf.RoundToInt(zoomed.Y);

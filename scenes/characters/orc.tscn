@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/orc/orc_walk.png" id="walk"]
 [ext_resource type="Texture2D" path="res://assets/characters/orc/orc_attack.png" id="attack"]
 [ext_resource type="Texture2D" path="res://assets/characters/orc/orc_hit.png" id="hit"]
-[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="health"]
+[ext_resource type="Script" path="res://scripts/combat/BattleUnit.cs" id="health"]
 [ext_resource type="Texture2D" path="res://assets/characters/orc/orc_death.png" id="die"]
 [sub_resource type="AtlasTexture" id="idle_0"]
 atlas = ExtResource("idle")

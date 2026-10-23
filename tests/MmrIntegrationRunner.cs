@@ -29,9 +29,15 @@ public partial class MmrIntegrationRunner : Node
  }
  private async Task Deploy(NakamaConnection c)
  {
-  while(Own(c).Hand.Length>0&&Own(c).Units.Length<6)
+  // Heroes and support cards have separate slot ranges in the current rules.
+  for(int step=0;step<11;step++)
   {
-   int slot=Enumerable.Range(0,6).First(s=>!Own(c).Units.Any(u=>u.Slot==s));await Act(c,"deploy",Own(c).Hand[0].Token,slot);
+   var own=Own(c);
+   var card=own.Hand.FirstOrDefault(h=>Enumerable.Range(CharacterData.IsSupport(h.Kind)?6:0,CharacterData.IsSupport(h.Kind)?5:6).Any(s=>!own.Units.Any(u=>u.Slot==s)));
+   if(card==null)return;
+   int slot=Enumerable.Range(CharacterData.IsSupport(card.Kind)?6:0,CharacterData.IsSupport(card.Kind)?5:6).First(s=>!own.Units.Any(u=>u.Slot==s));
+   await Act(c,"deploy",card.Token,slot);
+   Check(!Own(c).Hand.Any(h=>h.Token==card.Token),"deploy removed card from hand");
   }
  }
  public override void _Ready()=>Callable.From(Run).CallDeferred();

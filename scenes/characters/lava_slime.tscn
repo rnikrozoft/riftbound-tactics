@@ -10,7 +10,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/characters/lava_slime/lava_slime_death.png" id="die"]
 
-[ext_resource type="Script" path="res://scripts/BattleUnit.cs" id="unit"]
+[ext_resource type="Script" path="res://scripts/combat/BattleUnit.cs" id="unit"]
 
 [sub_resource type="AtlasTexture" id="idle_0"]
 atlas = ExtResource("idle")
